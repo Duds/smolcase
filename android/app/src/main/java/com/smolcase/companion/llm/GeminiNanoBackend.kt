@@ -22,6 +22,24 @@ class GeminiNanoBackend(private val context: Context, private val dials: Persona
     @Volatile private var ready = false
     @Volatile private var unavailable: String? = null
 
+    init {
+        // Probe availability at startup so the telemetry status line and
+        // logcat carry the real reason, not "not ready yet" forever.
+        scope.launch {
+            try {
+                when (model.checkStatus()) {
+                    FeatureStatus.AVAILABLE -> ready = true
+                    FeatureStatus.DOWNLOADABLE ->
+                        unavailable = "Gemini Nano needs a one-time model download"
+                    FeatureStatus.DOWNLOADING -> unavailable = "Gemini Nano is downloading"
+                    else -> unavailable = "Gemini Nano unavailable on this device"
+                }
+            } catch (e: Exception) {
+                unavailable = e.message
+            }
+        }
+    }
+
     override fun unavailableReason(): String? =
         if (ready) null else (unavailable ?: "Gemini Nano not ready yet")
 
