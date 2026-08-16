@@ -53,6 +53,13 @@ class ConversationEngine(context: Context, private val memory: MemoryStore) {
                             blinks = 1
                         )
                     )
+                } else {
+                    onReply(IntentRouter.unknownReply())
+                }
+            }
+        }
+    }
+
     @Volatile private var lastLoggedReason: String? = null
 
     /**
