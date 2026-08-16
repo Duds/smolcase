@@ -14,6 +14,7 @@ import java.util.Locale
  */
 class CreatureVoice(
     context: Context,
+    private val dials: PersonalityDials,
     private val eyes: TarsFaceView,
     private val allowSpeech: (Boolean) -> Unit
 ) {
@@ -21,6 +22,7 @@ class CreatureVoice(
 
     private val tts = TextToSpeech(context) { status ->
         if (status == TextToSpeech.SUCCESS) {
+            pickVoice()
             ready = true
         }
     }.apply {
@@ -51,8 +53,36 @@ class CreatureVoice(
         tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "smolcase-utterance")
     }
 
+    /**
+     * Voice choice: the saved preference wins; otherwise prefer a known
+     * male Google TTS voice (TARS is not a female-sounding robot), falling
+     * back to the first local English voice.
+     */
+    private fun pickVoice() {
+        val voices = tts.voices ?: return
+        val saved = dials.voiceName
+        val chosen = when {
+            saved != null -> voices.firstOrNull { it.name == saved }
+            else -> MALE_VOICE_IDS.firstNotNullOfOrNull { id ->
+                voices.firstOrNull { it.name == id }
+            }
+        } ?: voices.filter { it.locale.language == "en" }
+            .sortedBy { it.isNetworkConnectionRequired }
+            .firstOrNull()
+        chosen?.let { tts.voice = it }
+    }
+
     fun shutdown() {
         tts.stop()
         tts.shutdown()
+    }
+
+    companion object {
+        // Google TTS male English voice IDs, most-preferred first
+        private val MALE_VOICE_IDS = listOf(
+            "en-us-x-iom-local", "en-us-x-iom-network",
+            "en-us-x-tpd-local", "en-us-x-tpd-network",
+            "en-gb-x-gbb-local", "en-gb-x-gbb-network"
+        )
     }
 }

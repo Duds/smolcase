@@ -148,7 +148,7 @@ class MainActivity : ComponentActivity() {
             }
         ).also { it.start() }
         // Voice unmutes the streams (via VoiceEars.allowSpeech) only while speaking
-        voice = CreatureVoice(this, eyesView) { speaking ->
+        voice = CreatureVoice(this, dials, eyesView) { speaking ->
             ears?.allowSpeech(speaking)
         }
     }
