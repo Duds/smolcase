@@ -2,6 +2,8 @@ package com.smolcase.companion
 
 import android.graphics.Color
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.speech.tts.Voice
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
@@ -21,6 +23,11 @@ class SettingsActivity : ComponentActivity() {
 
     private lateinit var settings: LlmSettings
     private lateinit var dials: PersonalityDials
+
+    // Voice picker state: a throwaway TTS engine to enumerate and preview
+    private var voiceTts: TextToSpeech? = null
+    private var englishVoices: List<Voice> = emptyList()
+    private var voiceIndex = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,6 +106,38 @@ class SettingsActivity : ComponentActivity() {
         val (humorSeek, _) = dialRow("Humor", dials.humor)
         val (honestySeek, _) = dialRow("Honesty", dials.honesty)
 
+        // ---- voice picker ----
+        val voiceLabel = label("Voice: ${dials.voiceName ?: "auto (male)"}")
+        root.addView(voiceLabel)
+
+        voiceTts = TextToSpeech(this) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                voiceTts?.let { t ->
+                    t.setPitch(0.85f)      // preview matches the creature
+                    t.setSpeechRate(0.92f)
+                    englishVoices = t.voices
+                        .filter { it.locale.language == "en" }
+                        .sortedWith(compareBy({ it.isNetworkConnectionRequired }, { it.name }))
+                    voiceIndex = englishVoices.indexOfFirst { it.name == dials.voiceName }
+                }
+            }
+        }
+
+        val nextVoice = Button(this).apply {
+            text = "Next voice"
+            setOnClickListener {
+                val t = voiceTts ?: return@setOnClickListener
+                if (englishVoices.isEmpty()) return@setOnClickListener
+                voiceIndex = (voiceIndex + 1) % englishVoices.size
+                val v = englishVoices[voiceIndex]
+                t.voice = v
+                dials.voiceName = v.name // saved immediately, not on Save
+                voiceLabel.text = "Voice: ${v.name}"
+                t.speak("Systems nominal.", TextToSpeech.QUEUE_FLUSH, null, "voice-sample")
+            }
+        }
+        root.addView(nextVoice)
+
         val status = TextView(this).apply { setTextColor(Color.GREEN) }
         val save = Button(this).apply {
             text = "Save"
@@ -120,5 +159,11 @@ class SettingsActivity : ComponentActivity() {
         root.addView(status)
 
         setContentView(root)
+    }
+
+    override fun onDestroy() {
+        voiceTts?.stop()
+        voiceTts?.shutdown()
+        super.onDestroy()
     }
 }
