@@ -40,3 +40,4 @@ Thumbs.db
 
 # Verification screenshots (transient adb screencaps)
 logs/*.png
+models/*.litertlm
