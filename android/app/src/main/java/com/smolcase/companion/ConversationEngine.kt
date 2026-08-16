@@ -19,8 +19,9 @@ class ConversationEngine(context: Context, private val memory: MemoryStore) {
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private val settings = LlmSettings(context)
-    private val nano = GeminiNanoBackend(context.applicationContext)
-    private val kimi = KimiBackend(settings)
+    private val dials = PersonalityDials(context)
+    private val nano = GeminiNanoBackend(context.applicationContext, dials)
+    private val kimi = KimiBackend(settings, dials)
 
     fun handle(text: String, onReply: (IntentRouter.Reply) -> Unit) {
         // Known commands always win — instant and offline

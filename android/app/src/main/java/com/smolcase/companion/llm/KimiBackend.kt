@@ -1,5 +1,6 @@
 package com.smolcase.companion.llm
 
+import com.smolcase.companion.PersonalityDials
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.OutputStreamWriter
@@ -14,7 +15,7 @@ import kotlin.concurrent.thread
  * Base URL, API key, and model are configurable in Settings, so this can be
  * pointed at any compatible server (including a local one) without a rebuild.
  */
-class KimiBackend(private val settings: LlmSettings) : LlmBackend {
+class KimiBackend(private val settings: LlmSettings, private val dials: PersonalityDials) : LlmBackend {
 
     override fun unavailableReason(): String? =
         if (settings.kimiConfigured) null else "Kimi API key not set (long-press the face → Settings)"
@@ -38,7 +39,7 @@ class KimiBackend(private val settings: LlmSettings) : LlmBackend {
                             .put("role", "system")
                             .put(
                                 "content",
-                                CreaturePersona.PROMPT +
+                                CreaturePersona.prompt(dials.humor, dials.honesty) +
                                     "\n\nContext from the creature's memory:\n" + soulContext
                             )
                     )

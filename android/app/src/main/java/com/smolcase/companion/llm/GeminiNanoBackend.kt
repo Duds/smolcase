@@ -1,6 +1,7 @@
 package com.smolcase.companion.llm
 
 import android.content.Context
+import com.smolcase.companion.PersonalityDials
 import com.google.mlkit.genai.common.FeatureStatus
 import com.google.mlkit.genai.prompt.Generation
 import com.google.mlkit.genai.prompt.TextPart
@@ -13,7 +14,7 @@ import kotlinx.coroutines.launch
  * Gemini Nano on-device (Pixel 8 AICore) via ML Kit GenAI Prompt API
  * (genai-prompt 1.0.0-beta4). Private and offline — the default thinking layer.
  */
-class GeminiNanoBackend(private val context: Context) : LlmBackend {
+class GeminiNanoBackend(private val context: Context, private val dials: PersonalityDials) : LlmBackend {
 
     private val scope = CoroutineScope(Dispatchers.Default)
     private val model = Generation.getClient()
@@ -53,7 +54,7 @@ class GeminiNanoBackend(private val context: Context) : LlmBackend {
                     }
                 }
 
-                val prompt = CreaturePersona.PROMPT +
+                val prompt = CreaturePersona.prompt(dials.humor, dials.honesty) +
                     "\n\nContext from the creature's memory:\n" + soulContext +
                     "\n\nThe human says: " + userText
 
