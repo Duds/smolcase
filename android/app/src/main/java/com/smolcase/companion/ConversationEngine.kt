@@ -3,6 +3,7 @@ package com.smolcase.companion
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.smolcase.companion.llm.GeminiNanoBackend
 import com.smolcase.companion.llm.KimiBackend
 import com.smolcase.companion.llm.LlmBackend
@@ -13,7 +14,8 @@ import com.smolcase.companion.llm.LlmSettings
  *   1. IntentRouter handles the known command set (reminders, greetings)
  *   2. Unknown speech goes to the configured LLM (Gemini Nano or Kimi)
  *      with the soul-file context
- *   3. If the LLM is unavailable/fails, fall back to the charming "Hmm?"
+ *   3. If the LLM is unavailable/fails, fall back to the deadpan
+ *      "You'll have to rephrase that."
  */
 class ConversationEngine(context: Context, private val memory: MemoryStore) {
 
@@ -51,10 +53,28 @@ class ConversationEngine(context: Context, private val memory: MemoryStore) {
                             blinks = 1
                         )
                     )
-                } else {
-                    onReply(IntentRouter.unknownReply())
-                }
-            }
+    @Volatile private var lastLoggedReason: String? = null
+
+    /**
+     * One telemetry line describing the thinking layer's health, for the
+     * face feed ("LLM NANO OK" / "LLM NANO --"). The full reason goes to
+     * logcat (tag SmolcaseLLM) when it changes, for remote diagnosis.
+     */
+    fun statusLine(): String {
+        val (label, reason) = when (settings.backend) {
+            LlmSettings.Backend.RULES -> return "LLM RULES"
+            LlmSettings.Backend.NANO -> "NANO" to nano.unavailableReason()
+            LlmSettings.Backend.KIMI -> "KIMI" to
+                if (settings.kimiConfigured) kimi.unavailableReason() else "API key not set"
         }
+        if (reason != lastLoggedReason) {
+            lastLoggedReason = reason
+            if (reason != null) Log.w(TAG, "$label unavailable: $reason")
+        }
+        return if (reason == null) "LLM $label OK" else "LLM $label --"
+    }
+
+    companion object {
+        private const val TAG = "SmolcaseLLM"
     }
 }

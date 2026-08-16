@@ -79,6 +79,7 @@ class MainActivity : ComponentActivity() {
                 },
                 { memory.getReminders().firstOrNull()?.let { "REM: ${it.uppercase(Locale.US)}" } },
                 { "HUMOR ${dials.humor} · HONESTY ${dials.honesty}" },
+                { conversation.statusLine() },
                 {
                     val bm = getSystemService(BatteryManager::class.java)
                     "PWR ${bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)}%"
