@@ -27,12 +27,15 @@ class GeminiNanoBackend(private val context: Context, private val dials: Persona
         // logcat carry the real reason, not "not ready yet" forever.
         scope.launch {
             try {
-                when (model.checkStatus()) {
+                val status = model.checkStatus()
+                when (status) {
                     FeatureStatus.AVAILABLE -> ready = true
                     FeatureStatus.DOWNLOADABLE ->
                         unavailable = "Gemini Nano needs a one-time model download"
                     FeatureStatus.DOWNLOADING -> unavailable = "Gemini Nano is downloading"
-                    else -> unavailable = "Gemini Nano unavailable on this device"
+                    else -> unavailable =
+                        "Gemini Nano unavailable on this device (raw status=$status; " +
+                        "no Google account signed in blocks AICore provisioning)"
                 }
             } catch (e: Exception) {
                 unavailable = e.message
