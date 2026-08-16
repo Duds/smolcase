@@ -25,7 +25,7 @@ class ConversationEngine(context: Context, private val memory: MemoryStore) {
 
     fun handle(text: String, onReply: (IntentRouter.Reply) -> Unit) {
         // Known commands always win — instant and offline
-        IntentRouter.route(text, memory)?.let { onReply(it); return }
+        IntentRouter.route(text, memory, dials)?.let { onReply(it); return }
 
         val backend: LlmBackend? = when (settings.backend) {
             LlmSettings.Backend.NANO -> nano

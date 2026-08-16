@@ -18,8 +18,30 @@ object IntentRouter {
      * Route known commands. Returns null for unrecognized speech so the
      * caller can fall through to the LLM layer.
      */
-    fun route(rawText: String, memory: MemoryStore): Reply? {
+    fun route(rawText: String, memory: MemoryStore, dials: PersonalityDials): Reply? {
         val text = rawText.lowercase().trim()
+
+        // Personality dials: "set humor to 90" / "honesty 50 percent"
+        DialCommand.parse(text)?.let { result ->
+            return when (result) {
+                is DialCommand.Result.Set -> {
+                    when (result.dial) {
+                        DialCommand.Dial.HUMOR -> dials.humor = result.value
+                        DialCommand.Dial.HONESTY -> dials.honesty = result.value
+                    }
+                    val name = if (result.dial == DialCommand.Dial.HUMOR) "Humor" else "Honesty"
+                    Reply(
+                        "$name setting at ${result.value} percent.",
+                        excitement = 0.2f, happy = 0.2f, blinks = 0
+                    )
+                }
+                is DialCommand.Result.Rejected ->
+                    Reply(
+                        "Dials run zero to one hundred. ${result.value} is not on the dial.",
+                        excitement = 0.1f, happy = 0.1f, blinks = 0
+                    )
+            }
+        }
 
         // "remind me to call mum" / "remind me call mum"
         val remindMatch = Regex("""remind me(?: to)? (.+)""").find(text)
