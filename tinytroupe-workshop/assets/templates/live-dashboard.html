@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Simulation Dashboard</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --card-hover: #334155;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    --purple: #a78bfa;
+    --pink: #f472b6;
+    --border: #334155;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 16px;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .live-pill {
+    background: var(--danger);
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border-radius: 999px;
+    animation: pulse-live 2s infinite;
+  }
+  @keyframes pulse-live {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(248,113,113,0.4); }
+    50% { opacity: 0.85; box-shadow: 0 0 0 6px rgba(248,113,113,0); }
+  }
+  .activity-badge {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Progress */
+  .progress-wrap {
+    margin-bottom: 16px;
+  }
+  .progress-bar-bg {
+    height: 6px;
+    background: var(--card);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--success));
+    border-radius: 3px;
+    transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+    position: relative;
+  }
+  .progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    right: 0; top: -2px; bottom: -2px;
+    width: 3px;
+    background: white;
+    border-radius: 2px;
+    box-shadow: 0 0 8px var(--accent);
+    animation: progress-glow 1.5s infinite;
+  }
+  @keyframes progress-glow {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* Agent Grid */
+  .agent-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .agent-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .agent-card.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(56,189,248,0.15);
+  }
+  .agent-card.speaking {
+    border-color: var(--success);
+    box-shadow: 0 0 16px rgba(74,222,128,0.2);
+  }
+  .agent-card.thinking {
+    border-color: var(--warning);
+  }
+  .agent-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; font-weight: 700;
+    background: linear-gradient(135deg, var(--purple), var(--pink));
+    color: white;
+  }
+  .agent-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .agent-role {
+    font-size: 0.6rem;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .agent-status {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .status-idle { background: #1e293b; color: var(--muted); }
+  .status-thinking { background: rgba(251,191,36,0.15); color: var(--warning); }
+  .status-typing { background: rgba(56,189,248,0.15); color: var(--accent); }
+  .status-speaking { background: rgba(74,222,128,0.15); color: var(--success); }
+
+  /* Typing dots */
+  .typing-dots {
+    display: inline-flex;
+    gap: 2px;
+    align-items: center;
+    margin-left: 4px;
+  }
+  .typing-dots span {
+    width: 4px; height: 4px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: typing-bounce 1.2s infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes typing-bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-4px); }
+  }
+
+  /* Thinking spinner */
+  .thinking-spinner {
+    width: 14px; height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--warning);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Transcript */
+  .transcript {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    max-height: 280px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+  }
+  .transcript h3 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .msg {
+    margin-bottom: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(30,41,59,0.6);
+    border-left: 3px solid var(--accent);
+    animation: msg-in 0.3s ease;
+  }
+  @keyframes msg-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .msg-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .msg-name {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .msg-time {
+    font-size: 0.6rem;
+    color: var(--muted);
+  }
+  .msg-body {
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: var(--text);
+  }
+
+  /* Stats Row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .stat-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .stat-box .num {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .stat-box .lbl {
+    font-size: 0.6rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Sentiment Gauge */
+  .sentiment-gauge {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .sentiment-gauge h3 {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .gauge-arc {
+    width: 100px; height: 50px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .gauge-arc svg {
+    width: 100%; height: 100%;
+    transform: rotate(-90deg);
+  }
+  .gauge-bg { stroke: var(--border); stroke-width: 8; fill: none; }
+  .gauge-fill {
+    stroke: var(--accent);
+    stroke-width: 8;
+    fill: none;
+    stroke-dasharray: 157;
+    stroke-dashoffset: 157;
+    transition: stroke-dashoffset 1s ease;
+    stroke-linecap: round;
+  }
+  .gauge-label {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  /* Completion state */
+  .complete-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  .complete-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .complete-icon {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--success), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 16px;
+    animation: complete-pop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes complete-pop {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+  }
+  .complete-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .complete-sub {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>
+      <span class="live-pill">Live</span>
+      Simulation Dashboard
+    </h1>
+    <span class="activity-badge" id="activity-badge">Focus Group</span>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <div class="progress-meta">
+      <span id="step-label">Step 0 of 20</span>
+      <span id="eta-label">~3 min remaining</span>
+    </div>
+  </div>
+
+  <div class="agent-grid" id="agent-grid">
+    <!-- Agents injected by JS -->
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="num" id="stat-turns">0</div>
+      <div class="lbl">Turns</div>
+    </div>
+    <div class="stat-box">
+      <div class="num" id="stat-cost">$0.00</div>
+      <div class="lbl">Est. Cost</div>
+    </div>
+    <div class="stat-box">
+      <div class="num" id="stat-time">0:00</div>
+      <div class="lbl">Elapsed</div>
+    </div>
+  </div>
+
+  <div class="transcript" id="transcript">
+    <h3>Live Transcript</h3>
+    <div id="msg-list"></div>
+  </div>
+
+  <div class="sentiment-gauge">
+    <h3>Sentiment Gauge</h3>
+    <div class="gauge-arc">
+      <svg viewBox="0 0 100 50">
+        <path class="gauge-bg" d="M 10 50 A 40 40 0 0 1 90 50" />
+        <path class="gauge-fill" id="gauge-fill" d="M 10 50 A 40 40 0 0 1 90 50" />
+      </svg>
+      <div class="gauge-label" id="gauge-label">Neutral</div>
+    </div>
+  </div>
+
+  <div class="complete-overlay" id="complete-overlay">
+    <div class="complete-icon">✓</div>
+    <div class="complete-title">Simulation Complete</div>
+    <div class="complete-sub" id="complete-sub">13 turns · 4 agents · Mixed sentiment</div>
+  </div>
+
+<script>
+  // Demo data — in production, this comes from the simulation via slot updates
+  const agents = [
+    { name: 'Jordan Okafor', role: 'Staff Engineer', initials: 'JO', color: 'linear-gradient(135deg,#a78bfa,#f472b6)' },
+    { name: 'Avery Williams', role: 'DX Engineer', initials: 'AW', color: 'linear-gradient(135deg,#38bdf8,#4ade80)' },
+    { name: 'Elena Varga', role: 'Service Designer', initials: 'EV', color: 'linear-gradient(135deg,#fbbf24,#f87171)' },
+    { name: 'Maya', role: 'Moderator', initials: 'M', color: 'linear-gradient(135deg,#94a3b8,#64748b)' },
+  ];
+
+  const totalSteps = 20;
+  let currentStep = 0;
+  let startTime = Date.now();
+
+  // Render agents
+  const grid = document.getElementById('agent-grid');
+  agents.forEach(a => {
+    const card = document.createElement('div');
+    card.className = 'agent-card';
+    card.id = `agent-${a.initials}`;
+    card.innerHTML = `
+      <div class="agent-avatar" style="background:${a.color}">${a.initials}</div>
+      <div class="agent-name">${a.name}</div>
+      <div class="agent-role">${a.role}</div>
+      <span class="agent-status status-idle" id="status-${a.initials}">Idle</span>
+    `;
+    grid.appendChild(card);
+  });
+
+  function setAgentStatus(initials, status) {
+    const card = document.getElementById(`agent-${initials}`);
+    const badge = document.getElementById(`status-${initials}`);
+    if (!card || !badge) return;
+    card.className = 'agent-card ' + (status === 'speaking' ? 'speaking' : status === 'thinking' ? 'thinking' : status === 'typing' ? 'active' : '');
+    badge.className = 'agent-status status-' + status;
+    if (status === 'typing') {
+      badge.innerHTML = 'Typing<span class="typing-dots"><span></span><span></span><span></span></span>';
+    } else if (status === 'thinking') {
+      badge.innerHTML = 'Thinking<span class="thinking-spinner"></span>';
+    } else {
+      badge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+    }
+  }
+
+  function addMessage(agent, text) {
+    const list = document.getElementById('msg-list');
+    const msg = document.createElement('div');
+    msg.className = 'msg';
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    msg.innerHTML = `
+      <div class="msg-header">
+        <span class="msg-name">${agent}</span>
+        <span class="msg-time">${time}</span>
+      </div>
+      <div class="msg-body">${text}</div>
+    `;
+    list.appendChild(msg);
+    const transcript = document.getElementById('transcript');
+    transcript.scrollTop = transcript.scrollHeight;
+    document.getElementById('stat-turns').textContent = list.children.length;
+  }
+
+  function updateProgress(step) {
+    currentStep = step;
+    const pct = (step / totalSteps) * 100;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('step-label').textContent = `Step ${step} of ${totalSteps}`;
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const mins = Math.floor(elapsed / 60);
+    const secs = elapsed % 60;
+    document.getElementById('stat-time').textContent = `${mins}:${secs.toString().padStart(2,'0')}`;
+    const estCost = (step * 0.03).toFixed(2);
+    document.getElementById('stat-cost').textContent = `$${estCost}`;
+  }
+
+  function updateSentiment(value) {
+    // value: -1 (negative) to 1 (positive), 0 = neutral
+    const fill = document.getElementById('gauge-fill');
+    const label = document.getElementById('gauge-label');
+    const offset = 157 - ((value + 1) / 2) * 157;
+    fill.style.strokeDashoffset = offset;
+    if (value > 0.3) { fill.style.stroke = 'var(--success)'; label.textContent = 'Positive'; label.style.color = 'var(--success)'; }
+    else if (value < -0.3) { fill.style.stroke = 'var(--danger)'; label.textContent = 'Negative'; label.style.color = 'var(--danger)'; }
+    else { fill.style.stroke = 'var(--warning)'; label.textContent = 'Mixed'; label.style.color = 'var(--warning)'; }
+  }
+
+  function showComplete() {
+    document.getElementById('complete-overlay').classList.add('show');
+  }
+
+  // Demo simulation sequence
+  const demoScript = [
+    { delay: 800,  action: () => { setAgentStatus('M', 'typing'); } },
+    { delay: 2000, action: () => { setAgentStatus('M', 'speaking'); addMessage('Maya', "Welcome everyone. Let's discuss this AI dev tool concept. Jordan, what's your first reaction?"); updateProgress(1); } },
+    { delay: 1500, action: () => { setAgentStatus('M', 'idle'); setAgentStatus('JO', 'thinking'); } },
+    { delay: 2500, action: () => { setAgentStatus('JO', 'typing'); } },
+    { delay: 2000, action: () => { setAgentStatus('JO', 'speaking'); addMessage('Jordan Okafor', "The inline predictions are interesting, but I worry about the authority problem. When the tool is wrong, it sounds exactly right."); updateProgress(2); updateSentiment(-0.2); } },
+    { delay: 1500, action: () => { setAgentStatus('JO', 'idle'); setAgentStatus('AW', 'thinking'); } },
+    { delay: 2200, action: () => { setAgentStatus('AW', 'typing'); } },
+    { delay: 2000, action: () => { setAgentStatus('AW', 'speaking'); addMessage('Avery Williams', "That's exactly my concern. The core DX failure isn't wrong output — it's a UI that makes wrong output feel already reviewed."); updateProgress(3); updateSentiment(-0.3); } },
+    { delay: 1500, action: () => { setAgentStatus('AW', 'idle'); setAgentStatus('EV', 'thinking'); } },
+    { delay: 2800, action: () => { setAgentStatus('EV', 'typing'); } },
+    { delay: 2000, action: () => { setAgentStatus('EV', 'speaking'); addMessage('Elena Varga', "In my world, the cost of a confident error doesn't land on the developer. It lands on a citizen weeks later, on a phone line, with no idea what changed."); updateProgress(4); updateSentiment(-0.4); } },
+    { delay: 1500, action: () => { setAgentStatus('EV', 'idle'); setAgentStatus('M', 'typing'); } },
+    { delay: 1800, action: () => { setAgentStatus('M', 'speaking'); addMessage('Maya', "Strong concerns so far. Does anyone see a scenario where this tool is genuinely valuable?"); updateProgress(5); } },
+    { delay: 1500, action: () => { setAgentStatus('M', 'idle'); setAgentStatus('JO', 'thinking'); } },
+    { delay: 2500, action: () => { setAgentStatus('JO', 'typing'); } },
+    { delay: 2000, action: () => { setAgentStatus('JO', 'speaking'); addMessage('Jordan Okafor', "Yes — as a hypothesis generator. If it says 'I found these three symbols but couldn't verify the constraint,' that's useful. The danger is when it just says 'yes, it's safe.'"); updateProgress(6); updateSentiment(0.1); } },
+    { delay: 1200, action: () => { setAgentStatus('JO', 'idle'); setAgentStatus('AW', 'thinking'); } },
+    { delay: 2000, action: () => { setAgentStatus('AW', 'typing'); } },
+    { delay: 2000, action: () => { setAgentStatus('AW', 'speaking'); addMessage('Avery Williams', "Agreed. Plausible-but-imperfect is acceptable only in exploration mode, never authority mode. The metric I care about is time-to-correct-action, not time-to-any-answer."); updateProgress(7); updateSentiment(0.2); } },
+    { delay: 1200, action: () => { setAgentStatus('AW', 'idle'); setAgentStatus('EV', 'thinking'); } },
+    { delay: 2200, action: () => { setAgentStatus('EV', 'typing'); } },
+    { delay: 2000, action: () => { setAgentStatus('EV', 'speaking'); addMessage('Elena Varga', "If the tool surfaced uncertainty — 'here's my reading, here's what I couldn't verify, here's who to ask' — it becomes a genuinely useful starting point. Trust calibration is a design property, not a model property."); updateProgress(8); updateSentiment(0.3); } },
+    { delay: 1500, action: () => { setAgentStatus('EV', 'idle'); setAgentStatus('M', 'typing'); } },
+    { delay: 1800, action: () => { setAgentStatus('M', 'speaking'); addMessage('Maya', "Great. So the consensus is: valuable if designed with structural safeguards against over-trust. Let's capture that."); updateProgress(10); } },
+    { delay: 2000, action: () => { showComplete(); } },
+  ];
+
+  // Run demo
+  let elapsed = 0;
+  demoScript.forEach(item => {
+    elapsed += item.delay;
+    setTimeout(item.action, elapsed);
+  });
+
+  // Keep timer updating
+  setInterval(() => {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const mins = Math.floor(elapsed / 60);
+    const secs = elapsed % 60;
+    document.getElementById('stat-time').textContent = `${mins}:${secs.toString().padStart(2,'0')}`;
+  }, 1000);
+</script>
+</body>
+</html>

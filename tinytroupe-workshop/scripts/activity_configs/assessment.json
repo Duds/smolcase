@@ -1,0 +1,13 @@
+{
+  "name": "assessment_llm_support",
+  "activity_type": "assessment",
+  "personas": [
+    "assets/personas/jordan-staff-engineer.agent.json",
+    "assets/personas/thomas-strategy-consultant.agent.json",
+    "assets/personas/robert-enterprise-architect.agent.json"
+  ],
+  "world_name": "Review Panel",
+  "steps": 16,
+  "rubric": "Evaluate on these criteria (score 1-5 each): 1. INNOVATION — Novelty and creative approach. 2. FEASIBILITY — Likelihood of successful execution. 3. IMPACT — Potential benefit if successful. 4. CLARITY — Quality of presentation and reasoning.",
+  "stimulus": "Proposal: Use LLM agents to automate first-line customer support for a mid-sized e-commerce company (500 support tickets/day). The system would handle returns, refunds, and order tracking autonomously, escalating only 20% of cases to humans. Claimed cost reduction: 60%."
+}

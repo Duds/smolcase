@@ -1,0 +1,42 @@
+# Python / ML
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# MuJoCo / Simulation
+*.mjb
+MUJOCO_LOG.TXT
+*.mjcf.bak
+
+# Training artifacts (large binary models are tracked, but keep these out)
+*.pt
+*.pth
+*.onnx
+*.pb
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs (we track tensorboard events but not raw console dumps)
+*.log
+
+# Gradle build cache
+.gradle/
+
+# Verification screenshots (transient adb screencaps)
+logs/*.png

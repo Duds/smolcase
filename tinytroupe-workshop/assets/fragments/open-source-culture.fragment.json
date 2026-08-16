@@ -1,0 +1,15 @@
+{
+    "type": "Fragment",
+    "persona": {
+        "preferences": {
+            "interests": ["Open source", "Developer tooling", "Technical writing", "Community building"],
+            "likes": ["Well-documented APIs", "Clear contribution guidelines", "Responsive maintainers"],
+            "dislikes": ["BSL licenses", "Hostile issue responses", "Undocumented magic"]
+        },
+        "beliefs": [
+            "Open source is infrastructure, not charity.",
+            "Good documentation reduces support burden.",
+            "Community health is a leading indicator of project success."
+        ]
+    }
+}

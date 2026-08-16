@@ -1,0 +1,13 @@
+{
+  "name": "brainstorm_remote_culture",
+  "activity_type": "brainstorm",
+  "personas": [
+    "assets/personas/avery-dx-engineer.agent.json",
+    "assets/personas/lars-industrial-designer.agent.json",
+    "assets/personas/elena-service-designer.agent.json"
+  ],
+  "facilitator_name": "Alex",
+  "world_name": "Brainstorm Studio",
+  "steps": 12,
+  "stimulus": "Generate names and taglines for a new app that helps remote teams build culture through daily 5-minute async activities. Think about what makes distributed teams feel connected without adding meeting load."
+}

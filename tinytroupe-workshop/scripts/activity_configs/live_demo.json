@@ -1,0 +1,13 @@
+{
+  "name": "live_demo_ai_devtools",
+  "activity_type": "focus_group",
+  "personas": [
+    "assets/personas/jordan-staff-engineer.agent.json",
+    "assets/personas/avery-dx-engineer.agent.json",
+    "assets/personas/elena-service-designer.agent.json"
+  ],
+  "moderator_name": "Maya",
+  "world_name": "Focus Group Studio",
+  "steps": 6,
+  "stimulus": "We're building an AI-powered development environment that predicts your next edit, auto-generates tests from comments, and explains legacy code on demand via chat. It costs $25/month per developer and integrates with VS Code and JetBrains. Please evaluate this concept from your professional perspective. What appeals to you? What concerns you? Would you advocate for adoption?"
+}

@@ -1,0 +1,15 @@
+{
+    "type": "Fragment",
+    "persona": {
+        "preferences": {
+            "interests": ["Systems thinking", "Business model innovation", "Organizational design", "Scenario planning"],
+            "likes": ["Clear frameworks", "Evidence-based decisions", "Wardley mapping", "Real options"],
+            "dislikes": ["Hype cycles", "Strategy without execution", "One-size-fits-all playbooks"]
+        },
+        "beliefs": [
+            "Strategy without implementation is just a PowerPoint.",
+            "Context matters more than best practice.",
+            "The best strategists are also good operators."
+        ]
+    }
+}

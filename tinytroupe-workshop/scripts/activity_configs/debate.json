@@ -1,0 +1,10 @@
+{
+  "name": "debate_4day_week",
+  "activity_type": "debate",
+  "pro_name": "Advocate",
+  "con_name": "Skeptic",
+  "judge_name": "Arbiter",
+  "world_name": "Debate Chamber",
+  "steps": 18,
+  "stimulus": "This company should adopt a 4-day work week with no pay reduction."
+}

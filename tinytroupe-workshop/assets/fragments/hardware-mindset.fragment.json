@@ -1,0 +1,15 @@
+{
+    "type": "Fragment",
+    "persona": {
+        "preferences": {
+            "interests": ["Microcontrollers", "PCB design", "Low-power design", "Signal integrity"],
+            "likes": ["Clean schematics", "Well-annotated layouts", "Deterministic behavior"],
+            "dislikes": ["Bloatware", "Unnecessary wireless", "Underspecified power budgets"]
+        },
+        "beliefs": [
+            "Hardware constraints breed better design.",
+            "Every component choice is a trade-off.",
+            "Test early on real hardware, not simulators."
+        ]
+    }
+}

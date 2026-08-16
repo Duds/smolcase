@@ -1,0 +1,11 @@
+{
+  "name": "interview_designer_tools",
+  "activity_type": "interview",
+  "personas": [
+    "assets/personas/ana-design-engineer.agent.json"
+  ],
+  "interviewer_name": "Researcher",
+  "world_name": "Interview Room",
+  "steps": 14,
+  "stimulus": "Begin a discovery interview about how Ana manages the handoff between design and engineering. What tools does she use? What friction points exist? What would an ideal workflow look like?"
+}
