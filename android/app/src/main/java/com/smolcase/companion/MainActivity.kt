@@ -2,7 +2,10 @@ package com.smolcase.companion
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.BatteryManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
@@ -10,6 +13,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * SMOLCASE Companion — Stage 3: Voice.
@@ -28,6 +34,17 @@ class MainActivity : ComponentActivity() {
     private var voice: CreatureVoice? = null
     private var faceTracker: FaceTracker? = null
     private var ears: VoiceEars? = null
+
+    private val memory by lazy { MemoryStore(this) }
+    private val dials by lazy { PersonalityDials(this) }
+    private val clockFormat = SimpleDateFormat("HH:mm", Locale.US)
+
+    private val tapHandler = Handler(Looper.getMainLooper())
+    private var tapCount = 0
+    private val tapTimeout = Runnable {
+        if (tapCount in 1..2) ears?.toggleMute()
+        tapCount = 0
+    }
 
     private val permissions =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { grants ->
@@ -50,11 +67,38 @@ class MainActivity : ComponentActivity() {
         eyesView = TarsFaceView(this)
         brain = CreatureBrain(this, eyesView)
         brain.onGreetingLine = { line -> voice?.say(line) }
-        conversation = ConversationEngine(this, MemoryStore(this))
+        conversation = ConversationEngine(this, memory)
         setContentView(eyesView)
 
-        // Tap the creature = mute/unmute its ears; long-press = settings
-        eyesView.setOnClickListener { ears?.toggleMute() }
+        eyesView.setTelemetrySources(
+            listOf<() -> String?>(
+                {
+                    "SESS %04d · TOGETHER %.1fH".format(
+                        Locale.US, memory.totalSessions, memory.totalTimeTogetherMs / 3_600_000f
+                    )
+                },
+                { memory.getReminders().firstOrNull()?.let { "REM: ${it.uppercase(Locale.US)}" } },
+                { "HUMOR ${dials.humor} · HONESTY ${dials.honesty}" },
+                {
+                    val bm = getSystemService(BatteryManager::class.java)
+                    "PWR ${bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)}%"
+                },
+                { "CLK ${clockFormat.format(Date())}" }
+            )
+        )
+
+        // Tap = mute/unmute (350ms delay); triple-tap = face debug cycle;
+        // long-press = settings
+        eyesView.setOnClickListener {
+            tapCount++
+            tapHandler.removeCallbacks(tapTimeout)
+            if (tapCount >= 3) {
+                tapCount = 0
+                eyesView.cycleDebugMode()
+            } else {
+                tapHandler.postDelayed(tapTimeout, 350)
+            }
+        }
         eyesView.setOnLongClickListener {
             startActivity(android.content.Intent(this, SettingsActivity::class.java))
             true

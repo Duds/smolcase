@@ -50,7 +50,9 @@ class TarsFaceView @JvmOverloads constructor(
 
     // ---- creature state ----
     @Volatile private var faceTarget: PointF? = null
-    @Volatile private var lastFaceAt: Long = 0L
+    // Boot AWAKE: the creature wakes with the app, then drowses after 30s
+    // without a face and sleeps after 120s (instead of booting asleep).
+    @Volatile private var lastFaceAt: Long = SystemClock.uptimeMillis()
 
     private val pupil = PointF(0f, 0f)
     private var lid = 0f
@@ -248,7 +250,7 @@ class TarsFaceView @JvmOverloads constructor(
         val cellH = cellW * 1.15f // monospace aspect
         glyphPaint.textSize = cellH * 0.9f
 
-        val breathing = if (st == State.SLEEPING) 0.35f + 0.1f * sin(now / 1_500f) else 1f
+        val breathing = if (st == State.SLEEPING) 0.45f + 0.15f * sin(now / 1_500f) else 1f
         val glow = (0.75f + 0.25f * excitement) * breathing
         val squint = grid.squintRows(happy)
         val pupilAnchor = grid.pupilAnchor(pupil.x, pupil.y)
