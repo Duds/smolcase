@@ -16,11 +16,11 @@ class CreaturePersonaTest {
 
     @Test
     fun `prompt is the TARS register`() {
-        val p = CreaturePersona.prompt(10, 40)
-        assertTrue(p.contains("marine company commander"))
-        assertTrue(p.contains("gym teacher"))
-        assertTrue(p.contains("never break character"))
-        assertTrue(p.contains("no emoji"))
+        val flat = CreaturePersona.prompt(10, 40).replace(Regex("\\s+"), " ")
+        assertTrue(flat.contains("marine company commander"))
+        assertTrue(flat.contains("gym teacher"))
+        assertTrue(flat.contains("never break character"))
+        assertTrue(flat.contains("no emoji"))
     }
 
     @Test
