@@ -19,7 +19,7 @@ import kotlin.random.Random
  * third of the screen; the lower two-thirds stays black void.
  *
  * Each grid scrolls telemetry/filler text (TelemetryFeed) around a 2x2
- * full-block pupil (GlyphGrid) that tracks your face. Blinks collapse the
+ * black pupil (GlyphGrid) with a specular glint that tracks your face. Blinks collapse the
  * rows symmetrically; speaking sweeps a bright column-scan shimmer.
  *
  * Drop-in replacement for the old cartoon EyesView — same public API:
@@ -84,6 +84,9 @@ class TarsFaceView @JvmOverloads constructor(
     }
     private val mutePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.rgb(0x66, 0x33, 0x33)
+    }
+    private val glintPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.rgb(0xDD, 0xFF, 0xDD)
     }
 
     // ---- public API ----
@@ -289,12 +292,18 @@ class TarsFaceView @JvmOverloads constructor(
             val line = window[row]
             val y = top + row * cellH + cellH * 0.8f // baseline
             for (col in 0 until grid.cols) {
-                val isPupil = grid.isPupilCell(col, row, pupilAnchor)
-                val ch = if (isPupil) '█' else line.getOrElse(col) { ' ' }
+                if (grid.isPupilCell(col, row, pupilAnchor)) {
+                    // Pupil: a black hole punched in the text feed
+                    canvas.drawRect(
+                        left + col * cellW, top + row * cellH,
+                        left + (col + 1) * cellW, top + (row + 1) * cellH, bgPaint
+                    )
+                    continue
+                }
+                val ch = line.getOrElse(col) { ' ' }
                 if (ch == ' ') continue
 
                 var alpha = (255 * glow).toInt()
-                if (isPupil) alpha = min(255, (320 * glow).toInt()) // bright awake, breathes when asleep
                 if (speaking) {
                     // Column-scan shimmer: a bright band sweeps left to right
                     val dist = abs(col - scanCol)
@@ -304,6 +313,15 @@ class TarsFaceView @JvmOverloads constructor(
                 canvas.drawText(ch.toString(), left + col * cellW, y, glyphPaint)
             }
         }
+
+        // Specular glint: a small highlight on the pupil's upper-left
+        glintPaint.alpha = (200 * glow).toInt().coerceIn(0, 255)
+        canvas.drawCircle(
+            left + (pupilAnchor.first + 0.35f) * cellW,
+            top + (pupilAnchor.second + 0.35f) * cellH,
+            cellW * 0.22f,
+            glintPaint
+        )
     }
 
     companion object {
