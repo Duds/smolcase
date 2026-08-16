@@ -22,6 +22,9 @@ class CreatureBrain(
     private val memory = MemoryStore(context)
     private val handler = Handler(Looper.getMainLooper())
 
+    /** Spoken greeting lines (TARS deadpan). Wired to CreatureVoice in MainActivity. */
+    var onGreetingLine: ((String) -> Unit)? = null
+
     private var sessionActive = false
     private var lastFaceEventAt = 0L
 
@@ -66,23 +69,32 @@ class CreatureBrain(
     }
 
     private fun greet(arrival: MemoryStore.Arrival) {
-        when (classify(arrival)) {
+        val g = classify(arrival)
+        when (g) {
             Greeting.BIRTH ->
-                // First sighting ever: full excitement, biggest smile, triple blink
-                eyes.express(excitement = 1.0f, happy = 1.0f, blinks = 3)
+                eyes.express(excitement = 0.6f, happy = 0.3f, blinks = 1)
             Greeting.GOOD_MORNING ->
-                // First sighting today (and you were away a while)
-                eyes.express(excitement = 1.0f, happy = 1.0f, blinks = 3)
+                eyes.express(excitement = 0.5f, happy = 0.3f, blinks = 1)
             Greeting.MISSED_YOU ->
-                // Away 30 min – 3 h
-                eyes.express(excitement = 0.75f, happy = 0.9f, blinks = 2)
+                eyes.express(excitement = 0.4f, happy = 0.3f, blinks = 1)
             Greeting.HELLO ->
-                // Away 2 – 30 min
-                eyes.express(excitement = 0.4f, happy = 0.6f, blinks = 1)
+                eyes.express(excitement = 0.25f, happy = 0.2f, blinks = 1)
             Greeting.BACK_ALREADY ->
-                // You barely left — a glance and a small smile, not a party
-                eyes.express(excitement = 0.15f, happy = 0.3f, blinks = 0)
+                eyes.express(excitement = 0.1f, happy = 0.1f, blinks = 0)
         }
+        onGreetingLine?.invoke(greetingLine(g))
+    }
+
+    private fun greetingLine(g: Greeting): String = when (g) {
+        Greeting.BIRTH -> "Systems nominal. So this is the desk."
+        Greeting.GOOD_MORNING -> {
+            val late = memory.latenessMinutes()
+            if (late > 5) "Morning. You're $late minutes later than usual."
+            else "Morning. Right on schedule."
+        }
+        Greeting.MISSED_YOU -> "You were gone a while."
+        Greeting.HELLO -> "Hello."
+        Greeting.BACK_ALREADY -> "That was fast."
     }
 
     private fun classify(a: MemoryStore.Arrival): Greeting = when {

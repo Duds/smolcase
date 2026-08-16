@@ -49,6 +49,7 @@ class MainActivity : ComponentActivity() {
 
         eyesView = TarsFaceView(this)
         brain = CreatureBrain(this, eyesView)
+        brain.onGreetingLine = { line -> voice?.say(line) }
         conversation = ConversationEngine(this, MemoryStore(this))
         setContentView(eyesView)
 

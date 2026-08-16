@@ -2,8 +2,11 @@ package com.smolcase.companion
 
 import android.content.Context
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
+import kotlin.math.roundToInt
 
 /**
  * The creature's memory (Stage 2, "Soul File" seed).
@@ -46,6 +49,10 @@ class MemoryStore(context: Context) {
 
         if (firstToday) {
             prefs.edit().putString(KEY_FIRST_DATE, today).apply()
+            val minutes = minutesSinceMidnight(now, TimeZone.getDefault()).toFloat()
+            val prev = prefs.getFloat(KEY_USUAL_MINUTES, -1f)
+            val updated = if (prev < 0f) minutes else smoothUsual(prev, minutes)
+            prefs.edit().putFloat(KEY_USUAL_MINUTES, updated).apply()
         }
         sessionStartedAt = now
         totalSessions += 1
@@ -83,6 +90,17 @@ class MemoryStore(context: Context) {
         prefs.edit().remove(KEY_REMINDERS).apply()
     }
 
+    /**
+     * How many minutes later than usual you first appeared today
+     * (0 if you're early/on time, or if no baseline exists yet).
+     */
+    fun latenessMinutes(now: Long = System.currentTimeMillis()): Int {
+        val usual = prefs.getFloat(KEY_USUAL_MINUTES, -1f)
+        if (usual < 0f) return 0
+        val diff = minutesSinceMidnight(now, TimeZone.getDefault()) - usual
+        return diff.roundToInt().coerceAtLeast(0)
+    }
+
     /** Soul-file summary injected into LLM prompts as context. */
     fun soulSummary(): String {
         val hours = totalTimeTogetherMs / 3_600_000f
@@ -105,5 +123,15 @@ class MemoryStore(context: Context) {
         private const val KEY_LAST_SESSION_END = "last_session_end"
         private const val KEY_FIRST_DATE = "first_seen_date"
         private const val KEY_REMINDERS = "reminders"
+        private const val KEY_USUAL_MINUTES = "usual_first_seen_minutes"
+
+        /** Minutes since local midnight — pure, unit-tested. */
+        fun minutesSinceMidnight(now: Long, tz: TimeZone): Int {
+            val cal = Calendar.getInstance(tz).apply { timeInMillis = now }
+            return cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)
+        }
+
+        /** Exponential moving average for the usual first-seen time. */
+        fun smoothUsual(prev: Float, new: Float): Float = 0.7f * prev + 0.3f * new
     }
 }
