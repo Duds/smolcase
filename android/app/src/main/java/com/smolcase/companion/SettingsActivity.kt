@@ -8,6 +8,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import com.smolcase.companion.llm.LlmSettings
@@ -19,10 +20,12 @@ import com.smolcase.companion.llm.LlmSettings
 class SettingsActivity : ComponentActivity() {
 
     private lateinit var settings: LlmSettings
+    private lateinit var dials: PersonalityDials
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         settings = LlmSettings(this)
+        dials = PersonalityDials(this)
 
         val pad = (24 * resources.displayMetrics.density).toInt()
         val root = LinearLayout(this).apply {
@@ -75,6 +78,27 @@ class SettingsActivity : ComponentActivity() {
         val modelField = field(LlmSettings.DEFAULT_MODEL, settings.kimiModel)
         root.addView(modelField)
 
+        fun dialRow(labelText: String, initial: Int): Pair<SeekBar, TextView> {
+            val valueLabel = label("$labelText: $initial%")
+            val seek = SeekBar(this).apply {
+                max = 100
+                progress = initial
+                setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(s: SeekBar, p: Int, fromUser: Boolean) {
+                        valueLabel.text = "$labelText: $p%"
+                    }
+                    override fun onStartTrackingTouch(s: SeekBar) {}
+                    override fun onStopTrackingTouch(s: SeekBar) {}
+                })
+            }
+            root.addView(valueLabel)
+            root.addView(seek)
+            return seek to valueLabel
+        }
+
+        val (humorSeek, _) = dialRow("Humor", dials.humor)
+        val (honestySeek, _) = dialRow("Honesty", dials.honesty)
+
         val status = TextView(this).apply { setTextColor(Color.GREEN) }
         val save = Button(this).apply {
             text = "Save"
@@ -87,6 +111,8 @@ class SettingsActivity : ComponentActivity() {
                 settings.kimiBaseUrl = baseUrlField.text.toString()
                 settings.kimiApiKey = apiKeyField.text.toString()
                 settings.kimiModel = modelField.text.toString()
+                dials.humor = humorSeek.progress
+                dials.honesty = honestySeek.progress
                 status.text = "Saved."
             }
         }
