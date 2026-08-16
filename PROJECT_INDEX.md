@@ -1,6 +1,6 @@
 # SMOLCASE — Project Index
 
-> Living document. Last updated: 2026-08-16
+> Living document. Last updated: 2026-08-16 (v0.5-tars)
 >
 > **Purpose**: Central index for all discoveries, decisions, plans, and status. When you find something in this project, it should be findable from here.
 
@@ -66,7 +66,7 @@
 | Training pipeline | 🟢 Working | `sim/src/smolcase_train.py` |
 | BLE protocol spec | 🟡 Draft | `docs/03-decisions/004-esp32-ble-bridge.md` |
 | ESP32 firmware | ⚪ Not started | `firmware/README.md` placeholder |
-| Android app | 🟡 Stage 1 built | `android/` — tracking-eyes companion app; awaiting desk test |
+| Android app | 🟢 v0.5-tars | `android/` — TARS glyph face, telemetry feed, humor/honesty dials, LLM layer |
 | TFLite inference on Pixel 8 | ⚪ Not started | Need to verify TFLite + GPU delegate |
 | Kimi LLM integration | ⚪ Not started | Future personality layer |
 | Behaviour arbiter | ⚪ Not started | State machine / rules engine |
