@@ -90,5 +90,5 @@ object IntentRouter {
 
     /** The dumb-but-charming offline fallback when no LLM is available. */
     fun unknownReply(): Reply =
-        Reply("Hmm?", excitement = 0.2f, happy = 0.1f, blinks = 1)
+        Reply("You'll have to rephrase that.", excitement = 0.2f, happy = 0.1f, blinks = 1)
 }

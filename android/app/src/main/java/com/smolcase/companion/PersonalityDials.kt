@@ -19,10 +19,16 @@ class PersonalityDials(context: Context) {
         get() = prefs.getInt(KEY_HONESTY, DEFAULT_HONESTY)
         set(v) = prefs.edit().putInt(KEY_HONESTY, v.coerceIn(0, 100)).apply()
 
+    /** Preferred TTS voice name (null = auto-pick a male voice). */
+    var voiceName: String?
+        get() = prefs.getString(KEY_VOICE_NAME, null)
+        set(v) = prefs.edit().putString(KEY_VOICE_NAME, v).apply()
+
     companion object {
         const val DEFAULT_HUMOR = 75
         const val DEFAULT_HONESTY = 90
         private const val KEY_HUMOR = "humor"
         private const val KEY_HONESTY = "honesty"
+        private const val KEY_VOICE_NAME = "voice_name"
     }
 }
