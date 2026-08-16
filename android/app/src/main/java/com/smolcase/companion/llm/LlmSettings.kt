@@ -12,7 +12,7 @@ import android.content.Context
  */
 class LlmSettings(context: Context) {
 
-    enum class Backend { RULES, NANO, KIMI }
+    enum class Backend { RULES, NANO, KIMI, GEMMA }
 
     private val prefs = context.getSharedPreferences("smolcase_llm", Context.MODE_PRIVATE)
 

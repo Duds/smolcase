@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import com.smolcase.companion.llm.GemmaBackend
 import com.smolcase.companion.llm.GeminiNanoBackend
 import com.smolcase.companion.llm.KimiBackend
 import com.smolcase.companion.llm.LlmBackend
@@ -24,6 +25,7 @@ class ConversationEngine(context: Context, private val memory: MemoryStore) {
     private val dials = PersonalityDials(context)
     private val nano = GeminiNanoBackend(context.applicationContext, dials)
     private val kimi = KimiBackend(settings, dials)
+    private val gemma = GemmaBackend(context.applicationContext, dials)
 
     fun handle(text: String, onReply: (IntentRouter.Reply) -> Unit) {
         // Known commands always win — instant and offline
@@ -32,6 +34,7 @@ class ConversationEngine(context: Context, private val memory: MemoryStore) {
         val backend: LlmBackend? = when (settings.backend) {
             LlmSettings.Backend.NANO -> nano
             LlmSettings.Backend.KIMI -> kimi
+            LlmSettings.Backend.GEMMA -> gemma
             LlmSettings.Backend.RULES -> null
         }
 
@@ -73,12 +76,18 @@ class ConversationEngine(context: Context, private val memory: MemoryStore) {
             LlmSettings.Backend.NANO -> "NANO" to nano.unavailableReason()
             LlmSettings.Backend.KIMI -> "KIMI" to
                 if (settings.kimiConfigured) kimi.unavailableReason() else "API key not set"
+            LlmSettings.Backend.GEMMA -> "GEMMA" to gemma.unavailableReason()
         }
         if (reason != lastLoggedReason) {
             lastLoggedReason = reason
             if (reason != null) Log.w(TAG, "$label unavailable: $reason")
         }
         return if (reason == null) "LLM $label OK" else "LLM $label --"
+    }
+
+    /** Release the Gemma engine (large native model) on the way out. */
+    fun shutdown() {
+        gemma.shutdown()
     }
 
     companion object {

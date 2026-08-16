@@ -62,15 +62,17 @@ class SettingsActivity : ComponentActivity() {
         val radioRules = RadioButton(this).apply { text = "Rules only (offline, dumb but charming)" }
         val radioNano = RadioButton(this).apply { text = "Gemini Nano (on-device, private)" }
         val radioKimi = RadioButton(this).apply { text = "Kimi (cloud, smartest)" }
+        val radioGemma = RadioButton(this).apply { text = "Gemma 4 E2B (on-device, sideloaded)" }
         val group = RadioGroup(this).apply {
-            addView(radioRules); addView(radioNano); addView(radioKimi)
+            addView(radioRules); addView(radioNano); addView(radioKimi); addView(radioGemma)
         }
         when (settings.backend) {
             LlmSettings.Backend.RULES -> group.check(radioRules.id)
             LlmSettings.Backend.NANO -> group.check(radioNano.id)
             LlmSettings.Backend.KIMI -> group.check(radioKimi.id)
+            LlmSettings.Backend.GEMMA -> group.check(radioGemma.id)
         }
-        listOf(radioRules, radioNano, radioKimi).forEach { it.setTextColor(Color.LTGRAY) }
+        listOf(radioRules, radioNano, radioKimi, radioGemma).forEach { it.setTextColor(Color.LTGRAY) }
         root.addView(group)
 
         root.addView(label("Kimi base URL"))
@@ -145,6 +147,7 @@ class SettingsActivity : ComponentActivity() {
                 settings.backend = when (group.checkedRadioButtonId) {
                     radioNano.id -> LlmSettings.Backend.NANO
                     radioKimi.id -> LlmSettings.Backend.KIMI
+                    radioGemma.id -> LlmSettings.Backend.GEMMA
                     else -> LlmSettings.Backend.RULES
                 }
                 settings.kimiBaseUrl = baseUrlField.text.toString()

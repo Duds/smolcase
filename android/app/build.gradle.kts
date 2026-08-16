@@ -39,6 +39,9 @@ dependencies {
     // Gemini Nano via ML Kit GenAI Prompt API (on-device, AICore)
     implementation("com.google.mlkit:genai-prompt:1.0.0-beta4")
 
+    // Gemma 4 E2B via LiteRT-LM (on-device, sideloaded .litertlm — no AICore)
+    implementation("com.google.ai.edge.litertlm:litertlm-android:0.16.0")
+
     // Coroutines for LLM calls
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")

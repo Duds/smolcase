@@ -158,6 +158,7 @@ class MainActivity : ComponentActivity() {
         ears?.stop()
         brain.stop()
         voice?.shutdown()
+        conversation.shutdown() // release the Gemma engine's native memory
         super.onDestroy()
     }
 }
