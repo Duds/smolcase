@@ -6,6 +6,7 @@ import android.os.BatteryManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
@@ -38,6 +39,7 @@ class MainActivity : ComponentActivity() {
     private val memory by lazy { MemoryStore(this) }
     private val dials by lazy { PersonalityDials(this) }
     private val clockFormat = SimpleDateFormat("HH:mm", Locale.US)
+    private val utteranceCounter = java.util.concurrent.atomic.AtomicInteger(0)
 
     private val tapHandler = Handler(Looper.getMainLooper())
     private var tapCount = 0
@@ -126,9 +128,14 @@ class MainActivity : ComponentActivity() {
         ears = VoiceEars(
             context = this,
             onHeard = { text ->
+                val uid = utteranceCounter.incrementAndGet()
+                val heardAt = System.currentTimeMillis()
+                Log.i(TAG, "[#$uid] heard: $text")
                 conversation.handle(text) { reply ->
+                    val llmMs = System.currentTimeMillis() - heardAt
+                    Log.i(TAG, "[#$uid] LLM reply ($llmMs ms): ${reply.say}")
                     eyesView.express(reply.excitement, reply.happy, reply.blinks)
-                    voice?.say(reply.say)
+                    voice?.say(reply.say, uid)
                 }
             },
             onMuteChanged = { muted ->
@@ -136,9 +143,9 @@ class MainActivity : ComponentActivity() {
             }
         ).also { it.start() }
         // Voice unmutes the streams (via VoiceEars.allowSpeech) only while speaking
-        voice = CreatureVoice(this, dials, eyesView) { speaking ->
+        voice = CreatureVoice(this, dials, eyesView, { speaking ->
             ears?.allowSpeech(speaking)
-        }
+        }, onTtsDone = { ears?.cooldown() })
     }
 
     override fun onDestroy() {
@@ -148,5 +155,9 @@ class MainActivity : ComponentActivity() {
         voice?.shutdown()
         conversation.shutdown() // release the Gemma engine's native memory
         super.onDestroy()
+    }
+
+    companion object {
+        private const val TAG = "SmolcaseMain"
     }
 }

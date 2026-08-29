@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.graphics.PointF
 import android.os.SystemClock
 import android.util.AttributeSet
+import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import com.smolcase.companion.matrix.ApplianceMatrixCanvas
@@ -65,6 +66,22 @@ class TarsFaceView @JvmOverloads constructor(
     @Volatile private var micMuted = false
     @Volatile private var batteryPercent: Int = 100
     @Volatile private var bleConnected: Boolean = false
+
+    // Gesture detector for reliable long-press on gesture nav devices
+    private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+        override fun onLongPress(e: MotionEvent) {
+            performLongClick()
+        }
+
+        override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+            performClick()
+            return true
+        }
+    })
+
+    init {
+        isLongClickable = true
+    }
 
     // Color palette (Monochrome Warm Appliance Phosphor)
     private val bgPaint = Paint().apply { color = Color.parseColor("#0A0D10") }
@@ -173,13 +190,14 @@ class TarsFaceView @JvmOverloads constructor(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        gestureDetector.onTouchEvent(event)
         if (event.action == MotionEvent.ACTION_DOWN || event.action == MotionEvent.ACTION_MOVE) {
             // Screen touch steers gaze smoothly toward touch position
             val nx = ((event.x / width.toFloat()) - 0.5f) * 2f
             val ny = ((event.y / (height.toFloat() * 0.5f)) - 0.5f) * 2f
             onFaceSeen(nx, ny)
         }
-        return super.onTouchEvent(event)
+        return true
     }
 
     private fun state(now: Long): State {

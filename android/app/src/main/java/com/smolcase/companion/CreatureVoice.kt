@@ -3,6 +3,7 @@ package com.smolcase.companion
 import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.util.Log
 import com.smolcase.companion.cloud.CloudTtsBackend
 import com.smolcase.companion.llm.LlmSettings
 import java.util.Locale
@@ -18,7 +19,8 @@ class CreatureVoice(
     context: Context,
     private val dials: PersonalityDials,
     private val eyes: TarsFaceView,
-    private val allowSpeech: (Boolean) -> Unit
+    private val allowSpeech: (Boolean) -> Unit,
+    private val onTtsDone: (() -> Unit)? = null
 ) {
     private var ready = false
     private val cloudTts = CloudTtsBackend(context, LlmSettings(context))
@@ -38,33 +40,37 @@ class CreatureVoice(
             }
 
             override fun onDone(id: String) {
-                allowSpeech(false) // re-mute the recognizer beep streams
+                allowSpeech(false)
                 eyes.post { eyes.setSpeaking(false) }
+                onTtsDone?.invoke()
             }
 
             @Deprecated("Deprecated in Java")
             override fun onError(id: String) {
                 allowSpeech(false)
                 eyes.post { eyes.setSpeaking(false) }
+                onTtsDone?.invoke()
             }
         })
     }
 
-    fun say(text: String) {
+    fun say(text: String, uid: Int = 0) {
         if (!ready) return
         allowSpeech(true)
-        val tts = this.tts // capture for lambda
+        val tag = if (uid > 0) "[#$uid]" else ""
+        Log.i(TAG, "${tag}TTS start: $text")
+        val tts = this.tts
         val spoken = cloudTts.speak(text) { success ->
             if (!success) {
-                // Cloud failed — fall back to local TTS
                 tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "smolcase-utterance")
             } else {
+                Log.i(TAG, "${tag}TTS cloud done")
                 allowSpeech(false)
                 eyes.post { eyes.setSpeaking(false) }
+                onTtsDone?.invoke()
             }
         }
         if (!spoken) {
-            // Cloud TTS not configured or disabled — use local directly
             tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "smolcase-utterance")
         }
     }
@@ -95,6 +101,7 @@ class CreatureVoice(
     }
 
     companion object {
+        private const val TAG = "SmolcaseVoice"
         // Google TTS male English voice IDs, most-preferred first
         private val MALE_VOICE_IDS = listOf(
             "en-us-x-iom-local", "en-us-x-iom-network",

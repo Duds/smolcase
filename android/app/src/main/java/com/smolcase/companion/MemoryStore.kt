@@ -109,7 +109,7 @@ class MemoryStore(context: Context) {
             append(" (about %.1f hours total).\n".format(hours))
             val reminders = getReminders()
             if (reminders.isNotEmpty()) {
-                append("Things you promised to remember: ")
+                append("Notes from before: ")
                 append(reminders.joinToString("; "))
                 append(".\n")
             }

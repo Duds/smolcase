@@ -114,19 +114,7 @@ class SettingsActivity : ComponentActivity() {
             contentDescription = text
         }
 
-        // ── Helper: create a text field ──
-        fun field(hint: String, value: String): android.widget.EditText =
-            android.widget.EditText(this).apply {
-                this.hint = hint
-                setText(value)
-                setTextColor(SettingsTheme.VALUE_COLOR)
-                setHintTextColor(SettingsTheme.HINT_COLOR)
-                layoutParams = LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
-                contentDescription = "$hint field"
-            }
+        fun field(hint: String, value: String) = SettingsTheme.styledEditText(this, hint, value)
 
         // =================================================================
         // SECTION: Thinking Engine
@@ -134,24 +122,28 @@ class SettingsActivity : ComponentActivity() {
         val thinkingSection = SettingsSection(this, "Thinking Engine", initiallyExpanded = true)
 
         val radioRules = RadioButton(this).apply {
+            id = android.view.View.generateViewId()
             text = "Rules only (offline, dumb but charming)"
             setTextColor(SettingsTheme.VALUE_COLOR)
             contentDescription = "Rules only backend"
             minimumHeight = (SettingsTheme.MIN_TOUCH_HEIGHT_DP * density).toInt()
         }
         val radioNano = RadioButton(this).apply {
+            id = android.view.View.generateViewId()
             text = "Gemini Nano (on-device, private)"
             setTextColor(SettingsTheme.VALUE_COLOR)
             contentDescription = "Gemini Nano on device"
             minimumHeight = (SettingsTheme.MIN_TOUCH_HEIGHT_DP * density).toInt()
         }
         val radioAgent = RadioButton(this).apply {
+            id = android.view.View.generateViewId()
             text = "Agent (cloud, any OpenAI-compatible)"
             setTextColor(SettingsTheme.VALUE_COLOR)
             contentDescription = "Agent cloud endpoint"
             minimumHeight = (SettingsTheme.MIN_TOUCH_HEIGHT_DP * density).toInt()
         }
         val radioGemma = RadioButton(this).apply {
+            id = android.view.View.generateViewId()
             text = "Gemma 4 E2B (on-device, sideloaded)"
             setTextColor(SettingsTheme.VALUE_COLOR)
             contentDescription = "Gemma 4 on device"
@@ -161,8 +153,9 @@ class SettingsActivity : ComponentActivity() {
             addView(radioRules); addView(radioNano); addView(radioAgent); addView(radioGemma)
             setOnCheckedChangeListener { _, _ ->
                 markDirty()
-                // Show/hide agent config when toggling
-                agentForm.visibility = if (checkedRadioButtonId == radioAgent.id) android.view.View.VISIBLE else android.view.View.GONE
+                if (::agentForm.isInitialized) {
+                    agentForm.visibility = if (checkedRadioButtonId == radioAgent.id) android.view.View.VISIBLE else android.view.View.GONE
+                }
             }
         }
         when (savedBackend) {
@@ -236,10 +229,11 @@ class SettingsActivity : ComponentActivity() {
         }
 
         val nextVoice = Button(this).apply {
-            text = "Next voice"
+            setTextColor(SettingsTheme.LABEL_COLOR)
+            setBackgroundColor(SettingsTheme.BUTTON_BG_COLOR)
             minimumHeight = (SettingsTheme.MIN_TOUCH_HEIGHT_DP * density).toInt()
+            text = "Next voice"
             contentDescription = "Cycle to next voice"
-            setTextColor(SettingsTheme.VALUE_COLOR)
             setOnClickListener {
                 val t = voiceTts ?: return@setOnClickListener
                 if (englishVoices.isEmpty()) return@setOnClickListener
@@ -272,18 +266,7 @@ class SettingsActivity : ComponentActivity() {
         }
         cloudTtsSection.addContent(ttsToggle)
 
-        fun ttsField(hint: String, value: String): android.widget.EditText =
-            android.widget.EditText(this).apply {
-                this.hint = hint
-                setText(value)
-                setTextColor(SettingsTheme.VALUE_COLOR)
-                setHintTextColor(SettingsTheme.HINT_COLOR)
-                layoutParams = LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
-                contentDescription = "$hint field"
-            }
+        fun ttsField(hint: String, value: String) = SettingsTheme.styledEditText(this, hint, value)
 
         // Config fields: only visible when toggle is on
         val ttsConfig = LinearLayout(this).apply {
@@ -311,18 +294,7 @@ class SettingsActivity : ComponentActivity() {
         ttsConfig.addView(ttsModelField)
 
         cloudTtsSection.addLabel("Provider label")
-        val ttsProviderField = android.widget.EditText(this).apply {
-            hint = "ElevenLabs"
-            setText(settings.cloudTtsProviderLabel)
-            setTextColor(SettingsTheme.VALUE_COLOR)
-            setHintTextColor(SettingsTheme.HINT_COLOR)
-            layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            contentDescription = "Cloud TTS provider"
-            setOnKeyListener { _, _, _ -> markDirty(); false }
-        }
+        val ttsProviderField = ttsField("ElevenLabs", settings.cloudTtsProviderLabel)
         ttsConfig.addView(ttsProviderField)
 
         // Stability seekbar
@@ -377,18 +349,7 @@ class SettingsActivity : ComponentActivity() {
             visibility = if (settings.cloudVisionEnabled) android.view.View.VISIBLE else android.view.View.GONE
         }
 
-        fun visionField(hint: String, value: String): android.widget.EditText =
-            android.widget.EditText(this).apply {
-                this.hint = hint
-                setText(value)
-                setTextColor(SettingsTheme.VALUE_COLOR)
-                setHintTextColor(SettingsTheme.HINT_COLOR)
-                layoutParams = LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
-                contentDescription = "$hint field"
-            }
+        fun visionField(hint: String, value: String) = SettingsTheme.styledEditText(this, hint, value)
 
         visionSection.addLabel("Base URL")
         val visionUrlField = visionField("https://openrouter.ai/api/v1", settings.cloudVisionBaseUrl)
@@ -432,18 +393,7 @@ class SettingsActivity : ComponentActivity() {
             visibility = if (settings.cloudReplyGenEnabled) android.view.View.VISIBLE else android.view.View.GONE
         }
 
-        fun replyField(hint: String, value: String): android.widget.EditText =
-            android.widget.EditText(this).apply {
-                this.hint = hint
-                setText(value)
-                setTextColor(SettingsTheme.VALUE_COLOR)
-                setHintTextColor(SettingsTheme.HINT_COLOR)
-                layoutParams = LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
-                contentDescription = "$hint field"
-            }
+        fun replyField(hint: String, value: String) = SettingsTheme.styledEditText(this, hint, value)
 
         replySection.addLabel("Base URL")
         val replyUrlField = replyField("https://openrouter.ai/api/v1", settings.cloudReplyGenBaseUrl)
@@ -492,10 +442,11 @@ class SettingsActivity : ComponentActivity() {
             minimumHeight = (SettingsTheme.MIN_TOUCH_HEIGHT_DP * density).toInt()
         }
         val save = Button(this).apply {
+            setTextColor(SettingsTheme.LABEL_COLOR)
+            setBackgroundColor(SettingsTheme.BUTTON_BG_COLOR)
+            minimumHeight = (SettingsTheme.MIN_TOUCH_HEIGHT_DP * density).toInt()
             text = "Save"
             contentDescription = "Save all settings"
-            minimumHeight = (SettingsTheme.MIN_TOUCH_HEIGHT_DP * density).toInt()
-            setTextColor(SettingsTheme.LABEL_COLOR)
             setOnClickListener {
                 val backend = when (backendGroup.checkedRadioButtonId) {
                     radioNano.id -> LlmSettings.Backend.NANO

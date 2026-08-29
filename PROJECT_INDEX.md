@@ -1,6 +1,6 @@
 # SMOLCASE — Project Index
 
-> Living document. Last updated: 2026-08-29 (v0.6-refactor)
+> Living document. Last updated: 2026-08-29 (v0.7-wayfinder)
 >
 > **Purpose**: Central index for all discoveries, decisions, plans, status, and active wayfinding frontiers.
 
@@ -8,14 +8,16 @@
 
 ## 🧭 Active Wayfinding & Frontiers
 
-> **Current Destination**: Expressive Appliance Dot Matrix Eyes system integrated into physical CAD & refined simulation.
+> **Current Destination**: Ship a desk-ready SMOLCASE robot that walks, talks, and responds autonomously.
+> See the [Wayfinder Map](docs/07-plans/wayfinder-map.md) for the full decision ticket board.
 
-- **Active Goal / Contract**: [`GOAL.md`](GOAL.md)
-- **Living Task Board**: [`TASKS.md`](TASKS.md)
+- **Destination Contract**: [`GOAL.md`](GOAL.md)
+- **Wayfinder Map (decision tickets)**: [`docs/07-plans/wayfinder-map.md`](docs/07-plans/wayfinder-map.md)
+- **Execution Task Board**: [`TASKS.md`](TASKS.md)
 - **Fog of War (Knowns / Unknowns / Unknown Unknowns)**:
-  - **Knowns**: Pixel 8 screen-as-face works; LiteRT-LM Gemma 4 E2B runs on-device; Cozmo SDF rasterizer implemented.
-  - **Unknowns**: Exact serial-bus servo torque/speed profile for 300g load; ESP32 BLE-to-serial latency under load.
-  - **Unknown Unknowns**: Thermal dissipation of Pixel 8 running continuous LLM inference inside closed 3D-printed `SC-CASE`; center-of-mass stability during dynamic PPO gait transitions.
+  - **Knowns**: Pixel 8 screen-as-face works; LiteRT-LM Gemma 4 E2B runs on-device; Cozmo SDF rasterizer + mood state machine implemented; Settings & cloud intelligence complete.
+  - **Unknowns**: Exact serial-bus servo torque/speed profile for 300g load; ESP32 BLE-to-serial latency under load; SC-CASE final mass/inertia for accurate MuJoCo simulation.
+  - **Unknown Unknowns**: Thermal dissipation of Pixel 8 running continuous LLM inference inside closed 3D-printed `SC-CASE`; center-of-mass stability during dynamic PPO gait transitions; sim-to-real transfer gap for 3D-printed body.
 
 ---
 
@@ -26,6 +28,7 @@
 | Understand the project | `README.md` (root) |
 | See this index | `PROJECT_INDEX.md` (root) |
 | Active tasks & status | `TASKS.md` (root) |
+| Decision tickets & frontier | `docs/07-plans/wayfinder-map.md` + `_tasks/` |
 | Agent/convention rules | `AGENTS.md` (root) |
 | Long-running goal protocol | `GOAL.md` (root) |
 | Read GrowBot research | `docs/01-research/` |
@@ -80,11 +83,11 @@
 |------|--------|-------|
 | Training pipeline | 🟢 Working | `sim/src/smolcase_train.py` |
 | BLE protocol spec | 🟡 Draft | `docs/03-decisions/004-esp32-ble-bridge.md` |
-| ESP32 firmware | ⚪ Not started | `firmware/README.md` placeholder |
-| Android app | 🟢 v0.5-tars | `android/` — TARS glyph face, telemetry feed, humor/honesty dials, LLM layer |
-| TFLite inference on Pixel 8 | ⚪ Not started | Need to verify TFLite + GPU delegate |
-| Kimi LLM integration | ⚪ Not started | Future personality layer |
-| Behaviour arbiter | ⚪ Not started | State machine / rules engine |
+| ESP32 firmware | ⚪ Not started | Blocked by servo + ESP32 selection |
+| Android app | 🟢 v0.7-wayfinder | Dot matrix eyes, TARS persona, cloud intelligence, Gemma 4 E2B — all shipping |
+| TFLite policy export | 🟡 Code exists | Not yet verified on-device; blocked by trained Walk Backward policy |
+| Behaviour arbiter | ⚪ Not started | Blocked by TFLite pipeline + BLE bridge |
+| Conversation quality | 🟡 In progress | Phase 7: echo loop, prompt repetition, Gemma latency |
 
 ---
 
@@ -166,13 +169,16 @@ Each behaviour includes: reward function, observation space, hyperparameters, tr
 
 ## 🎯 Next Actions (Priority Order)
 
-1. **Train Walk Backward policy** — Next behaviour in Tier 1
-2. **Verify TFLite export** — Ensure `.tflite` loads and runs on Pixel 8
-3. **Select servos** — Unlock mechanical design and BOM
-4. **Design body in Fusion 360** — After servo dimensions known
-5. **Prototype ESP32 BLE bridge** — Flash firmware, test PWM output
-6. **Build Android inference app** — Load TFLite, stream servo commands
-7. **Integrate Kimi LLM** — Personality layer over behaviour arbiter
+> See the [Wayfinder Map](docs/07-plans/wayfinder-map.md) for the full decision dependency chain.
+
+1. **Fix conversation quality regressions** — Echo loop, prompt repetition, Gemma latency (Phase 7)
+2. **Select servos** — Unlock mechanical design and BOM (wayfinder:research, ticket 20260829-003)
+3. **Design SC-CASE in CAD** — After servo dimensions known (wayfinder:prototype, ticket 20260829-004)
+4. **Select ESP32 & battery** — After servo power budget known (blocked by #3)
+5. **Train Walk Backward policy** — After CAD geometry in MuJoCo (blocked by #3)
+6. **Build ESP32 BLE bridge** — After servo + ESP32 selected (blocked by #4)
+7. **TFLite export + on-device pipeline** — After Walk Backward policy (blocked by #5)
+8. **Behaviour arbiter integration** — Brain → BLE → servo pipeline (blocked by #6)
 
 ---
 

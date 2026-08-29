@@ -1,123 +1,78 @@
-# TASKS.md — SMOLCASE Task Registry
+# TASKS.md — SMOLCASE Expedition Task Board
 
-> Living task board. Grouped by workstream and status.
-> Linked to specs in `docs/06-specs/` and plans in `docs/07-plans/`.
-
----
-
-## 🟢 In Progress
-
-(None — all Android tasks complete)
+> Living task board. Tasks use `YYYYMMDD-NNN` IDs.
+> Decision tickets live on the [Wayfinder Map](docs/07-plans/wayfinder-map.md).
+> Detail files in `_tasks/YYYYMMDD-NNN-slug.md`.
 
 ---
 
-## 🟡 Ready to Pick Up
+## 🔥 Now
 
-### Settings Expansion & Cloud Intelligence
+### Wayfinder Map (Decision Tickets)
 
-See: `docs/06-specs/2026-08-29-settings-expansion-design.md`
+> Destination: Ship a desk-ready SMOLCASE robot.
+> See `docs/07-plans/wayfinder-map.md` for full dependency chain.
 
-#### Phase 0: Foundation
-- [ ] P0-1 Create `ui/SettingsTheme.kt` with WCAG AA helper constants
-- [ ] P0-2 Create `ui/SettingsSection.kt` collapsible section component
-- [ ] P0-3 Add `AGENT` backend to `LlmSettings` with backward-compat migration
-- [ ] P0-4 Rename `KimiBackend` → `AgentBackend`, generalise request construction
+| ID | Ticket | Type | Status |
+|----|--------|------|--------|
+| 20260829-002 | [Fix conversation quality regressions](_tasks/20260829-002-conversation-quality-fixes.md) | wayfinder:task | 🟡 In progress |
+| 20260829-003 | [Decide serial-bus servo model for ~300g robot](_tasks/20260829-003-servo-selection.md) | wayfinder:research | 🔵 Unclaimed |
+| 20260829-004 | [Design SC-CASE chassis and leg geometry in CAD](_tasks/20260829-004-sc-case-cad-design.md) | wayfinder:prototype | 🔵 Unclaimed |
 
-#### Phase 1: Settings UI Overhaul
-- [x] P1-1 Scrollable layout with collapsible sections
-- [x] P1-2 Apply WCAG AA: contentDescription, 48dp min targets, contrast
-- [x] P1-3 Back-press warn on unsaved changes
-- [x] P1-4 Replace Kimi-specific config with reusable `AgentEndpointForm`
+### Phase 7: Conversation Quality (20260829-002)
 
-#### Phase 2: Cloud TTS
-- [x] P2-1 Create `cloud/CloudTtsBackend.kt`
-- [x] P2-2 Add cloud TTS fields to `LlmSettings`
-- [x] P2-3 Cloud TTS section UI in Settings
-- [x] P2-4 Wire `CreatureVoice` → try cloud first, fall back to local
-
-#### Phase 3: Cloud Vision
-- [x] P3-1 Create `cloud/CloudVision.kt` (CameraX frame → base64 → endpoint)
-- [x] P3-2 Add cloud Vision fields to `LlmSettings`
-- [x] P3-3 Cloud Vision section UI in Settings
-- [x] P3-4 Wire vision into `ConversationEngine` (rate-limited)
-
-#### Phase 4: Cloud AI Reply Generation
-- [x] P4-1 Add independent cloud reply gen fields to `LlmSettings`
-- [x] P4-2 Cloud reply gen section UI in Settings
-- [x] P4-3 Wire `ConversationEngine.reply()` through cloud endpoint
-
-#### Phase 5: Sensors
-- [x] P5-1 Create `sensors/SensorConfig.kt`
-- [x] P5-2 Create `sensors/CreatureSenses.kt` (background HandlerThread)
-- [x] P5-3 Sensor toggles + live readout UI in Settings
-- [x] P5-4 Wire sensor state into creature awareness
-
-#### Phase 6: Polish + Test
-- [x] P6-1 Unit tests: AgentBackend, LlmSettings migration, SensorConfig
-- [x] P6-2 Unit tests: CloudVision URL construction, CreatureSenses lifecycle
-- [x] P6-3 Manual QA: all sections, save/load, back-button, offline fallback
-- [x] P6-4 Final build: assembleDebug passes, deploy & smoke test
-
-#### Phase 6: Polish + Test
-- [ ] P6-1 Unit tests: AgentBackend, LlmSettings migration, SensorConfig
-- [ ] P6-2 Unit tests: CloudVision URL construction, CreatureSenses lifecycle
-- [ ] P6-3 Manual QA: all sections, save/load, back-button, offline fallback
-- [ ] P6-4 Final build: assembleDebug passes, deploy & smoke test
-
-### Appliance Face Dot Matrix — SVG Export & Surface Integration
-- [ ] **Review & edit `mech/face-appliance-dots.svg`**
-  - Check layer separation (bg / LEDs / Light Baffle / Light Mask / Sample Eyes / Eyes Glow) in an editor
-  - Verify dot aperture positions against real Pixel 8 active area + dot pitch
-  - Adjust physical panel dims / hole sizes for manufacture (print-ready)
-- [ ] **Add SVG → Kotlin transform**
-  - Bring the exported LED aperture map into the app as a layout/mask source
-  - Transform dot-grid coordinates into `ApplianceMatrixCanvas` buffer coords (`setDot` / `blendDot`)
-  - Sync shader constants (dot radius, ghost alpha, glow falloff) with the SVG source geometry
-
-### Simulation & Policy Training
-- [ ] **Design SC-CASE in CAD** (prerequisite for all below)
-  - Define chassis geometry, leg attachment points, mass distribution
-  - Export dimensions to MuJoCo XML for training
-- [ ] **Train Walk Backward policy** (after CAD)
-  - Update MuJoCo XML with new body dimensions, then train
-  - Target: >5m backward displacement
-- [ ] **TFLite Policy Export** (after training)
-  - Export trained policies to `.tflite` and verify quantization fidelity
-
-*Note: Training paused until CAD design is complete. CPG baseline verified working — fine-tuning on new geometry will be faster than training from scratch.*
-
-### Hardware & Power Selection
-- [ ] **Select Serial-Bus Servos**
-  - Benchmark torque, speed, dimensions, and voltage requirements for ~300g robot (ADR-005)
-  - Select 2x 360° serial-bus servos
-- [ ] **Select ESP32 & Battery Pack**
-  - Select ESP32 DevKit / module for BLE bridge
-  - Select LiPo vs 18650 cell + buck converter
+- [x] Verify echo loop fix (cooldown, ignored logs in logcat) — mechanism confirmed, 2.5s cooldown wired through VoiceEars → CreatureVoice.onDone → MainActivity
+- [x] Verify prompt no longer repeats "directives" in replies — anti-repetition directive present in CreaturePersona; regression test added
+- [ ] **Investigate Gemma 7-8s latency** — Paper audit: CPU-only (GPU buggy), `maxNumTokens=1024` is generous for 1-2 sentence replies. Expect ~30-50ms/tok on Tensor G3. Needs logcat timing to confirm whether bottleneck is prompt processing or token generation. Temporarily lower `maxNumTokens` to 128 for test. Device required.
+- [ ] **Test cloud TTS provider label field** — Field is wired (save/restore). Default "ElevenLabs". Now uses `styledEditText` for consistent bottom border. `CloudTtsBackend` doesn't read it (metadata only). Device required to verify visibility and save round-trip.
+- [ ] **Confirm field + button contrast on device** — Paper audit all pass: white text 13.5:1, value text 9.3:1, hints 6.6:1, accent 4.8:1, buttons 48dp min touch. Device required for real-world viewing angle / brightness check.
+- [x] `.gitignore` `models/*.xnnpack_cache` files — done plus regression test for anti-repetition directive
 
 ---
 
-## 🔴 Blocked / Waiting on Dependencies
+## 📋 Next
 
-### Mechanical / CAD (mech/)
-- [ ] **Design SC-CASE, SC-LEG-L, SC-LEG-R in Fusion 360**
-  - *Blocked by:* Servo selection (need exact physical dimensions and mounting points)
+### Hardware & Mechanical (unblocked after servo decision)
 
-### Firmware (firmware/)
-- [ ] **Implement ESP32 BLE-to-Serial-Bus Bridge**
-  - *Blocked by:* ESP32 hardware and servo selection (ADR-004)
+- [ ] 20260829-003 **Decide serial-bus servo model** — benchmark torque, speed, dimensions, voltage for ~300g robot (see _tasks detail)
+- [ ] 20260829-004 **Design SC-CASE in CAD** — chassis, leg attachment, mass distribution (see _tasks detail)
 
-### Policy Arbiter & On-Device Control
-- [ ] **Android TFLite Inference Runtime & BLE Command Stream**
-  - *Blocked by:* ESP32 BLE protocol verification & TFLite model validation
+### Simulation (unblocked after CAD)
+
+- [ ] 20260829-006 **Train Walk Backward PPO policy** — update MuJoCo XML with final body, target >5m backward (see _tasks detail)
+
+---
+
+## 🔴 Blocked
+
+| ID | Ticket | Blocked By |
+|----|--------|------------|
+| 20260829-005 | [Decide ESP32 module and battery architecture](_tasks/20260829-005-esp32-battery.md) | 20260829-003 (servo dims → power budget) |
+| 20260829-007 | [Implement ESP32 BLE-to-serial-bus bridge firmware](_tasks/20260829-007-esp32-ble-bridge-firmware.md) | 20260829-003, 20260829-005 |
+| 20260829-008 | [TFLite policy export and on-device inference pipeline](_tasks/20260829-008-tflite-on-device-pipeline.md) | 20260829-006 (needs trained policy) |
+| 20260829-009 | [Integrate behaviour arbiter (brain → BLE → servo)](_tasks/20260829-009-behaviour-arbiter-integration.md) | 20260829-007, 20260829-008 |
+| 20260829-010 | [Full 30-behaviour training suite](_tasks/20260829-010-30-behaviour-suite.md) | 20260829-006 (Walk Backward is prerequisite) |
+
+---
+
+## 📦 Backlog
+
+- Characterise thermal dissipation of Pixel 8 inside closed SC-CASE (vent channels / heatsink)
+- Sim-to-real transfer validation after first physical build
+- Gait transition smoothness tuning (CPG + TFLite blend)
+- Mechanical part naming per ADR-005: SC-POD-L/R, SC-RIB, SC-BLY, SC-SHL, SC-JAW
+- BOM tracking in `docs/04-hardware/`
 
 ---
 
 ## 🏁 Completed
 
-- [x] **Gemma 4 E2B On-Device Backend** — LiteRT-LM 0.16.0, CPU backend, sideloaded .litertlm, verified live inference on Pixel 8
-- [x] **Expressive Appliance Dot Matrix Eyes** — Phases 1–4 complete (SDF eyes, expression state machine, telemetry pips, 20/20 tests, debug APK built)
-- [x] ADR-001 through ADR-005 architecture definitions
-- [x] MuJoCo simulation environment & CPG baseline
-- [x] PPO training pipeline & Walk Forward policy (+7.32m)
-- [x] TARS face v0.5 (glyph text face, telemetry feed, voice dials)
-- [x] Empirical eye analysis & photometric study (`docs/01-research/analysis/`)
+| ID | Item | Evidence |
+|----|------|----------|
+| — | Gemma 4 E2B on-device backend | LiteRT-LM 0.16.0, CPU backend, live inference on Pixel 8 |
+| — | Expressive Appliance Dot Matrix Eyes | SDF rasterizer, mood state machine, telemetry pips, 20/20 tests, debug APK |
+| — | Settings Expansion & Cloud Intelligence | WCAG AA UI, cloud TTS/Vision/ReplyGen, Pixel sensors, all tests passing |
+| — | ADR-001 through ADR-005 | Architecture locked: Pixel 8 brain, hierarchical policies, CPG+MuJoCo+TFLite, ESP32 BLE, 2-leg CASE |
+| — | MuJoCo simulation environment & CPG baseline | Working, verified in `sim/src/smolcase_train.py` |
+| — | PPO Walk Forward policy | +7.32m at 500K steps |
+| — | Empirical eye analysis & photometric study | `docs/01-research/analysis/` |

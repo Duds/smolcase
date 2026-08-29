@@ -28,4 +28,12 @@ class CreaturePersonaTest {
         val p = CreaturePersona.prompt(75, 90)
         assertFalse(p.contains("warm, playful"))
     }
+
+    @Test
+    fun `prompt instructs not to repeat background context`() {
+        val p = CreaturePersona.prompt(50, 50)
+        assertTrue(p.contains("do not acknowledge"))
+        assertTrue(p.contains("repeat"))
+        assertTrue(p.contains("background context"))
+    }
 }

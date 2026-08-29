@@ -9,6 +9,7 @@ import android.os.Looper
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.util.Log
 
 /**
  * The creature's ears (Stage 3).
@@ -26,6 +27,9 @@ class VoiceEars(
     private val audio = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private var recognizer: SpeechRecognizer? = null
     private var running = false
+
+    // Post-TTS cooldown: ignore speech for 2s so we don't hear our own reply
+    @Volatile private var cooldownUntilMs = 0L
 
     var muted = false
         private set
@@ -60,6 +64,11 @@ class VoiceEars(
     fun allowSpeech(speaking: Boolean) {
         if (!running || muted) return
         applyStreamMute(!speaking)
+    }
+
+    /** Start a 2s cooldown after TTS finishes to avoid hearing our own reply. */
+    fun cooldown() {
+        cooldownUntilMs = System.currentTimeMillis() + COOLDOWN_MS
     }
 
     fun stop() {
@@ -97,11 +106,29 @@ class VoiceEars(
     }
 
     private val listener = object : RecognitionListener {
+        private var hearingStartMs = 0L
+
+        override fun onBeginningOfSpeech() {
+            hearingStartMs = System.currentTimeMillis()
+            Log.i(TAG, "🎤 hearing started")
+        }
+
         override fun onResults(results: Bundle) {
             val text = results
                 .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 ?.firstOrNull()
-            if (!text.isNullOrBlank()) onHeard(text)
+            val elapsed = System.currentTimeMillis() - hearingStartMs
+            if (!text.isNullOrBlank()) {
+                // Skip if still in post-TTS cooldown
+                if (System.currentTimeMillis() < cooldownUntilMs) {
+                    Log.i(TAG, "📝 ignored (cooldown): $text")
+                } else {
+                    Log.i(TAG, "📝 heard ($elapsed ms): $text")
+                    onHeard(text)
+                }
+            } else {
+                Log.w(TAG, "📝 heard blank after $elapsed ms")
+            }
             scheduleRestart()
         }
 
@@ -112,11 +139,15 @@ class VoiceEars(
         }
 
         override fun onReadyForSpeech(params: Bundle?) {}
-        override fun onBeginningOfSpeech() {}
         override fun onRmsChanged(rmsdB: Float) {}
         override fun onBufferReceived(buffer: ByteArray?) {}
         override fun onEndOfSpeech() {}
         override fun onPartialResults(partialResults: Bundle?) {}
         override fun onEvent(eventType: Int, params: Bundle?) {}
+    }
+
+    companion object {
+        private const val TAG = "SmolcaseEars"
+        private const val COOLDOWN_MS = 2500L
     }
 }

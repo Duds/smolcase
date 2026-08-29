@@ -54,16 +54,20 @@ SMOLCASE is an autonomous desk companion robot consisting of:
 | `docs/04-hardware/` | BOM, servo selection, power architectures | Battery, buck converter, wiring specs |
 | `docs/05-design-thinking/` | Design logs, ideation journals, roadmaps | Stage-by-stage evolution records |
 | `docs/06-specs/` | Approved technical specifications | `YYYY-MM-DD-<topic>-design.md` |
-| `docs/07-plans/` | Step-by-step implementation plans | `YYYY-MM-DD-<topic>.md` |
+| `docs/07-plans/` | Wayfinder map & step-by-step implementation plans | `YYYY-MM-DD-<topic>.md`, `wayfinder-map.md` |
+| `_tasks/` | Wayfinder decision ticket detail files | `YYYYMMDD-NNN-slug.md` with YAML frontmatter |
 | `tinytroupe-workshop/` | Multi-agent persona workshop tooling | Simulation and report generator |
 | `testbed/` | Appliance Dot Matrix Lab (HTML5/Canvas) | Live interactive browser testbed for shader, eyes, & dials |
 | `scripts/` | Empirical evaluation & optimization harnesses | Photometric optimizer (`eval_appliance_dots.py`), face SVG/aperture exporter (`export_face_app_svg.py`) |
 
 ### Critical Workflow Rules
 1. **`PROJECT_INDEX.md` is the index of record:** Every new document, spec, plan, ADR, or status change MUST be linked from `PROJECT_INDEX.md`. If it is not in the index, it does not exist.
-2. **Specs before code:** New features require an approved design in `docs/06-specs/` and an execution plan in `docs/07-plans/` before starting implementation.
-3. **Never create `superpowers/` branded paths:** Always use `docs/06-specs/` and `docs/07-plans/`.
-4. **Mechanical Part Naming (ADR-005):**
+2. **Wayfinder Map is the decision hub:** The [Wayfinder Map](docs/07-plans/wayfinder-map.md) holds the current destination, decision tickets, dependency chain, and fog of war. Always read it at session start alongside GOAL.md.
+3. **`_tasks/` holds ticket detail:** Each decision ticket has a detail file in `_tasks/YYYYMMDD-NNN-slug.md` with YAML frontmatter, question, and acceptance criteria.
+4. **TASKS.md is the execution surface:** The task board in `TASKS.md` uses `YYYYMMDD-NNN` IDs and tracks now/next/blocked/backlog for both wayfinder tickets and implementation tasks.
+5. **Specs before code:** New features require an approved design in `docs/06-specs/` and an execution plan in `docs/07-plans/` before starting implementation.
+6. **Never create `superpowers/` branded paths:** Always use `docs/06-specs/` and `docs/07-plans/`.
+7. **Mechanical Part Naming (ADR-005):**
    - Main Chassis: `SC-CASE`
    - Legs: `SC-LEG-L`, `SC-LEG-R`
    - Servo Pods: `SC-POD-L`, `SC-POD-R` (HIP POD)
@@ -71,7 +75,7 @@ SMOLCASE is an autonomous desk companion robot consisting of:
    - Battery Retainer: `SC-BLY` (BELLY)
    - Back Lid / Service Panel: `SC-SHL` (SHELL)
    - Phone Retention Latch: `SC-JAW` (JAW)
-5. **Two legs, two servos only:** The robot has exactly 2x 360° serial-bus servos (one per leg, hinged ~2/3 up the case). Never write 8–12 servos or multi-jointed quadruped legs.
+8. **Two legs, two servos only:** The robot has exactly 2x 360° serial-bus servos (one per leg, hinged ~2/3 up the case). Never write 8–12 servos or multi-jointed quadruped legs.
 
 ---
 

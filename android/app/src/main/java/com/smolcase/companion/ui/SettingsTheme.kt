@@ -2,6 +2,8 @@ package com.smolcase.companion.ui
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -51,6 +53,59 @@ object SettingsTheme {
 
     /** Section divider vertical margin (8dp). */
     const val DIVIDER_MARGIN_DP = 8
+
+    /** Button background — dark gray for contrast against black canvas. */
+    @JvmField val BUTTON_BG_COLOR: Int = Color.parseColor("#2A2A2A")
+
+    /** Field active border — visible against black. */
+    @JvmField val FIELD_BORDER_COLOR: Int = Color.parseColor("#555555")
+
+    /** Create a styled EditText with visible bottom border line. */
+    fun styledEditText(context: android.content.Context, hint: String, value: String): EditText {
+        val density = context.resources.displayMetrics.density
+        return EditText(context).apply {
+            this.hint = hint
+            setText(value)
+            setTextColor(VALUE_COLOR)
+            setHintTextColor(HINT_COLOR)
+            setBackgroundDrawable(createBottomBorderDrawable(density))
+            setPadding(
+                (PADDING_HORIZONTAL_DP * density).toInt(),
+                (10 * density).toInt(),
+                (PADDING_HORIZONTAL_DP * density).toInt(),
+                (10 * density).toInt()
+            )
+            layoutParams = android.view.ViewGroup.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            contentDescription = "$hint field"
+        }
+    }
+
+    private fun createBottomBorderDrawable(density: Float): android.graphics.drawable.Drawable {
+        val lineHeight = (1 * density).toInt()
+        val bg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(Color.TRANSPARENT)
+        }
+        val line = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(FIELD_BORDER_COLOR)
+            setSize(android.view.ViewGroup.LayoutParams.MATCH_PARENT, lineHeight)
+        }
+        return android.graphics.drawable.LayerDrawable(arrayOf(bg, line)).apply {
+            setId(0, 0); setId(1, 1)
+            setLayerGravity(1, android.view.Gravity.BOTTOM)
+        }
+    }
+
+    /** Apply WCAG AA-safe styling to a Button. */
+    fun Button.styleButton() {
+        setTextColor(LABEL_COLOR)
+        setBackgroundColor(BUTTON_BG_COLOR)
+        minimumHeight = (MIN_TOUCH_HEIGHT_DP * android.content.res.Resources.getSystem().displayMetrics.density).toInt()
+    }
 
     /**
      * Apply a TalkBack contentDescription to a View using its label text.
