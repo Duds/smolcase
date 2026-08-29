@@ -24,6 +24,14 @@ class PersonalityDials(context: Context) {
         get() = prefs.getString(KEY_VOICE_NAME, null)
         set(v) = prefs.edit().putString(KEY_VOICE_NAME, v).apply()
 
+    /** Atomically commit humor + honesty via Editor.commit(). */
+    fun commit(humor: Int, honesty: Int) {
+        prefs.edit()
+            .putInt(KEY_HUMOR, humor.coerceIn(0, 100))
+            .putInt(KEY_HONESTY, honesty.coerceIn(0, 100))
+            .commit()
+    }
+
     companion object {
         const val DEFAULT_HUMOR = 75
         const val DEFAULT_HONESTY = 90

@@ -3,6 +3,8 @@ package com.smolcase.companion
 import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import com.smolcase.companion.cloud.CloudTtsBackend
+import com.smolcase.companion.llm.LlmSettings
 import java.util.Locale
 
 /**
@@ -19,6 +21,7 @@ class CreatureVoice(
     private val allowSpeech: (Boolean) -> Unit
 ) {
     private var ready = false
+    private val cloudTts = CloudTtsBackend(context, LlmSettings(context))
 
     private val tts = TextToSpeech(context) { status ->
         if (status == TextToSpeech.SUCCESS) {
@@ -49,8 +52,21 @@ class CreatureVoice(
 
     fun say(text: String) {
         if (!ready) return
-        allowSpeech(true) // briefly unmute so the reply is audible
-        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "smolcase-utterance")
+        allowSpeech(true)
+        val tts = this.tts // capture for lambda
+        val spoken = cloudTts.speak(text) { success ->
+            if (!success) {
+                // Cloud failed — fall back to local TTS
+                tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "smolcase-utterance")
+            } else {
+                allowSpeech(false)
+                eyes.post { eyes.setSpeaking(false) }
+            }
+        }
+        if (!spoken) {
+            // Cloud TTS not configured or disabled — use local directly
+            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "smolcase-utterance")
+        }
     }
 
     /**
@@ -75,6 +91,7 @@ class CreatureVoice(
     fun shutdown() {
         tts.stop()
         tts.shutdown()
+        cloudTts.shutdown()
     }
 
     companion object {

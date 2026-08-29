@@ -1,8 +1,21 @@
 # SMOLCASE — Project Index
 
-> Living document. Last updated: 2026-08-16 (v0.5-tars)
+> Living document. Last updated: 2026-08-29 (v0.6-refactor)
 >
-> **Purpose**: Central index for all discoveries, decisions, plans, and status. When you find something in this project, it should be findable from here.
+> **Purpose**: Central index for all discoveries, decisions, plans, status, and active wayfinding frontiers.
+
+---
+
+## 🧭 Active Wayfinding & Frontiers
+
+> **Current Destination**: Expressive Appliance Dot Matrix Eyes system integrated into physical CAD & refined simulation.
+
+- **Active Goal / Contract**: [`GOAL.md`](GOAL.md)
+- **Living Task Board**: [`TASKS.md`](TASKS.md)
+- **Fog of War (Knowns / Unknowns / Unknown Unknowns)**:
+  - **Knowns**: Pixel 8 screen-as-face works; LiteRT-LM Gemma 4 E2B runs on-device; Cozmo SDF rasterizer implemented.
+  - **Unknowns**: Exact serial-bus servo torque/speed profile for 300g load; ESP32 BLE-to-serial latency under load.
+  - **Unknown Unknowns**: Thermal dissipation of Pixel 8 running continuous LLM inference inside closed 3D-printed `SC-CASE`; center-of-mass stability during dynamic PPO gait transitions.
 
 ---
 
@@ -122,6 +135,7 @@ Each behaviour includes: reward function, observation space, hyperparameters, tr
 | [2026-08-17 Idle Gaze Wander](docs/06-specs/2026-08-17-idle-gaze-wander-design.md) | WANDER attention state between face-lost and DROWSY | 2026-08-17 | Draft |
 | [2026-08-17 LCD Panel Eyes](docs/06-specs/2026-08-17-lcd-panel-eyes-design.md) | Legibility revision: bounded LCD panels, positive-space pupil (field-test driven) | 2026-08-17 | Draft — [plan](docs/07-plans/2026-08-17-lcd-panel-eyes.md) |
 | [2026-08-22 Expressive Appliance Eyes](docs/06-specs/2026-08-22-expressive-appliance-eyes-design.md) | Full-screen dot matrix, Cozmo-style kawaii expressive eyes (no pupils/glint), appliance telemetry | 2026-08-22 | Approved — [plan](docs/07-plans/2026-08-22-expressive-appliance-eyes.md) |
+| [2026-08-29 Settings Expansion](docs/06-specs/2026-08-29-settings-expansion-design.md) | WCAG AA settings UI, agnostic agent endpoints, cloud TTS/Vision/ReplyGen, Pixel sensors | 2026-08-29 | Draft — [tasks](../TASKS.md) |
 | [Appliance Dot Matrix Eyes](docs/01-research/analysis/) | Empirical photometric & geometry analysis + automated evaluation loop | 2026-08-21 | Validated |
 
 ---
