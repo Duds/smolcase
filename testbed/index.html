@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SMOLCASE Expressive Appliance Dot Matrix Lab</title>
+  <style>
+    :root {
+      --bg-color: #06080a;
+      --control-bg: #101418;
+      --control-border: #1c2630;
+      --control-text: #b0c4de;
+      --accent: #eaeeef;
+      --accent-glow: rgba(234, 238, 239, 0.4);
+      --highlight: #4ade80;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: var(--bg-color);
+      color: var(--control-text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 40px;
+    }
+    header {
+      width: 100%;
+      max-width: 500px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--control-border);
+    }
+    header h1 {
+      font-size: 13px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      background: #142218;
+      border: 1px solid #254a2e;
+      border-radius: 4px;
+      color: #7ee787;
+    }
+    .viewport-container {
+      width: 100%;
+      max-width: 440px;
+      aspect-ratio: 9 / 19.5; /* Pixel 8 screen aspect */
+      max-height: 540px;
+      background: #000;
+      margin: 12px auto;
+      position: relative;
+      border: 1px solid #1a222c;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.9);
+      touch-action: none;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .touch-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 12px;
+      pointer-events: none;
+    }
+    .touch-hint {
+      font-size: 11px;
+      color: #526375;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+    .controls {
+      width: 100%;
+      max-width: 500px;
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .card {
+      background: var(--control-bg);
+      border: 1px solid var(--control-border);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .card-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #799fbe;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+    button.btn {
+      background: #141c24;
+      border: 1px solid #223242;
+      color: #c0d4e8;
+      padding: 8px 6px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+    button.btn:active, button.btn.active {
+      background: #2b4560;
+      color: #ffffff;
+      border-color: #6292c4;
+      font-weight: 700;
+    }
+    .btn-row {
+      display: flex;
+      gap: 6px;
+    }
+    .btn-row button {
+      flex: 1;
+    }
+    .control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+    .control-row:last-child {
+      margin-bottom: 0;
+    }
+    .control-row label {
+      color: #8da4be;
+      flex: 1.2;
+    }
+    .control-row input[type="range"] {
+      flex: 1.5;
+      accent-color: var(--highlight);
+    }
+    .control-row .val {
+      width: 44px;
+      text-align: right;
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--highlight);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>SMOLCASE // Appliance Lab</h1>
+    <span class="badge">Full-Screen Dot Matrix</span>
+  </header>
+
+  <div class="viewport-container" id="touchArea">
+    <canvas id="faceCanvas" width="380" height="680"></canvas>
+    <div class="touch-overlay">
+      <div class="touch-hint">👆 Drag to steer gaze · Click for blink/pet</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <!-- Mood Presets -->
+    <div class="card">
+      <div class="card-title">Kawaii Emotive Expressions</div>
+      <div class="preset-grid">
+        <button class="btn active" id="mood_neutral" onclick="setMood('NEUTRAL')">Neutral</button>
+        <button class="btn" id="mood_happy" onclick="setMood('HAPPY')">Happy (^ ^)</button>
+        <button class="btn" id="mood_skeptical" onclick="setMood('SKEPTICAL')">Skeptical</button>
+        <button class="btn" id="mood_curious" onclick="setMood('CURIOUS')">Curious</button>
+        <button class="btn" id="mood_alert" onclick="setMood('ALERT')">Alert / Surprised</button>
+        <button class="btn" id="mood_drowsy" onclick="setMood('DROWSY')">Drowsy</button>
+        <button class="btn" id="mood_sleeping" onclick="setMood('SLEEPING')">Sleeping</button>
+        <button class="btn" id="mood_heart" onclick="triggerReaction('HEART')">Heart (♥)</button>
+      </div>
+    </div>
+
+    <!-- TARS Personality Dials -->
+    <div class="card">
+      <div class="card-title">TARS Personality Dials (Internal Emotive Modifiers)</div>
+      <div class="control-row">
+        <label>Humour Dial</label>
+        <input type="range" id="dialHumour" min="0" max="100" value="75" oninput="updateDial('humour', +this.value)">
+        <span class="val" id="val_humour">75%</span>
+      </div>
+      <div class="control-row">
+        <label>Honesty Dial</label>
+        <input type="range" id="dialHonesty" min="0" max="100" value="90" oninput="updateDial('honesty', +this.value)">
+        <span class="val" id="val_honesty">90%</span>
+      </div>
+    </div>
+
+    <!-- Actions & Functional Overlays -->
+    <div class="card">
+      <div class="card-title">Actions & Sensory Simulation</div>
+      <div class="btn-row" style="margin-bottom: 8px;">
+        <button class="btn" onclick="triggerBlink()">Blink</button>
+        <button class="btn" id="btnSpeak" onclick="toggleSpeaking()">Speaking: OFF</button>
+        <button class="btn" id="btnThinking" onclick="triggerReaction('THINKING')">Thinking Scan</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn" id="btnAutoGaze" onclick="toggleAutoGaze()">Auto-Gaze: ON</button>
+        <button class="btn" id="btnBle" onclick="toggleBle()">BLE: OFF</button>
+        <button class="btn" id="btnMic" onclick="toggleMic()">Mic: LIVE</button>
+      </div>
+    </div>
+
+    <!-- Matrix & Photometrics -->
+    <div class="card">
+      <div class="card-title">Matrix Grid & Photometrics</div>
+      <div class="control-row">
+        <label>Grid Matrix (Cols x Rows)</label>
+        <span class="val">38 x 68</span>
+      </div>
+      <div class="control-row">
+        <label>Sub-Dot Glow / Bloom</label>
+        <input type="range" id="glowAlpha" min="0" max="80" value="35" oninput="updateParam('glowIntensity', this.value / 100)">
+        <span class="val" id="val_glowAlpha">0.35</span>
+      </div>
+      <div class="control-row">
+        <label>Ghost Dot Substrate Alpha</label>
+        <input type="range" id="ghostAlpha" min="0" max="20" value="5" oninput="updateParam('ghostAlpha', this.value / 100)">
+        <span class="val" id="val_ghostAlpha">0.05</span>
+      </div>
+      <div class="control-row">
+        <label>Battery Telemetry Pip</label>
+        <input type="range" id="batteryLevel" min="0" max="100" value="85" oninput="updateParam('battery', +this.value)">
+        <span class="val" id="val_battery">85%</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('faceCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const COLS = 38;
+    const ROWS = 68;
+
+    const params = {
+      mood: 'NEUTRAL',
+      humour: 75,
+      honesty: 90,
+      glowIntensity: 0.35,
+      ghostAlpha: 0.05,
+      battery: 85,
+      ble: false,
+      micMuted: false,
+      speaking: false,
+      autoGaze: true,
+
+      // Gaze
+      gazeX: 0,
+      gazeY: 0,
+      targetGazeX: 0,
+      targetGazeY: 0,
+
+      // Reaction
+      reactionUntil: 0,
+      prevMood: 'NEUTRAL',
+
+      // Blink
+      lidProgress: 0,
+      blinkStart: 0,
+      nextBlink: Date.now() + 3000,
+      nextWander: Date.now() + 1500
+    };
+
+    // Cozmo procedural eye model
+    class EyeParams {
+      constructor(cx, cy) {
+        this.cx = cx;
+        this.cy = cy;
+        this.w = 0.26;
+        this.h = 0.20;
+        this.radius = 0.07;
+        this.slant = 0;
+        this.scaleX = 1;
+        this.scaleY = 1;
+        this.topLid = 0;
+        this.topLidAngle = 0;
+        this.topLidCurve = 0;
+        this.bottomLid = 0;
+        this.bottomLidAngle = 0;
+        this.bottomLidCurve = 0;
+      }
+
+      signedDistance(nx, ny) {
+        if (ny > 0.50) return (ny - 0.50) + 0.01;
+
+        const dx = nx - this.cx;
+        const dy = ny - this.cy;
+
+        const cosA = Math.cos(-this.slant);
+        const sinA = Math.sin(-this.slant);
+        const rx = dx * cosA - dy * sinA;
+        const ry = dx * sinA + dy * cosA;
+
+        const sx = rx / Math.max(this.scaleX, 0.01);
+        const sy = ry / Math.max(this.scaleY, 0.01);
+
+        const halfW = (this.w * 0.5) - this.radius;
+        const halfH = (this.h * 0.5) - this.radius;
+        const qx = Math.abs(sx) - halfW;
+        const qy = Math.abs(sy) - halfH;
+        const outsideDist = Math.sqrt(Math.max(qx, 0)**2 + Math.max(qy, 0)**2);
+        const insideDist = Math.min(Math.max(qx, qy), 0);
+        const baseBox = outsideDist + insideDist - this.radius;
+
+        const topLidY = (this.h * 0.5) - (this.topLid * this.h);
+        const topLidPlane = (sy - topLidY) + (sx * Math.sin(this.topLidAngle)) - (this.topLidCurve * (1 - (sx / (this.w * 0.5))**2));
+
+        const bottomLidY = -(this.h * 0.5) + (this.bottomLid * this.h);
+        const bottomLidPlane = (bottomLidY - sy) + (sx * Math.sin(this.bottomLidAngle)) - (this.bottomLidCurve * (1 - (sx / (this.w * 0.5))**2));
+
+        return Math.max(baseBox, Math.max(topLidPlane, bottomLidPlane));
+      }
+    }
+
+    const currentLeft = new EyeParams(0.30, 0.23);
+    const currentRight = new EyeParams(0.70, 0.23);
+
+    function computeTargets() {
+      const gx = Math.max(-1, Math.min(1, params.gazeX)) * 0.08;
+      const gy = Math.max(-1, Math.min(1, params.gazeY)) * 0.06;
+
+      const left = new EyeParams(0.30 + gx, 0.23 + gy);
+      const right = new EyeParams(0.70 + gx, 0.23 + gy);
+
+      const humorFactor = Math.max(0.2, params.humour / 100);
+
+      switch (params.mood) {
+        case 'NEUTRAL':
+          left.w = 0.26; left.h = 0.20;
+          right.w = 0.26; right.h = 0.20;
+          break;
+        case 'SKEPTICAL':
+          left.w = 0.26; left.h = 0.16;
+          left.topLid = 0.40 * humorFactor;
+          left.slant = -0.05;
+          right.w = 0.26; right.h = 0.22;
+          right.bottomLid = 0.25 * humorFactor;
+          right.slant = 0.08 * humorFactor;
+          break;
+        case 'HAPPY':
+          left.w = 0.27; left.h = 0.18; left.bottomLid = 0.55; left.bottomLidCurve = 0.06; left.scaleY = 0.9;
+          right.w = 0.27; right.h = 0.18; right.bottomLid = 0.55; right.bottomLidCurve = 0.06; right.scaleY = 0.9;
+          break;
+        case 'CURIOUS':
+          left.w = 0.28; left.h = 0.24; left.slant = 0.08;
+          right.w = 0.28; right.h = 0.24; right.slant = -0.08;
+          break;
+        case 'DROWSY':
+          left.w = 0.26; left.h = 0.18; left.topLid = 0.55;
+          right.w = 0.26; right.h = 0.18; right.topLid = 0.55;
+          break;
+        case 'SLEEPING':
+          left.w = 0.24; left.h = 0.08; left.topLid = 0.85;
+          right.w = 0.24; right.h = 0.08; right.topLid = 0.85;
+          break;
+        case 'ALERT':
+          left.w = 0.29; left.h = 0.26;
+          right.w = 0.29; right.h = 0.26;
+          break;
+      }
+
+      if (params.lidProgress > 0) {
+        left.topLid = Math.max(left.topLid, params.lidProgress);
+        left.bottomLid = Math.max(left.bottomLid, params.lidProgress * 0.6);
+        right.topLid = Math.max(right.topLid, params.lidProgress);
+        right.bottomLid = Math.max(right.bottomLid, params.lidProgress * 0.6);
+      }
+
+      return { left, right };
+    }
+
+    function interpolateEye(curr, target, speed = 0.22) {
+      curr.cx += (target.cx - curr.cx) * speed;
+      curr.cy += (target.cy - curr.cy) * speed;
+      curr.w += (target.w - curr.w) * speed;
+      curr.h += (target.h - curr.h) * speed;
+      curr.radius += (target.radius - curr.radius) * speed;
+      curr.slant += (target.slant - curr.slant) * speed;
+      curr.scaleX += (target.scaleX - curr.scaleX) * speed;
+      curr.scaleY += (target.scaleY - curr.scaleY) * speed;
+      curr.topLid += (target.topLid - curr.topLid) * speed;
+      curr.topLidAngle += (target.topLidAngle - curr.topLidAngle) * speed;
+      curr.topLidCurve += (target.topLidCurve - curr.topLidCurve) * speed;
+      curr.bottomLid += (target.bottomLid - curr.bottomLid) * speed;
+      curr.bottomLidAngle += (target.bottomLidAngle - curr.bottomLidAngle) * speed;
+      curr.bottomLidCurve += (target.bottomLidCurve - curr.bottomLidCurve) * speed;
+    }
+
+    // UI interactions
+    function setMood(m) {
+      params.mood = m;
+      document.querySelectorAll('.preset-grid .btn').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.getElementById(`mood_${m.toLowerCase()}`);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    function triggerReaction(reaction, duration = 2000) {
+      params.prevMood = params.mood;
+      params.mood = reaction;
+      params.reactionUntil = Date.now() + duration;
+      document.querySelectorAll('.preset-grid .btn').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.getElementById(`mood_${reaction.toLowerCase()}`);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    function triggerBlink() {
+      params.blinkStart = Date.now();
+    }
+
+    function toggleSpeaking() {
+      params.speaking = !params.speaking;
+      document.getElementById('btnSpeak').innerText = `Speaking: ${params.speaking ? 'ON' : 'OFF'}`;
+      document.getElementById('btnSpeak').classList.toggle('active', params.speaking);
+      if (params.speaking) {
+        params.mood = params.humour > 70 ? 'SKEPTICAL' : 'CURIOUS';
+      } else {
+        params.mood = 'NEUTRAL';
+      }
+    }
+
+    function toggleAutoGaze() {
+      params.autoGaze = !params.autoGaze;
+      document.getElementById('btnAutoGaze').innerText = `Auto-Gaze: ${params.autoGaze ? 'ON' : 'OFF'}`;
+      document.getElementById('btnAutoGaze').classList.toggle('active', params.autoGaze);
+    }
+
+    function toggleBle() {
+      params.ble = !params.ble;
+      document.getElementById('btnBle').innerText = `BLE: ${params.ble ? 'ON' : 'OFF'}`;
+      document.getElementById('btnBle').classList.toggle('active', params.ble);
+    }
+
+    function toggleMic() {
+      params.micMuted = !params.micMuted;
+      document.getElementById('btnMic').innerText = `Mic: ${params.micMuted ? 'MUTED' : 'LIVE'}`;
+      document.getElementById('btnMic').classList.toggle('active', params.micMuted);
+    }
+
+    function updateDial(key, val) {
+      params[key] = val;
+      document.getElementById(`val_${key}`).innerText = `${val}%`;
+    }
+
+    function updateParam(key, val) {
+      params[key] = val;
+      if (key === 'battery') document.getElementById('val_battery').innerText = `${val}%`;
+      if (key === 'glowIntensity') document.getElementById('val_glowAlpha').innerText = val.toFixed(2);
+      if (key === 'ghostAlpha') document.getElementById('val_ghostAlpha').innerText = val.toFixed(2);
+    }
+
+    // Touch handler
+    const touchArea = document.getElementById('touchArea');
+    function handlePointer(e) {
+      params.autoGaze = false;
+      document.getElementById('btnAutoGaze').innerText = 'Auto-Gaze: OFF';
+      document.getElementById('btnAutoGaze').classList.remove('active');
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      params.targetGazeX = (x - 0.5) * 2.5;
+      params.targetGazeY = (y - 0.25) * 4.0;
+    }
+    touchArea.addEventListener('pointerdown', handlePointer);
+    touchArea.addEventListener('pointermove', (e) => { if (e.buttons > 0) handlePointer(e); });
+
+    // Main Render Loop
+    function render() {
+      const now = Date.now();
+
+      // Check reaction expiry
+      if (params.reactionUntil > 0 && now >= params.reactionUntil) {
+        params.mood = params.prevMood;
+        params.reactionUntil = 0;
+        setMood(params.mood);
+      }
+
+      // Auto-gaze wander
+      if (params.autoGaze && now > params.nextWander) {
+        if (params.mood !== 'SLEEPING') {
+          params.targetGazeX = (Math.random() - 0.5) * 1.6;
+          params.targetGazeY = (Math.random() - 0.5) * 1.2;
+          params.nextWander = now + 1500 + Math.random() * 3000;
+        }
+      }
+      params.gazeX += (params.targetGazeX - params.gazeX) * 0.16;
+      params.gazeY += (params.targetGazeY - params.gazeY) * 0.16;
+
+      // Auto-blink
+      if (params.mood !== 'SLEEPING' && now > params.nextBlink) {
+        params.blinkStart = now;
+        params.nextBlink = now + 2500 + Math.random() * 4500;
+      }
+
+      if (params.blinkStart > 0) {
+        const p = (now - params.blinkStart) / 140;
+        if (p >= 1) {
+          params.blinkStart = 0;
+          params.lidProgress = 0;
+        } else {
+          params.lidProgress = p < 0.5 ? p * 2 : (1 - p) * 2;
+        }
+      }
+
+      // Targets and interpolation
+      const targets = computeTargets();
+      interpolateEye(currentLeft, targets.left);
+      interpolateEye(currentRight, targets.right);
+
+      // Render Matrix Grid
+      const W = canvas.width;
+      const H = canvas.height;
+      ctx.fillStyle = '#0a0d10';
+      ctx.fillRect(0, 0, W, H);
+
+      const cellW = W / COLS;
+      const cellH = H / ROWS;
+      const dotRadius = Math.min(cellW, cellH) * 0.38;
+      const dotRadiusNorm = 0.5 / COLS;
+
+      const isSleeping = params.mood === 'SLEEPING';
+      const breathPhase = isSleeping ? (now * 0.0008 * 2 * Math.PI) : (now * 0.0006 * 2 * Math.PI);
+
+      for (let r = 0; r < ROWS; r++) {
+        const ny = (r + 0.5) / ROWS;
+        const cy = (r + 0.5) * cellH;
+        const rowBreath = Math.sin(breathPhase + (r / ROWS) * 0.5) * 0.5 + 0.5;
+
+        for (let c = 0; c < COLS; c++) {
+          const nx = (c + 0.5) / COLS;
+          const cx = (c + 0.5) * cellW;
+
+          let litIntensity = 0;
+
+          if (params.mood === 'HEART') {
+            // Heart icon equation
+            const hx1 = (nx - (0.30 + params.gazeX * 0.04)) / 0.12;
+            const hy1 = -(ny - (0.23 + params.gazeY * 0.03)) / 0.12;
+            const a1 = hx1*hx1 + hy1*hy1 - 0.7;
+            const d1 = a1*a1*a1 - hx1*hx1*hy1*hy1*hy1;
+
+            const hx2 = (nx - (0.70 + params.gazeX * 0.04)) / 0.12;
+            const hy2 = -(ny - (0.23 + params.gazeY * 0.03)) / 0.12;
+            const a2 = hx2*hx2 + hy2*hy2 - 0.7;
+            const d2 = a2*a2*a2 - hx2*hx2*hy2*hy2*hy2;
+
+            if (d1 <= 0.05 || d2 <= 0.05) {
+              const minD = Math.min(d1, d2);
+              litIntensity = minD <= 0 ? 1.0 : (1.0 - (minD / 0.05));
+            }
+          } else if (params.mood === 'THINKING') {
+            const phase = (now % 1200) / 1200;
+            const rad = 0.12;
+            const dist1 = Math.sqrt((nx - 0.30)**2 + (ny - 0.23)**2);
+            const dist2 = Math.sqrt((nx - 0.70)**2 + (ny - 0.23)**2);
+            const rdist1 = Math.abs(dist1 - (rad * phase));
+            const rdist2 = Math.abs(dist2 - (rad * phase));
+
+            if (rdist1 < 0.04 && dist1 <= rad) litIntensity = Math.max(litIntensity, (1 - rdist1/0.04) * (1 - phase));
+            if (rdist2 < 0.04 && dist2 <= rad) litIntensity = Math.max(litIntensity, (1 - rdist2/0.04) * (1 - phase));
+          } else {
+            // Standard Cozmo eyes
+            const distL = currentLeft.signedDistance(nx, ny);
+            const distR = currentRight.signedDistance(nx, ny);
+            const minDist = Math.min(distL, distR);
+
+            let core = 0;
+            if (minDist <= -dotRadiusNorm) {
+              core = 1.0;
+            } else if (minDist < dotRadiusNorm) {
+              core = 0.5 - (minDist / (2 * dotRadiusNorm));
+            }
+
+            const glow = minDist > 0 ? (params.glowIntensity * Math.exp(-minDist / (dotRadiusNorm * 2.8))) : 0;
+            litIntensity = Math.min(1.0, core + glow);
+          }
+
+          // Bottom telemetry pips (row = ROWS - 2)
+          if (r === ROWS - 2) {
+            // Battery on bottom-left (cols 2..5)
+            const pipsLit = Math.max(1, Math.min(4, Math.floor(params.battery / 25)));
+            if (c >= 2 && c <= 5) {
+              const pipIdx = c - 2;
+              litIntensity = pipIdx < pipsLit ? 0.65 : 0.08;
+            }
+            // BLE on bottom-right (col = COLS - 3)
+            if (c === COLS - 3 && params.ble) {
+              litIntensity = 0.85;
+            }
+          }
+
+          if (litIntensity > 0.02) {
+            // Lit diode
+            ctx.fillStyle = '#eaeeef';
+            ctx.globalAlpha = litIntensity;
+            ctx.beginPath();
+            ctx.arc(cx, cy, dotRadius, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            // Ambient breathing unlit ghost dot
+            const amb = isSleeping ? (params.ghostAlpha * (0.4 + 0.6 * rowBreath)) : (params.ghostAlpha * (0.8 + 0.4 * rowBreath));
+            ctx.fillStyle = '#eaeeef';
+            ctx.globalAlpha = amb;
+            ctx.beginPath();
+            ctx.arc(cx, cy, dotRadius * 0.85, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+
+      // Mic muted pip indicator
+      if (params.micMuted) {
+        ctx.fillStyle = '#e05555';
+        ctx.globalAlpha = 1.0;
+        ctx.beginPath();
+        ctx.arc(W * 0.5, H * 0.96, Math.min(W, H) * 0.014, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      requestAnimationFrame(render);
+    }
+
+    render();
+  </script>
+</body>
+</html>

@@ -16,11 +16,9 @@ class GemmaBackendTest {
 
     @Test
     fun `missing model reason carries adb push instructions`() {
-        val reason = GemmaBackend.missingFileReason(
-            "/sdcard/Android/data/com.smolcase.companion/files/models/gemma-4-E2B-it.litertlm"
-        )
+        val reason = GemmaBackend.missingFileReason()
         assertTrue(reason.contains("adb push"))
         assertTrue(reason.contains(GemmaBackend.MODEL_FILENAME))
-        assertTrue(reason.contains("/sdcard/Android/data/com.smolcase.companion/files/models/"))
+        assertTrue(reason.contains(GemmaBackend.MODEL_DIR))
     }
 }

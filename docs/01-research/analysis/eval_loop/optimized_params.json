@@ -1,0 +1,18 @@
+{
+  "colors": {
+    "panel": "#171a1d",
+    "bezel": "#0a0d10",
+    "segment": "#eaeeef",
+    "pupil": "#171a1d",
+    "glint": "#ffffff",
+    "ghostDot": "#20272d"
+  },
+  "segAlpha": 255,
+  "dotR_ratio": 0.32430344092420194,
+  "plateauR_ratio": 0.23406761536927867,
+  "hotR_ratio": -0.04355498218446749,
+  "ghostR_ratio": 0.3,
+  "ghostAlpha": 0.45,
+  "glow_blur": 7.663012370178258,
+  "glow_alpha": 0.5538367061292004
+}

@@ -39,7 +39,10 @@ dependencies {
     // Gemini Nano via ML Kit GenAI Prompt API (on-device, AICore)
     implementation("com.google.mlkit:genai-prompt:1.0.0-beta4")
 
-    // Gemma 4 E2B via LiteRT-LM (on-device, sideloaded .litertlm — no AICore)
+    // Gemma 4 E2B via LiteRT-LM (on-device, sideloaded .litertlm — no AICore).
+    // 0.10.2 lacks DYNAMIC_UPDATE_SLICE op needed by Gemma 4 E2B model.
+    // 0.16.0 previously livelocked in Engine.initialize() on Tensor G3 but
+    // works with current model export. Revert to 0.10.2 if livelock returns.
     implementation("com.google.ai.edge.litertlm:litertlm-android:0.16.0")
 
     // Coroutines for LLM calls

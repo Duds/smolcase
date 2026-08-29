@@ -23,9 +23,13 @@ class ConversationEngine(context: Context, private val memory: MemoryStore) {
     private val mainHandler = Handler(Looper.getMainLooper())
     private val settings = LlmSettings(context)
     private val dials = PersonalityDials(context)
-    private val nano = GeminiNanoBackend(context.applicationContext, dials)
-    private val kimi = KimiBackend(settings, dials)
-    private val gemma = GemmaBackend(context.applicationContext, dials)
+    // Lazy: only the selected backend is ever constructed. Constructing all
+    // three meant the ML Kit AICore client AND the Gemma engine were alive
+    // in every session — impossible to attribute native CPU burn, and the
+    // 2.4 GB Gemma load shouldn't happen for RULES/KIMI users anyway.
+    private val nano by lazy { GeminiNanoBackend(context.applicationContext, dials) }
+    private val kimi by lazy { KimiBackend(settings, dials) }
+    private val gemma by lazy { GemmaBackend(context.applicationContext, dials) }
 
     fun handle(text: String, onReply: (IntentRouter.Reply) -> Unit) {
         // Known commands always win — instant and offline

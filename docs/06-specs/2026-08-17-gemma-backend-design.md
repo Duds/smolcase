@@ -56,10 +56,13 @@ VoiceEars → ConversationEngine ─┬─ IntentRouter (rules, always first)
 
 ### GemmaBackend (llm/GemmaBackend.kt) — implements LlmBackend
 
-- **Model location:** `context.getExternalFilesDir(null)/models/gemma-4-E2B-it.litertlm`
-  i.e. `/sdcard/Android/data/com.smolcase.companion/files/models/`.
-  External files dir so `adb push` works without `run-as` tricks, and the 2.4 GB
-  file stays out of internal storage accounting.
+- **Model location:** `/sdcard/models/gemma-4-E2B-it.litertlm` — a public
+  directory the owner can see in the Files app. App-private external storage
+  (`Android/data/<pkg>/files`) was tried first and rejected: files `adb push`ed
+  by shell stay shell-owned and Android's FUSE layer hides them from the app
+  entirely. Requires `MANAGE_EXTERNAL_STORAGE` (manifest-declared), granted
+  once over adb:
+  `adb shell appops set com.smolcase.companion MANAGE_EXTERNAL_STORAGE allow`.
 - **Startup probe (init):** if the file exists, begin `engine.initialize()` on a
   background coroutine immediately (takes up to ~10 s cold) so the brain is
   warm before the first spoken question. If the file is missing, skip straight
@@ -101,8 +104,8 @@ VoiceEars → ConversationEngine ─┬─ IntentRouter (rules, always first)
 curl -L -C - -o models/gemma-4-E2B-it.litertlm \
   "https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm"
 # To the phone (2.41 GiB over adb):
-adb push models/gemma-4-E2B-it.litertlm \
-  /sdcard/Android/data/com.smolcase.companion/files/models/
+adb push models/gemma-4-E2B-it.litertlm /sdcard/models/
+adb shell appops set com.smolcase.companion MANAGE_EXTERNAL_STORAGE allow
 ```
 
 `models/*.litertlm` is gitignored — the weights never enter the repo.

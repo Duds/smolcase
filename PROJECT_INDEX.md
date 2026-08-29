@@ -12,7 +12,9 @@
 |-------------------|----------|
 | Understand the project | `README.md` (root) |
 | See this index | `PROJECT_INDEX.md` (root) |
+| Active tasks & status | `TASKS.md` (root) |
 | Agent/convention rules | `AGENTS.md` (root) |
+| Long-running goal protocol | `GOAL.md` (root) |
 | Read GrowBot research | `docs/01-research/` |
 | Read training curriculum | `docs/02-behaviour-training/` |
 | Read architecture decisions | `docs/03-decisions/ADR-###.md` |
@@ -26,7 +28,7 @@
 | Check model manifest | `models/README.md` |
 | Work on ESP32 code | `firmware/` |
 | Work on Android app | `android/` |
-| Work on CAD | `mech/` |
+| Work on CAD | `mech/` — [face appliance dot matrix SVG](mech/face-appliance-dots.svg) |
 | View training logs | `logs/` |
 
 ---
@@ -91,6 +93,12 @@ Full 23,000-word analysis covering:
 - No Discord or public collaborator community found in videos
 - Phone-as-brain architecture is sound and replicable
 
+### Robot Eye / Gaze Libraries Review
+
+Review of 4 eye-related libraries for SMOLCASE fit. pupeyes & pymovements rejected (human gaze-analysis, wrong domain); RoboEyes & IrisOLED rejected as code (Arduino/OLED, cartoon persona) but 8 reusable behavioural patterns captured: jittered autoblink, idle gaze wander, micro-saccade texture, one-shot reaction channel, moods-as-modifiers, always-eased transitions, non-blocking animation clock, status iconography.
+
+📄 [`docs/01-research/SMOLCASE-Robot-Eye-Libraries-Review.md`](docs/01-research/SMOLCASE-Robot-Eye-Libraries-Review.md)
+
 ### Behaviour Training Plan
 
 Full 25,000-word curriculum for 30+ behaviours across 5 tiers:
@@ -103,6 +111,18 @@ Full 25,000-word curriculum for 30+ behaviours across 5 tiers:
 Each behaviour includes: reward function, observation space, hyperparameters, training notes, sim-to-real transfer tips.
 
 📄 [`docs/02-behaviour-training/SMOLCASE-Behaviour-Training-Plan.md`](docs/02-behaviour-training/SMOLCASE-Behaviour-Training-Plan.md)
+
+---
+
+### Specs
+
+| Spec | Topic | Date | Status |
+|------|-------|------|--------|
+| [2026-08-16 TARS Face & Persona](docs/06-specs/2026-08-16-tars-face-persona-design.md) | Glyph face, telemetry feed, voice & dials | 2026-08-16 | Approved |
+| [2026-08-17 Idle Gaze Wander](docs/06-specs/2026-08-17-idle-gaze-wander-design.md) | WANDER attention state between face-lost and DROWSY | 2026-08-17 | Draft |
+| [2026-08-17 LCD Panel Eyes](docs/06-specs/2026-08-17-lcd-panel-eyes-design.md) | Legibility revision: bounded LCD panels, positive-space pupil (field-test driven) | 2026-08-17 | Draft — [plan](docs/07-plans/2026-08-17-lcd-panel-eyes.md) |
+| [2026-08-22 Expressive Appliance Eyes](docs/06-specs/2026-08-22-expressive-appliance-eyes-design.md) | Full-screen dot matrix, Cozmo-style kawaii expressive eyes (no pupils/glint), appliance telemetry | 2026-08-22 | Approved — [plan](docs/07-plans/2026-08-22-expressive-appliance-eyes.md) |
+| [Appliance Dot Matrix Eyes](docs/01-research/analysis/) | Empirical photometric & geometry analysis + automated evaluation loop | 2026-08-21 | Validated |
 
 ---
 

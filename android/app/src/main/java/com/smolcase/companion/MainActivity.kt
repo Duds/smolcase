@@ -70,23 +70,11 @@ class MainActivity : ComponentActivity() {
         conversation = ConversationEngine(this, memory)
         setContentView(eyesView)
 
-        eyesView.setTelemetrySources(
-            listOf<() -> String?>(
-                {
-                    "SESS %04d · TOGETHER %.1fH".format(
-                        Locale.US, memory.totalSessions, memory.totalTimeTogetherMs / 3_600_000f
-                    )
-                },
-                { memory.getReminders().firstOrNull()?.let { "REM: ${it.uppercase(Locale.US)}" } },
-                { "HUMOR ${dials.humor} · HONESTY ${dials.honesty}" },
-                { conversation.statusLine() },
-                {
-                    val bm = getSystemService(BatteryManager::class.java)
-                    "PWR ${bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)}%"
-                },
-                { "CLK ${clockFormat.format(Date())}" }
-            )
-        )
+        eyesView.setDials(dials.humor, dials.honesty)
+
+        val bm = getSystemService(BatteryManager::class.java)
+        val batteryLevel = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+        eyesView.setTelemetry(battery = batteryLevel, ble = false)
 
         // Tap = mute/unmute (350ms delay); triple-tap = face debug cycle;
         // long-press = settings
