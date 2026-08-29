@@ -23,6 +23,8 @@
 
 - [x] Verify echo loop fix (cooldown, ignored logs in logcat) — mechanism confirmed, 2.5s cooldown wired through VoiceEars → CreatureVoice.onDone → MainActivity
 - [x] Verify prompt no longer repeats "directives" in replies — anti-repetition directive present in CreaturePersona; regression test added
+- [x] Add persistent conversation logging — JSONL file in internal storage with ISO-8601 datetime, latency, session ID, build code/name, survives rebuilds
+- [x] Bump build to versionCode 2 / 0.6-tars with BuildConfig enabled
 - [ ] **Investigate Gemma 7-8s latency** — Paper audit: CPU-only (GPU buggy), `maxNumTokens=1024` is generous for 1-2 sentence replies. Expect ~30-50ms/tok on Tensor G3. Needs logcat timing to confirm whether bottleneck is prompt processing or token generation. Temporarily lower `maxNumTokens` to 128 for test. Device required.
 - [ ] **Test cloud TTS provider label field** — Field is wired (save/restore). Default "ElevenLabs". Now uses `styledEditText` for consistent bottom border. `CloudTtsBackend` doesn't read it (metadata only). Device required to verify visibility and save round-trip.
 - [ ] **Confirm field + button contrast on device** — Paper audit all pass: white text 13.5:1, value text 9.3:1, hints 6.6:1, accent 4.8:1, buttons 48dp min touch. Device required for real-world viewing angle / brightness check.

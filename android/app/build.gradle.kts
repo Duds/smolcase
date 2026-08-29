@@ -7,12 +7,16 @@ android {
     namespace = "com.smolcase.companion"
     compileSdk = 34
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "com.smolcase.companion"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "0.5-tars"
+        versionCode = 2
+        versionName = "0.6-tars"
     }
 
     compileOptions {

@@ -38,6 +38,7 @@ class MainActivity : ComponentActivity() {
 
     private val memory by lazy { MemoryStore(this) }
     private val dials by lazy { PersonalityDials(this) }
+    private val conversationLog by lazy { ConversationLog(this) }
     private val clockFormat = SimpleDateFormat("HH:mm", Locale.US)
     private val utteranceCounter = java.util.concurrent.atomic.AtomicInteger(0)
 
@@ -73,6 +74,9 @@ class MainActivity : ComponentActivity() {
         setContentView(eyesView)
 
         eyesView.setDials(dials.humor, dials.honesty)
+
+        conversationLog.startSession()
+        Log.i(TAG, "Session ${conversationLog.sessionId} started (build ${BuildConfig.VERSION_CODE} - ${BuildConfig.VERSION_NAME})")
 
         val bm = getSystemService(BatteryManager::class.java)
         val batteryLevel = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
@@ -131,9 +135,11 @@ class MainActivity : ComponentActivity() {
                 val uid = utteranceCounter.incrementAndGet()
                 val heardAt = System.currentTimeMillis()
                 Log.i(TAG, "[#$uid] heard: $text")
+                conversationLog.heard(text)
                 conversation.handle(text) { reply ->
                     val llmMs = System.currentTimeMillis() - heardAt
                     Log.i(TAG, "[#$uid] LLM reply ($llmMs ms): ${reply.say}")
+                    conversationLog.replied(reply.say, llmMs)
                     eyesView.express(reply.excitement, reply.happy, reply.blinks)
                     voice?.say(reply.say, uid)
                 }

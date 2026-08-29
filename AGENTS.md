@@ -208,6 +208,13 @@ python3 scripts/eval_appliance_dots.py
 
 ## 5. Critical Gotchas & Non-Obvious Patterns
 
+### 5.0 Conversation Log
+
+- **Location:** `context.filesDir/logs/conversations.jsonl` (app-internal storage — survives rebuilds)
+- **Format:** JSONL (one JSON object per line). Fields: `ts` (ISO-8601), `dir` (heard/replied/___session_start), `text`, `latency_ms`, `session`, `build_code`, `build_name`
+- **Session counter:** Incremented on each app launch, persisted in `smolcase_log` SharedPreferences
+- **View on device:** `adb shell cat /data/data/com.smolcase.companion/files/logs/conversations.jsonl`
+
 ### 5.1 LiteRT-LM Dependency & Execution
 - **Version (`litertlm-android:0.16.0`):** LiteRT-LM is at `0.16.0` in `android/app/build.gradle.kts`. Earlier `0.10.2` lacked the `DYNAMIC_UPDATE_SLICE` op needed by Gemma 4 E2B. The `0.16.0` version works on Tensor G3 (Pixel 8) without the livelock previously observed.
 - **CPU Backend Only:** `GemmaBackend` MUST use `Backend.CPU()`. The Mali-G715 GPU path on Tensor G3 suffers from a known upstream bug (LiteRT-LM issue #2202) that corrupts numbers and contractions.
