@@ -14,16 +14,21 @@ import java.util.Locale
  * Text-to-speech tuned for TARS: low, measured, deadpan — a marine company
  * commander by way of a gym teacher, not a cute mascot. The glyph face
  * shimmers (column-scan) while it speaks.
+ *
+ * Phase 1: local TTS is always the primary path. Cloud TTS is a disabled-by-
+ * default enhancement, not the hot-path fallback.
  */
 class CreatureVoice(
     context: Context,
     private val dials: PersonalityDials,
     private val eyes: TarsFaceView,
-    private val allowSpeech: (Boolean) -> Unit,
     private val onTtsDone: (() -> Unit)? = null
 ) {
     private var ready = false
     private val cloudTts = CloudTtsBackend(context, LlmSettings(context))
+
+    /** Cloud TTS enhancement — off by default (Phase 1). */
+    var cloudTtsEnabled = false
 
     private val tts = TextToSpeech(context) { status ->
         if (status == TextToSpeech.SUCCESS) {
@@ -40,38 +45,32 @@ class CreatureVoice(
             }
 
             override fun onDone(id: String) {
-                allowSpeech(false)
                 eyes.post { eyes.setSpeaking(false) }
                 onTtsDone?.invoke()
             }
 
             @Deprecated("Deprecated in Java")
             override fun onError(id: String) {
-                allowSpeech(false)
                 eyes.post { eyes.setSpeaking(false) }
                 onTtsDone?.invoke()
             }
         })
     }
 
+    /**
+     * Speak [text] through the local TTS engine immediately.
+     * Cloud TTS is no longer in the hot path — it runs as a low-priority
+     * enhancement only when [cloudTtsEnabled] is true.
+     */
     fun say(text: String, uid: Int = 0) {
         if (!ready) return
-        allowSpeech(true)
         val tag = if (uid > 0) "[#$uid]" else ""
         Log.i(TAG, "${tag}TTS start: $text")
-        val tts = this.tts
-        val spoken = cloudTts.speak(text) { success ->
-            if (!success) {
-                tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "smolcase-utterance")
-            } else {
-                Log.i(TAG, "${tag}TTS cloud done")
-                allowSpeech(false)
-                eyes.post { eyes.setSpeaking(false) }
-                onTtsDone?.invoke()
-            }
-        }
-        if (!spoken) {
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "smolcase-utterance")
+        // Local TTS is always the primary path
+        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "smolcase-utterance")
+        // Cloud TTS is a disabled-by-default enhancement
+        if (cloudTtsEnabled) {
+            cloudTts.speak(text) { _ -> }
         }
     }
 
@@ -79,6 +78,8 @@ class CreatureVoice(
      * Voice choice: the saved preference wins; otherwise prefer a known
      * male Google TTS voice (TARS is not a female-sounding robot), falling
      * back to the first local English voice.
+     *
+     * Local voices sort before network voices in every path.
      */
     private fun pickVoice() {
         val voices = tts.voices ?: return
@@ -102,7 +103,7 @@ class CreatureVoice(
 
     companion object {
         private const val TAG = "SmolcaseVoice"
-        // Google TTS male English voice IDs, most-preferred first
+        // Local variants first in each pair to prefer on-device voices
         private val MALE_VOICE_IDS = listOf(
             "en-us-x-iom-local", "en-us-x-iom-network",
             "en-us-x-tpd-local", "en-us-x-tpd-network",

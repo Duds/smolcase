@@ -2,7 +2,6 @@ package com.smolcase.companion
 
 import android.content.Context
 import android.content.Intent
-import android.media.AudioManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -24,7 +23,6 @@ class VoiceEars(
     private val onMuteChanged: (Boolean) -> Unit
 ) {
     private val handler = Handler(Looper.getMainLooper())
-    private val audio = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private var recognizer: SpeechRecognizer? = null
     private var running = false
 
@@ -34,17 +32,9 @@ class VoiceEars(
     var muted = false
         private set
 
-    private fun applyStreamMute(mute: Boolean) {
-        val direction = if (mute) AudioManager.ADJUST_MUTE else AudioManager.ADJUST_UNMUTE
-        audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, direction, 0)
-        audio.adjustStreamVolume(AudioManager.STREAM_SYSTEM, direction, 0)
-        audio.adjustStreamVolume(AudioManager.STREAM_NOTIFICATION, direction, 0)
-    }
-
     fun start() {
         if (running) return
         running = true
-        applyStreamMute(true)
         listen()
     }
 
@@ -52,18 +42,10 @@ class VoiceEars(
         muted = !muted
         if (muted) {
             recognizer?.stopListening()
-            applyStreamMute(false)
         } else {
-            applyStreamMute(true)
             listen()
         }
         onMuteChanged(muted)
-    }
-
-    /** Called by CreatureVoice: unmute so the reply is audible, re-mute after. */
-    fun allowSpeech(speaking: Boolean) {
-        if (!running || muted) return
-        applyStreamMute(!speaking)
     }
 
     /** Start a 2s cooldown after TTS finishes to avoid hearing our own reply. */
@@ -73,7 +55,6 @@ class VoiceEars(
 
     fun stop() {
         running = false
-        applyStreamMute(false)
         handler.removeCallbacksAndMessages(null)
         recognizer?.destroy()
         recognizer = null

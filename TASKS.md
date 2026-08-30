@@ -1,38 +1,76 @@
 # TASKS.md — SMOLCASE Expedition Task Board
 
 > Living task board. Tasks use `YYYYMMDD-NNN` IDs.
-> Decision tickets live on the [Wayfinder Map](docs/07-plans/wayfinder-map.md).
+> Decision tickets live on the [[docs/07-plans/wayfinder-map\|Wayfinder Map]].
 > Detail files in `_tasks/YYYYMMDD-NNN-slug.md`.
+> See [[docs/06-specs/]] for approved specs and [[AGENTS]] §8 for link conventions.
+
+---
+
+## 🐛 Known Bugs (from 2026-08-30 conversation test)
+
+| ID | Bug | Severity | Proposed Fix |
+|----|-----|----------|-------------|
+| [[_tasks/20260830-001-directives-repetition\|20260830-001]] | LLM parrots "directives" from system prompt | 🔴 High | Reword persona prompt, add word ban list |
+| [[_tasks/20260830-002-latency-degradation\|20260830-002]] | Latency degrades from 3.5s → 10s+ over session | 🔴 High | Reduce `maxNumTokens` from 1024 → 128 |
+| [[_tasks/20260830-003-memory-recall\|20260830-003]] | Memory facts not recalled across turns | 🟡 Medium | Restructure prompt to foreground memory |
+| [[_tasks/20260830-004-dials-ineffective\|20260830-004]] | Humor/honesty dials have no observable effect | 🟡 Medium | Stronger dial framing in prompt |
+| [[_tasks/20260830-005-no-multi-turn\|20260830-005]] | Multi-turn context not maintained | 🟡 Medium | Inject last turns or switch to stateful conversations |
+| [[_tasks/20260830-006-cooldown-inconclusive\|20260830-006]] | Cooldown may let utterances through (~4s window) | 🟢 Low | Needs controlled re-test |
 
 ---
 
 ## 🔥 Now
 
-### Wayfinder Map (Decision Tickets)
+### Conversation Bug Fixes (20260830-001 through 005)
 
-> Destination: Ship a desk-ready SMOLCASE robot.
-> See `docs/07-plans/wayfinder-map.md` for full dependency chain.
+| ID | Task | Blocked By |
+|----|------|------------|
+| 20260830-001 | Fix "directives" word repetition in LLM replies — [[_tasks/20260830-001-directives-repetition\|detail]] | — |
+| 20260830-002 | Reduce `maxNumTokens` to 128 in GemmaBackend.kt — [[_tasks/20260830-002-latency-degradation\|detail]] | — |
+| 20260830-003 | Restructure prompt to foreground memory — [[_tasks/20260830-003-memory-recall\|detail]] | — |
+| 20260830-004 | Strengthen dial framing in prompt — [[_tasks/20260830-004-dials-ineffective\|detail]] | — |
+| 20260830-005 | Architectural fix for multi-turn context — [[_tasks/20260830-005-no-multi-turn\|detail]] | — |
+
+### Wayfinder Map — Hardware Frontier
+
+> Destination: Ship a desk-ready SMOLCASE robot (see [[GOAL]]).
+> See [[docs/07-plans/wayfinder-map]] for full dependency chain.
 
 | ID | Ticket | Type | Status |
 |----|--------|------|--------|
-| 20260829-002 | [Fix conversation quality regressions](_tasks/20260829-002-conversation-quality-fixes.md) | wayfinder:task | 🟡 In progress |
-| 20260829-003 | [Decide serial-bus servo model for ~300g robot](_tasks/20260829-003-servo-selection.md) | wayfinder:research | 🔵 Unclaimed |
-| 20260829-004 | [Design SC-CASE chassis and leg geometry in CAD](_tasks/20260829-004-sc-case-cad-design.md) | wayfinder:prototype | 🔵 Unclaimed |
-
-### Phase 7: Conversation Quality (20260829-002)
-
-- [x] Verify echo loop fix (cooldown, ignored logs in logcat) — mechanism confirmed, 2.5s cooldown wired through VoiceEars → CreatureVoice.onDone → MainActivity
-- [x] Verify prompt no longer repeats "directives" in replies — anti-repetition directive present in CreaturePersona; regression test added
-- [x] Add persistent conversation logging — JSONL file in internal storage with ISO-8601 datetime, latency, session ID, build code/name, survives rebuilds
-- [x] Bump build to versionCode 2 / 0.6-tars with BuildConfig enabled
-- [ ] **Investigate Gemma 7-8s latency** — Paper audit: CPU-only (GPU buggy), `maxNumTokens=1024` is generous for 1-2 sentence replies. Expect ~30-50ms/tok on Tensor G3. Needs logcat timing to confirm whether bottleneck is prompt processing or token generation. Temporarily lower `maxNumTokens` to 128 for test. Device required.
-- [ ] **Test cloud TTS provider label field** — Field is wired (save/restore). Default "ElevenLabs". Now uses `styledEditText` for consistent bottom border. `CloudTtsBackend` doesn't read it (metadata only). Device required to verify visibility and save round-trip.
-- [ ] **Confirm field + button contrast on device** — Paper audit all pass: white text 13.5:1, value text 9.3:1, hints 6.6:1, accent 4.8:1, buttons 48dp min touch. Device required for real-world viewing angle / brightness check.
-- [x] `.gitignore` `models/*.xnnpack_cache` files — done plus regression test for anti-repetition directive
+| 20260829-003 | [[_tasks/20260829-003-servo-selection\|Decide serial-bus servo model for ~300g robot]] | wayfinder:research | 🔵 Unclaimed |
+| 20260829-004 | [[_tasks/20260829-004-sc-case-cad-design\|Design SC-CASE chassis and leg geometry in CAD]] | wayfinder:prototype | 🔵 Unclaimed |
 
 ---
 
 ## 📋 Next
+
+### Process improvements (from coherence review)
+
+| ID | Task | Risk | Blocked By |
+|----|------|------|------------|
+| 20260830-010 | [[_tasks/20260830-010-risk-tagging\|Add risk-level tagging to task template]] | 🟢 Low | — |
+| 20260830-011 | [[_tasks/20260830-011-sim-baseline-test\|Create sim baseline test script]] | 🟢 Low | — |
+| 20260830-012 | [[_tasks/20260830-012-assembly-checklist\|Create hardware assembly checklist]] | 🟢 Low | 20260829-004 |
+| 20260830-013 | [[_tasks/20260830-013-conversation-regression\|Wire conversation regression test into process]] | 🟢 Low | — |
+| 20260830-014 | [[_tasks/20260830-014-contradiction-log\|Establish contradiction log practice]] | 🟢 Low | — |
+
+### Voice System Refactoring (4-Phase Roadmap)
+
+| ID | Task | Risk | Phase |
+|----|------|------|-------|
+| 20260831-001 | Phase 1: per-track volume fade, decouple VoiceEars, invert voice preference | 🟢 Complete | 1 |
+| 20260831-002 | Phase 2: Piper TTS via sherpa-onnx, PiperBackend.kt | 🟡 Medium | 2 |
+| 20260831-003 | Phase 3: token streaming, SentenceBuffer, gapless playback | 🟡 Medium | 3 |
+| 20260831-004 | Phase 4: zero-shot TARS voice cloning with Pocket TTS | 🟢 Low | 4 (deferred) |
+
+### Specs to write
+
+| ID | Task | Blocked By | Notes |
+|----|------|------------|-------|
+| 20260830-008 | [[_tasks/20260830-008-reset-to-scratch\|Implement reset-to-scratch factory reset]] | — | Spec [[docs/06-specs/2026-08-30-reset-to-scratch-design\|written]] + [[docs/07-plans/2026-08-30-reset-to-scratch\|plan]] ready |
+| 20260830-009 | [[_tasks/20260830-009-wakeup-routine\|Implement first-start wakeup / onboarding]] | 20260830-008 | Spec [[docs/06-specs/2026-08-30-wakeup-onboarding-design\|written]] + [[docs/07-plans/2026-08-30-wakeup-onboarding\|plan]] ready |
 
 ### Hardware & Mechanical (unblocked after servo decision)
 
@@ -49,21 +87,37 @@
 
 | ID | Ticket | Blocked By |
 |----|--------|------------|
-| 20260829-005 | [Decide ESP32 module and battery architecture](_tasks/20260829-005-esp32-battery.md) | 20260829-003 (servo dims → power budget) |
-| 20260829-007 | [Implement ESP32 BLE-to-serial-bus bridge firmware](_tasks/20260829-007-esp32-ble-bridge-firmware.md) | 20260829-003, 20260829-005 |
-| 20260829-008 | [TFLite policy export and on-device inference pipeline](_tasks/20260829-008-tflite-on-device-pipeline.md) | 20260829-006 (needs trained policy) |
-| 20260829-009 | [Integrate behaviour arbiter (brain → BLE → servo)](_tasks/20260829-009-behaviour-arbiter-integration.md) | 20260829-007, 20260829-008 |
-| 20260829-010 | [Full 30-behaviour training suite](_tasks/20260829-010-30-behaviour-suite.md) | 20260829-006 (Walk Backward is prerequisite) |
+| 20260829-005 | [[_tasks/20260829-005-esp32-battery\|Decide ESP32 module and battery architecture]] | 20260829-003 (servo dims → power budget) |
+| 20260829-007 | [[_tasks/20260829-007-esp32-ble-bridge-firmware\|Implement ESP32 BLE-to-serial-bus bridge firmware]] | 20260829-003, 20260829-005 |
+| 20260829-008 | [[_tasks/20260829-008-tflite-on-device-pipeline\|TFLite policy export and on-device inference pipeline]] | 20260829-006 (needs trained policy) |
+| 20260829-009 | [[_tasks/20260829-009-behaviour-arbiter-integration\|Integrate behaviour arbiter (brain → BLE → servo)]] | 20260829-007, 20260829-008 |
+| 20260829-010 | [[_tasks/20260829-010-30-behaviour-suite\|Full 30-behaviour training suite]] | 20260829-006 (Walk Backward is prerequisite) |
 
 ---
 
 ## 📦 Backlog
 
-- Characterise thermal dissipation of Pixel 8 inside closed SC-CASE (vent channels / heatsink)
-- Sim-to-real transfer validation after first physical build
-- Gait transition smoothness tuning (CPG + TFLite blend)
-- Mechanical part naming per ADR-005: SC-POD-L/R, SC-RIB, SC-BLY, SC-SHL, SC-JAW
-- BOM tracking in `docs/04-hardware/`
+### Voice System Refactoring (4-Phase Roadmap)
+
+| ID | Task | Risk | Phase |
+|----|------|------|-------|
+| 20260831-001 | Phase 1: per-track volume fade, decouple VoiceEars, invert voice preference | 🟢 Complete | 1 |
+| 20260831-002 | Phase 2: Piper TTS via sherpa-onnx, PiperBackend.kt | 🟡 Medium | 2 |
+| 20260831-003 | Phase 3: token streaming, SentenceBuffer, gapless playback | 🟡 Medium | 3 |
+| 20260831-004 | Phase 4: zero-shot TARS voice cloning with Pocket TTS | 🟢 Low | 4 (deferred) |
+
+### Specs to write
+
+- ~~[[_tasks/20260830-008-reset-to-scratch\|Reset-to-scratch factory reset]]~~ → spec + plan written, ready for implementation
+- ~~[[_tasks/20260830-009-wakeup-routine\|First-start wakeup / onboarding]]~~ → spec + plan written, ready for implementation
+
+### Hardware & engineering
+
+- Characterise thermal dissipation of Pixel 8 inside closed SC-CASE (vent channels / heatsink) — see [[docs/04-hardware/SMOLCASE-Case-Design-Brainstorm]] §3.6
+- Sim-to-real transfer validation after first physical build — see [[docs/02-behaviour-training/SMOLCASE-Behaviour-Training-Plan]]
+- Gait transition smoothness tuning (CPG + TFLite blend) — see [[docs/03-decisions/003-cpg-mujoco-tflite]]
+- Mechanical part naming per [[docs/03-decisions/005-case-architecture-2leg\|ADR-005]]: SC-POD-L/R, SC-RIB, SC-BLY, SC-SHL, SC-JAW
+- BOM tracking in [[docs/04-hardware/README]]
 
 ---
 
@@ -71,10 +125,23 @@
 
 | ID | Item | Evidence |
 |----|------|----------|
-| — | Gemma 4 E2B on-device backend | LiteRT-LM 0.16.0, CPU backend, live inference on Pixel 8 |
-| — | Expressive Appliance Dot Matrix Eyes | SDF rasterizer, mood state machine, telemetry pips, 20/20 tests, debug APK |
-| — | Settings Expansion & Cloud Intelligence | WCAG AA UI, cloud TTS/Vision/ReplyGen, Pixel sensors, all tests passing |
-| — | ADR-001 through ADR-005 | Architecture locked: Pixel 8 brain, hierarchical policies, CPG+MuJoCo+TFLite, ESP32 BLE, 2-leg CASE |
+| 20260829-002 | [[_tasks/20260829-002-conversation-quality-fixes\|Phase 7 conversation quality]] — all sub-items resolved; remaining bugs tracked separately | Superseded by 20260830-001 through 006 |
+| 20260830-007 | [[_tasks/20260830-007-wiki-link-crossref\|Cross-document wiki-link maintenance pass]] | 100+ `[[wiki-links]]` across 33 files; AGENTS.md §8 added |
+| — | Gemma 4 E2B on-device backend — see [[docs/06-specs/2026-08-17-gemma-backend-design]] | LiteRT-LM 0.16.0, CPU backend, live inference on Pixel 8 |
+| — | Expressive Appliance Dot Matrix Eyes — see [[docs/06-specs/2026-08-22-expressive-appliance-eyes-design]] | SDF rasterizer, mood state machine, telemetry pips, 20/20 tests, debug APK |
+| — | Settings Expansion & Cloud Intelligence — see [[docs/06-specs/2026-08-29-settings-expansion-design]] | WCAG AA UI, cloud TTS/Vision/ReplyGen, Pixel sensors, all tests passing |
+| — | ADR-001 through ADR-005 — see [[docs/03-decisions/]] | Architecture locked: Pixel 8 brain, hierarchical policies, CPG+MuJoCo+TFLite, ESP32 BLE, 2-leg CASE |
 | — | MuJoCo simulation environment & CPG baseline | Working, verified in `sim/src/smolcase_train.py` |
-| — | PPO Walk Forward policy | +7.32m at 500K steps |
-| — | Empirical eye analysis & photometric study | `docs/01-research/analysis/` |
+| — | PPO Walk Forward policy — see [[models/README]] | +7.32m at 500K steps |
+| — | Empirical eye analysis & photometric study — see [[docs/01-research/SMOLCASE-Robot-Eye-Libraries-Review]] | `docs/01-research/analysis/` |
+| — | **Phase 1: Process framework** — AGENTS.md updated (skills table, template refs, session start/end, closure gate) | `AGENTS.md` |
+| — | **Phase 1: Process framework** — STANDARDS.md created (document/code/session/decision standards, failure modes, testing doctrine) | `STANDARDS.md` |
+| — | **Phase 1: Process framework** — Templates consolidated into `docs/templates/` | 8 templates moved |
+| — | **Phase 1: Process framework** — PROJECT_INDEX.md updated with new refs | `PROJECT_INDEX.md` |
+| — | **Phase 1: Process framework** — Process coherence review written | `docs/analysis/process-coherence-review.md` |
+| — | **Voice System Deep Research** — Latency/popping/TTS-engine analysis | `docs/01-research/SMOLCASE-Voice-System-Deep-Research.md` |
+| — | **Voice Phase 1 plan** — Audio fix (per-track fade, stream decouple, voice pref) | `docs/07-plans/2026-08-31-voice-phase1-audio-fix.md` |
+| 20260831-001 | **Voice Phase 1 — implementation** | VoiceEars stripped of audio routing, CreatureVoice local-first say(), pickVoice() prefers local voices, cloud TTS off by default |
+| — | **Voice Phase 2 plan** — Piper TTS via sherpa-onnx | `docs/07-plans/2026-08-31-voice-phase2-piper-tts.md` |
+| — | **Voice Phase 3 plan** — Streaming LLM→speaker pipeline | `docs/07-plans/2026-08-31-voice-phase3-streaming.md` |
+| — | **Voice Phase 4 plan** — TARS voice cloning with Pocket TTS | `docs/07-plans/2026-08-31-voice-phase4-tars-voice.md` |

@@ -148,10 +148,9 @@ class MainActivity : ComponentActivity() {
                 eyesView.setMicMuted(muted)
             }
         ).also { it.start() }
-        // Voice unmutes the streams (via VoiceEars.allowSpeech) only while speaking
-        voice = CreatureVoice(this, dials, eyesView, { speaking ->
-            ears?.allowSpeech(speaking)
-        }, onTtsDone = { ears?.cooldown() })
+        // Voice uses internal volume management (no stream-level muting).
+        // Post-TTS echo prevention handled by VoiceEars.cooldown.
+        voice = CreatureVoice(this, dials, eyesView, onTtsDone = { ears?.cooldown() })
     }
 
     override fun onDestroy() {

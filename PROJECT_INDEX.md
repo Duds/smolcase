@@ -1,8 +1,10 @@
 # SMOLCASE — Project Index
 
-> Living document. Last updated: 2026-08-29 (v0.7-wayfinder)
+> Living document. Last updated: 2026-08-30 (v0.7-wayfinder)
 >
 > **Purpose**: Central index for all discoveries, decisions, plans, status, and active wayfinding frontiers.
+> Navigation: [[README]], [[AGENTS]], [[GOAL]], [[TASKS]], [[docs/07-plans/wayfinder-map]]
+> See the [`.workspace-scratchpad`](.workspace-scratchpad.md) for raw ideas and cross-branch context.
 
 ---
 
@@ -15,7 +17,7 @@
 - **Wayfinder Map (decision tickets)**: [`docs/07-plans/wayfinder-map.md`](docs/07-plans/wayfinder-map.md)
 - **Execution Task Board**: [`TASKS.md`](TASKS.md)
 - **Fog of War (Knowns / Unknowns / Unknown Unknowns)**:
-  - **Knowns**: Pixel 8 screen-as-face works; LiteRT-LM Gemma 4 E2B runs on-device; Cozmo SDF rasterizer + mood state machine implemented; Settings & cloud intelligence complete.
+  - **Knowns**: Pixel 8 screen-as-face works; LiteRT-LM Gemma 4 E2B runs on-device; Cozmo SDF rasterizer + mood state machine implemented; Settings & cloud intelligence complete; wiki-link cross-refs done; reset-to-scratch and wakeup specs drafted.
   - **Unknowns**: Exact serial-bus servo torque/speed profile for 300g load; ESP32 BLE-to-serial latency under load; SC-CASE final mass/inertia for accurate MuJoCo simulation.
   - **Unknown Unknowns**: Thermal dissipation of Pixel 8 running continuous LLM inference inside closed 3D-printed `SC-CASE`; center-of-mass stability during dynamic PPO gait transitions; sim-to-real transfer gap for 3D-printed body.
 
@@ -87,7 +89,14 @@
 | Android app | 🟢 v0.7-wayfinder | Dot matrix eyes, TARS persona, cloud intelligence, Gemma 4 E2B — all shipping |
 | TFLite policy export | 🟡 Code exists | Not yet verified on-device; blocked by trained Walk Backward policy |
 | Behaviour arbiter | ⚪ Not started | Blocked by TFLite pipeline + BLE bridge |
-| Conversation quality | 🟡 In progress | Phase 7: echo loop, prompt repetition, Gemma latency |
+| Conversation quality | 🟡 In progress | Echo loop, prompt repetition, Gemma latency — tracked as bugs 20260830-001 through 006 |
+| Voice system — audio fix | 🟢 Complete | Voice Step 1: per-track volume fade, decouple stream muting, invert voice preference |
+| Voice system — Piper TTS | 🔴 Not started | Voice Step 2: replace Android TTS with Piper via sherpa-onnx |
+| Voice system — streaming | 🔴 Not started | Voice Step 3: token streaming from LLM to speaker, sentence buffer |
+| Voice system — TARS voice | ⚪ Deferred | Voice Step 4: zero-shot voice cloning, Pocket TTS evaluation |
+| Cross-document wiki-links | 🟢 Complete | 100+ `[[wiki-links]]` across 33 files; conventions in AGENTS.md §10 |
+| Reset-to-scratch spec | 🟡 Drafted | [[docs/06-specs/2026-08-30-reset-to-scratch-design\|Spec]] + [[docs/07-plans/2026-08-30-reset-to-scratch\|plan]] |
+| Wakeup/onboarding spec | 🟡 Drafted | [[docs/06-specs/2026-08-30-wakeup-onboarding-design\|Spec]] + [[docs/07-plans/2026-08-30-wakeup-onboarding\|plan]] |
 
 ---
 
@@ -134,12 +143,14 @@ Each behaviour includes: reward function, observation space, hyperparameters, tr
 
 | Spec | Topic | Date | Status |
 |------|-------|------|--------|
-| [2026-08-16 TARS Face & Persona](docs/06-specs/2026-08-16-tars-face-persona-design.md) | Glyph face, telemetry feed, voice & dials | 2026-08-16 | Approved |
-| [2026-08-17 Idle Gaze Wander](docs/06-specs/2026-08-17-idle-gaze-wander-design.md) | WANDER attention state between face-lost and DROWSY | 2026-08-17 | Draft |
-| [2026-08-17 LCD Panel Eyes](docs/06-specs/2026-08-17-lcd-panel-eyes-design.md) | Legibility revision: bounded LCD panels, positive-space pupil (field-test driven) | 2026-08-17 | Draft — [plan](docs/07-plans/2026-08-17-lcd-panel-eyes.md) |
-| [2026-08-22 Expressive Appliance Eyes](docs/06-specs/2026-08-22-expressive-appliance-eyes-design.md) | Full-screen dot matrix, Cozmo-style kawaii expressive eyes (no pupils/glint), appliance telemetry | 2026-08-22 | Approved — [plan](docs/07-plans/2026-08-22-expressive-appliance-eyes.md) |
-| [2026-08-29 Settings Expansion](docs/06-specs/2026-08-29-settings-expansion-design.md) | WCAG AA settings UI, agnostic agent endpoints, cloud TTS/Vision/ReplyGen, Pixel sensors | 2026-08-29 | Draft — [tasks](../TASKS.md) |
-| [Appliance Dot Matrix Eyes](docs/01-research/analysis/) | Empirical photometric & geometry analysis + automated evaluation loop | 2026-08-21 | Validated |
+| [[docs/06-specs/2026-08-16-tars-face-persona-design\|2026-08-16 TARS Face & Persona]] | Glyph face, telemetry feed, voice & dials | 2026-08-16 | Approved — superseded by Appliance Eyes (visual system) |
+| [[docs/06-specs/2026-08-17-idle-gaze-wander-design\|2026-08-17 Idle Gaze Wander]] | WANDER attention state between face-lost and DROWSY | 2026-08-17 | Draft |
+| [[docs/06-specs/2026-08-17-lcd-panel-eyes-design\|2026-08-17 LCD Panel Eyes]] | Legibility revision: bounded LCD panels, positive-space pupil (field-test driven) | 2026-08-17 | Draft — superseded by Appliance Eyes |
+| [[docs/06-specs/2026-08-22-expressive-appliance-eyes-design\|2026-08-22 Expressive Appliance Eyes]] | Full-screen dot matrix, Cozmo-style kawaii expressive eyes (no pupils/glint), appliance telemetry | 2026-08-22 | Approved |
+| [[docs/06-specs/2026-08-29-settings-expansion-design\|2026-08-29 Settings Expansion]] | WCAG AA settings UI, agnostic agent endpoints, cloud TTS/Vision/ReplyGen, Pixel sensors | 2026-08-29 | Draft |
+| [[docs/06-specs/2026-08-17-gemma-backend-design\|2026-08-17 Gemma 4 E2B Backend]] | On-device Gemma LLM via LiteRT-LM, CPU backend, sideloaded model | 2026-08-17 | Approved — shipping |
+| [[docs/06-specs/2026-08-30-reset-to-scratch-design\|2026-08-30 Reset to Scratch]] | Factory reset: wipe soul, dials, conversation log, restart fresh | 2026-08-30 | Draft — [[docs/07-plans/2026-08-30-reset-to-scratch\|plan]] |
+| [[docs/06-specs/2026-08-30-wakeup-onboarding-design\|2026-08-30 Wakeup / Onboarding]] | First-start multi-turn dialogue: name, owner, honesty dial calibration | 2026-08-30 | Draft — [[docs/07-plans/2026-08-30-wakeup-onboarding\|plan]] |
 
 ---
 
@@ -147,11 +158,11 @@ Each behaviour includes: reward function, observation space, hyperparameters, tr
 
 | ADR | Decision | Date | Status |
 |-----|----------|------|--------|
-| [ADR-001](docs/03-decisions/001-pixel8-brain.md) | Pixel 8 as brain (not Pi Zero) | 2026-08-06 | Accepted |
-| [ADR-002](docs/03-decisions/002-hierarchical-policies.md) | Hierarchical policy architecture (~20 TFLite models) | 2026-08-06 | Accepted |
-| [ADR-003](docs/03-decisions/003-cpg-mujoco-tflite.md) | Three-layer control: CPG + MuJoCo + TFLite | 2026-08-06 | Accepted |
-| [ADR-004](docs/03-decisions/004-esp32-ble-bridge.md) | ESP32 BLE bridge for servo control | 2026-08-06 | Accepted |
-| [ADR-005](docs/03-decisions/005-case-architecture-2leg.md) | Case architecture: 2-leg CASE, 2x 360° serial bus servos | 2026-08-14 | Accepted |
+| [[docs/03-decisions/001-pixel8-brain\|ADR-001]] | Pixel 8 as brain (not Pi Zero) | 2026-08-06 | Accepted |
+| [[docs/03-decisions/002-hierarchical-policies\|ADR-002]] | Hierarchical policy architecture (~20 TFLite models) | 2026-08-06 | Accepted |
+| [[docs/03-decisions/003-cpg-mujoco-tflite\|ADR-003]] | Three-layer control: CPG + MuJoCo + TFLite | 2026-08-06 | Accepted |
+| [[docs/03-decisions/004-esp32-ble-bridge\|ADR-004]] | ESP32 BLE bridge for servo control | 2026-08-06 | Accepted |
+| [[docs/03-decisions/005-case-architecture-2leg\|ADR-005]] | Case architecture: 2-leg CASE, 2x 360° serial bus servos | 2026-08-14 | Accepted |
 
 ---
 
@@ -171,14 +182,16 @@ Each behaviour includes: reward function, observation space, hyperparameters, tr
 
 > See the [Wayfinder Map](docs/07-plans/wayfinder-map.md) for the full decision dependency chain.
 
-1. **Fix conversation quality regressions** — Echo loop, prompt repetition, Gemma latency (Phase 7)
+1. **Fix conversation bugs 20260830-001 through 005** — directives repetition, latency degradation, memory recall, dials ineffectiveness, multi-turn context
 2. **Select servos** — Unlock mechanical design and BOM (wayfinder:research, ticket 20260829-003)
-3. **Design SC-CASE in CAD** — After servo dimensions known (wayfinder:prototype, ticket 20260829-004)
-4. **Select ESP32 & battery** — After servo power budget known (blocked by #3)
-5. **Train Walk Backward policy** — After CAD geometry in MuJoCo (blocked by #3)
-6. **Build ESP32 BLE bridge** — After servo + ESP32 selected (blocked by #4)
-7. **TFLite export + on-device pipeline** — After Walk Backward policy (blocked by #5)
-8. **Behaviour arbiter integration** — Brain → BLE → servo pipeline (blocked by #6)
+3. **Reset-to-scratch implementation** — spec written, ready for code (ticket 20260830-008)
+4. **Wakeup/onboarding implementation** — spec written, ready for code (ticket 20260830-009, blocked by #3)
+5. **Design SC-CASE in CAD** — After servo dimensions known (wayfinder:prototype, ticket 20260829-004)
+6. **Select ESP32 & battery** — After servo power budget known (blocked by #5)
+7. **Train Walk Backward policy** — After CAD geometry in MuJoCo (blocked by #5)
+8. **Build ESP32 BLE bridge** — After servo + ESP32 selected (blocked by #6)
+9. **TFLite export + on-device pipeline** — After Walk Backward policy (blocked by #7)
+10. **Behaviour arbiter integration** — Brain → BLE → servo pipeline (blocked by #8)
 
 ---
 
@@ -191,5 +204,6 @@ When you add something new to the project:
 3. **Status change?** Update the status board tables
 4. **New question?** Add to "Research Questions"
 5. **Next action complete?** Move it to status board, update priority queue
+6. **New wiki-links?** Follow the conventions in [[AGENTS]] §10
 
 > **Rule**: If it's not in this index, it doesn't exist.
