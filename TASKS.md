@@ -18,6 +18,8 @@
 | [[_tasks/20260830-005-no-multi-turn\|20260830-005]] | Multi-turn context not maintained | 🟡 Medium | ✅ Fixed — persistent Conversation → per-turn + manual exchange |
 | [[_tasks/20260830-006-cooldown-inconclusive\|20260830-006]] | Cooldown may let utterances through (~4s window) | 🟢 Low | Needs controlled re-test |
 | — | Gemma 4 E2B native engine corruption on Pixel 8 (Tensor G3) | 🔴 High | 🔴 Wont fix — see [[_tasks/20260831-008-llm-default-to-agent]] |
+| [[_tasks/20260831-009-settings-contrast-bug|20260831-009]] | Settings text input fields fail WCAG AA contrast on black | 🟡 Medium | 🔴 Open — border line 1.8:1, button bg 1.3:1 |
+| [[_tasks/20260831-010-settings-ux-redesign-spike|20260831-010]] | Settings UX redesign spike — multi-page, tabs, styling | 🟡 Medium | 🔵 Spike — brainstorm only |
 
 ---
 
