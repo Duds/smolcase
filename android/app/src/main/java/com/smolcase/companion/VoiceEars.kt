@@ -2,6 +2,7 @@ package com.smolcase.companion
 
 import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -16,6 +17,10 @@ import android.util.Log
  * Continuous on-device speech recognition (Pixel 8 runs this on-device).
  * Listens in a restart loop; final results go to the intent router.
  * Tap the creature to mute/unmute — the work-desk privacy switch.
+ *
+ * Suppresses Android SpeechRecognizer system sounds by temporarily setting
+ * notification/system stream volume to 0 while listening. Uses `setStreamVolume`
+ * (level 0), not ADJUST_MUTE — the old method caused audio popping.
  */
 class VoiceEars(
     private val context: Context,
@@ -23,41 +28,77 @@ class VoiceEars(
     private val onMuteChanged: (Boolean) -> Unit
 ) {
     private val handler = Handler(Looper.getMainLooper())
+    private val audio = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private var recognizer: SpeechRecognizer? = null
     private var running = false
+    private var savedNotificationVolume = 0
+    private var savedSystemVolume = 0
 
-    // Post-TTS cooldown: ignore speech for 2s so we don't hear our own reply
+    // Post-TTS cooldown: ignore speech for 2.5s so we don't hear our own reply
     @Volatile private var cooldownUntilMs = 0L
 
     var muted = false
         private set
 
+    private fun suppressRecognizerSounds() {
+        savedNotificationVolume = audio.getStreamVolume(AudioManager.STREAM_NOTIFICATION)
+        savedSystemVolume = audio.getStreamVolume(AudioManager.STREAM_SYSTEM)
+        if (savedNotificationVolume > 0) {
+            audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, 0, 0)
+            Log.v(TAG, "suppressed notification volume ($savedNotificationVolume → 0)")
+        }
+        if (savedSystemVolume > 0) {
+            audio.setStreamVolume(AudioManager.STREAM_SYSTEM, 0, 0)
+            Log.v(TAG, "suppressed system volume ($savedSystemVolume → 0)")
+        }
+    }
+
+    private fun restoreRecognizerSounds() {
+        if (savedNotificationVolume > 0) {
+            audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, savedNotificationVolume, 0)
+            Log.v(TAG, "restored notification volume → $savedNotificationVolume")
+        }
+        if (savedSystemVolume > 0) {
+            audio.setStreamVolume(AudioManager.STREAM_SYSTEM, savedSystemVolume, 0)
+            Log.v(TAG, "restored system volume → $savedSystemVolume")
+        }
+        savedNotificationVolume = 0
+        savedSystemVolume = 0
+    }
+
     fun start() {
         if (running) return
         running = true
+        Log.i(TAG, "🎧 listening started")
+        suppressRecognizerSounds()
         listen()
     }
 
     fun toggleMute() {
         muted = !muted
+        Log.i(TAG, if (muted) "🔇 do not listen — recognizer stopped" else "🎧 listening resumed")
         if (muted) {
             recognizer?.stopListening()
+            restoreRecognizerSounds()
         } else {
+            suppressRecognizerSounds()
             listen()
         }
         onMuteChanged(muted)
     }
 
-    /** Start a 2s cooldown after TTS finishes to avoid hearing our own reply. */
+    /** Start a 2.5s cooldown after TTS finishes to avoid hearing our own reply. */
     fun cooldown() {
         cooldownUntilMs = System.currentTimeMillis() + COOLDOWN_MS
     }
 
     fun stop() {
         running = false
+        restoreRecognizerSounds()
         handler.removeCallbacksAndMessages(null)
         recognizer?.destroy()
         recognizer = null
+        Log.i(TAG, "🎧 listening stopped")
     }
 
     private fun listen() {
@@ -74,6 +115,14 @@ class VoiceEars(
             )
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false)
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+            // Require 2s of silence before considering speech input complete.
+            // This reduces premature finalisation from road noise / ambient sounds.
+            putExtra(
+                "android.speech.extra.SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS",
+                2000L
+            )
+            // Prefer on-device recognition to avoid network latency on repeat listens
+            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
         }
         try {
             recognizer?.startListening(intent)
@@ -83,7 +132,7 @@ class VoiceEars(
     }
 
     private fun scheduleRestart() {
-        handler.postDelayed({ listen() }, 800)
+        handler.postDelayed({ listen() }, RESTART_DELAY_MS)
     }
 
     private val listener = object : RecognitionListener {
@@ -114,8 +163,22 @@ class VoiceEars(
         }
 
         override fun onError(error: Int) {
-            // NO_MATCH / SPEECH_TIMEOUT are the normal "nobody talking" path —
-            // just keep listening. Anything else also retries, gently.
+            val errName = when (error) {
+                SpeechRecognizer.ERROR_NO_MATCH -> "NO_MATCH"
+                SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "SPEECH_TIMEOUT"
+                SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "BUSY"
+                SpeechRecognizer.ERROR_CLIENT -> "CLIENT"
+                SpeechRecognizer.ERROR_NETWORK -> "NETWORK"
+                SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "NETWORK_TIMEOUT"
+                SpeechRecognizer.ERROR_AUDIO -> "AUDIO"
+                SpeechRecognizer.ERROR_SERVER -> "SERVER"
+                SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "NO_PERMISSION"
+                SpeechRecognizer.ERROR_TOO_MANY_REQUESTS -> "TOO_MANY"
+                SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED -> "LANG_UNSUPPORTED"
+                SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE -> "LANG_UNAVAILABLE"
+                else -> "UNKNOWN($error)"
+            }
+            Log.i(TAG, "🎤 recognizer error: $errName — restarting")
             scheduleRestart()
         }
 
@@ -130,5 +193,6 @@ class VoiceEars(
     companion object {
         private const val TAG = "SmolcaseEars"
         private const val COOLDOWN_MS = 2500L
+        private const val RESTART_DELAY_MS = 800L
     }
 }

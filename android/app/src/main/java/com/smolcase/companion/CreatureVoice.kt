@@ -1,6 +1,7 @@
 package com.smolcase.companion
 
 import android.content.Context
+import android.media.AudioManager
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
@@ -29,6 +30,16 @@ class CreatureVoice(
 
     /** Cloud TTS enhancement — off by default (Phase 1). */
     var cloudTtsEnabled = false
+
+    // One-time unmute of audio streams on construction — the old VoiceEars
+    // could have left streams muted after a force-stop, and we no longer
+    // toggle stream mute for audio routing.
+    init {
+        val audio = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0)
+        audio.adjustStreamVolume(AudioManager.STREAM_SYSTEM, AudioManager.ADJUST_UNMUTE, 0)
+        audio.adjustStreamVolume(AudioManager.STREAM_NOTIFICATION, AudioManager.ADJUST_UNMUTE, 0)
+    }
 
     private val tts = TextToSpeech(context) { status ->
         if (status == TextToSpeech.SUCCESS) {
