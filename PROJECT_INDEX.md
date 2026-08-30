@@ -1,6 +1,6 @@
 # SMOLCASE — Project Index
 
-> Living document. Last updated: 2026-08-30 (v0.7-wayfinder)
+> Living document. Last updated: 2026-08-31 (v0.8-agent-default)
 >
 > **Purpose**: Central index for all discoveries, decisions, plans, status, and active wayfinding frontiers.
 > Navigation: [[README]], [[AGENTS]], [[GOAL]], [[TASKS]], [[docs/07-plans/wayfinder-map]]
@@ -17,7 +17,7 @@
 - **Wayfinder Map (decision tickets)**: [`docs/07-plans/wayfinder-map.md`](docs/07-plans/wayfinder-map.md)
 - **Execution Task Board**: [`TASKS.md`](TASKS.md)
 - **Fog of War (Knowns / Unknowns / Unknown Unknowns)**:
-  - **Knowns**: Pixel 8 screen-as-face works; LiteRT-LM Gemma 4 E2B runs on-device; Cozmo SDF rasterizer + mood state machine implemented; Settings & cloud intelligence complete; wiki-link cross-refs done; reset-to-scratch and wakeup specs drafted.
+  - **Knowns**: Pixel 8 screen-as-face works; LiteRT-LM Gemma 4 E2B runs but unstable on Tensor G3 → default migrated to AGENT (cloud/OpenRouter); Cozmo SDF rasterizer + mood state machine implemented; Settings & cloud intelligence complete; wiki-link cross-refs done; reset-to-scratch and wakeup specs drafted.
   - **Unknowns**: Exact serial-bus servo torque/speed profile for 300g load; ESP32 BLE-to-serial latency under load; SC-CASE final mass/inertia for accurate MuJoCo simulation.
   - **Unknown Unknowns**: Thermal dissipation of Pixel 8 running continuous LLM inference inside closed 3D-printed `SC-CASE`; center-of-mass stability during dynamic PPO gait transitions; sim-to-real transfer gap for 3D-printed body.
 
@@ -86,10 +86,10 @@
 | Training pipeline | 🟢 Working | `sim/src/smolcase_train.py` |
 | BLE protocol spec | 🟡 Draft | `docs/03-decisions/004-esp32-ble-bridge.md` |
 | ESP32 firmware | ⚪ Not started | Blocked by servo + ESP32 selection |
-| Android app | 🟢 v0.7-wayfinder | Dot matrix eyes, TARS persona, cloud intelligence, Gemma 4 E2B — all shipping |
+| Android app | 🟢 v0.7-wayfinder | Dot matrix eyes, TARS persona, cloud intelligence — default LLM switched to AGENT (OpenRouter). Gemma 4 E2B deprecated (unstable on Tensor G3). |
 | TFLite policy export | 🟡 Code exists | Not yet verified on-device; blocked by trained Walk Backward policy |
 | Behaviour arbiter | ⚪ Not started | Blocked by TFLite pipeline + BLE bridge |
-| Conversation quality | 🟡 In progress | Echo loop, prompt repetition, Gemma latency — tracked as bugs 20260830-001 through 006 |
+| Conversation quality | 🟢 LLM bugs fixed | All 5 bugs resolved. On-device Gemma unstable — default migrated to AGENT (cloud/OpenRouter). |
 | Voice system — audio fix | 🟢 Complete | Voice Step 1: per-track volume fade, decouple stream muting, invert voice preference |
 | Voice system — Piper TTS | 🔴 Not started | Voice Step 2: replace Android TTS with Piper via sherpa-onnx |
 | Voice system — streaming | 🔴 Not started | Voice Step 3: token streaming from LLM to speaker, sentence buffer |
@@ -182,16 +182,17 @@ Each behaviour includes: reward function, observation space, hyperparameters, tr
 
 > See the [Wayfinder Map](docs/07-plans/wayfinder-map.md) for the full decision dependency chain.
 
-1. **Fix conversation bugs 20260830-001 through 005** — directives repetition, latency degradation, memory recall, dials ineffectiveness, multi-turn context
-2. **Select servos** — Unlock mechanical design and BOM (wayfinder:research, ticket 20260829-003)
-3. **Reset-to-scratch implementation** — spec written, ready for code (ticket 20260830-008)
-4. **Wakeup/onboarding implementation** — spec written, ready for code (ticket 20260830-009, blocked by #3)
-5. **Design SC-CASE in CAD** — After servo dimensions known (wayfinder:prototype, ticket 20260829-004)
-6. **Select ESP32 & battery** — After servo power budget known (blocked by #5)
-7. **Train Walk Backward policy** — After CAD geometry in MuJoCo (blocked by #5)
-8. **Build ESP32 BLE bridge** — After servo + ESP32 selected (blocked by #6)
-9. **TFLite export + on-device pipeline** — After Walk Backward policy (blocked by #7)
-10. **Behaviour arbiter integration** — Brain → BLE → servo pipeline (blocked by #8)
+1. ✅ **Fix conversation bugs 20260830-001 through 005** — All resolved. Default backend migrated to AGENT (cloud) due to on-device Gemma instability.
+2. 🎯 **Enter OpenRouter API key on device** — long-press face → Settings → Agent form
+3. **Select servos** — Unlock mechanical design and BOM (wayfinder:research, ticket 20260829-003)
+4. **Reset-to-scratch implementation** — spec written, ready for code (ticket 20260830-008)
+5. **Wakeup/onboarding implementation** — spec written, ready for code (ticket 20260830-009, blocked by #4)
+6. **Design SC-CASE in CAD** — After servo dimensions known (wayfinder:prototype, ticket 20260829-004)
+7. **Select ESP32 & battery** — After servo power budget known (blocked by #6)
+8. **Train Walk Backward policy** — After CAD geometry in MuJoCo (blocked by #6)
+9. **Build ESP32 BLE bridge** — After servo + ESP32 selected (blocked by #7)
+10. **TFLite export + on-device pipeline** — After Walk Backward policy (blocked by #8)
+11. **Behaviour arbiter integration** — Brain → BLE → servo pipeline (blocked by #9)
 
 ---
 

@@ -26,8 +26,14 @@ class LlmSettings(context: Context) {
      */
     var backend: Backend
         get() {
-            val raw = prefs.getString(KEY_BACKEND, Backend.RULES.name)!!
+            val raw = prefs.getString(KEY_BACKEND, Backend.AGENT.name)!!
             if (raw == "KIMI") {
+                prefs.edit().putString(KEY_BACKEND, Backend.AGENT.name).apply()
+                return Backend.AGENT
+            }
+            // If the user was on GEMMA, migrate them to AGENT — the on-device
+            // Gemma 4 E2B engine is unstable on Tensor G3 (native crashes).
+            if (raw == "GEMMA") {
                 prefs.edit().putString(KEY_BACKEND, Backend.AGENT.name).apply()
                 return Backend.AGENT
             }

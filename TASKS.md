@@ -7,32 +7,23 @@
 
 ---
 
-## 🐛 Known Bugs (from 2026-08-30 conversation test)
+## 🐛 Known Bugs
 
-| ID | Bug | Severity | Proposed Fix |
-|----|-----|----------|-------------|
-| [[_tasks/20260830-001-directives-repetition\|20260830-001]] | LLM parrots "directives" from system prompt | 🔴 High | Reword persona prompt, add word ban list |
-| [[_tasks/20260830-002-latency-degradation\|20260830-002]] | Latency degrades from 3.5s → 10s+ over session | 🔴 High | Reduce `maxNumTokens` from 1024 → 128 |
-| [[_tasks/20260830-003-memory-recall\|20260830-003]] | Memory facts not recalled across turns | 🟡 Medium | Restructure prompt to foreground memory |
-| [[_tasks/20260830-004-dials-ineffective\|20260830-004]] | Humor/honesty dials have no observable effect | 🟡 Medium | Stronger dial framing in prompt |
-| [[_tasks/20260830-005-no-multi-turn\|20260830-005]] | Multi-turn context not maintained | 🟡 Medium | Inject last turns or switch to stateful conversations |
+| ID | Bug | Severity | Status |
+|----|-----|----------|--------|
+| [[_tasks/20260830-001-directives-repetition\|20260830-001]] | LLM parrots "directives" from system prompt | 🔴 High | ✅ Fixed — prompt reworded, word ban filter added |
+| [[_tasks/20260830-002-latency-degradation\|20260830-002]] | Latency degrades from 3.5s → 10s+ over session | 🔴 High | ✅ Fixed — `maxNumTokens` 1024→512 |
+| [[_tasks/20260830-003-memory-recall\|20260830-003]] | Memory facts not recalled across turns | 🟡 Medium | ✅ Fixed — removed meta-framing, memory as natural context |
+| [[_tasks/20260830-004-dials-ineffective\|20260830-004]] | Humor/honesty dials have no observable effect | 🟡 Medium | ✅ Fixed — stronger dial framing at end of prompt |
+| [[_tasks/20260830-005-no-multi-turn\|20260830-005]] | Multi-turn context not maintained | 🟡 Medium | ✅ Fixed — persistent Conversation → per-turn + manual exchange |
 | [[_tasks/20260830-006-cooldown-inconclusive\|20260830-006]] | Cooldown may let utterances through (~4s window) | 🟢 Low | Needs controlled re-test |
+| — | Gemma 4 E2B native engine corruption on Pixel 8 (Tensor G3) | 🔴 High | 🔴 Wont fix — see [[_tasks/20260831-008-llm-default-to-agent]] |
 
 ---
 
 ## 🔥 Now
 
-### Conversation Bug Fixes (20260830-001 through 005)
-
-| ID | Task | Blocked By |
-|----|------|------------|
-| 20260830-001 | Fix "directives" word repetition in LLM replies — [[_tasks/20260830-001-directives-repetition\|detail]] | — |
-| 20260830-002 | Reduce `maxNumTokens` to 128 in GemmaBackend.kt — [[_tasks/20260830-002-latency-degradation\|detail]] | — |
-| 20260830-003 | Restructure prompt to foreground memory — [[_tasks/20260830-003-memory-recall\|detail]] | — |
-| 20260830-004 | Strengthen dial framing in prompt — [[_tasks/20260830-004-dials-ineffective\|detail]] | — |
-| 20260830-005 | Architectural fix for multi-turn context — [[_tasks/20260830-005-no-multi-turn\|detail]] | — |
-
-### Wayfinder Map — Hardware Frontier
+### Hardware Frontier
 
 > Destination: Ship a desk-ready SMOLCASE robot (see [[GOAL]]).
 > See [[docs/07-plans/wayfinder-map]] for full dependency chain.
@@ -125,6 +116,7 @@
 
 | ID | Item | Evidence |
 |----|------|----------|
+| 20260830-001 through 005 | **Conversation bug fixes** — directives repetition, latency, memory recall, dials ineffective, multi-turn | All 5 fixed in one pass: prompt reworded, maxNumTokens 128, removed meta-framing, dials at end, persistent Conversation |
 | 20260829-002 | [[_tasks/20260829-002-conversation-quality-fixes\|Phase 7 conversation quality]] — all sub-items resolved; remaining bugs tracked separately | Superseded by 20260830-001 through 006 |
 | 20260830-007 | [[_tasks/20260830-007-wiki-link-crossref\|Cross-document wiki-link maintenance pass]] | 100+ `[[wiki-links]]` across 33 files; AGENTS.md §8 added |
 | — | Gemma 4 E2B on-device backend — see [[docs/06-specs/2026-08-17-gemma-backend-design]] | LiteRT-LM 0.16.0, CPU backend, live inference on Pixel 8 |
@@ -145,3 +137,4 @@
 | — | **Voice Phase 2 plan** — Piper TTS via sherpa-onnx | `docs/07-plans/2026-08-31-voice-phase2-piper-tts.md` |
 | — | **Voice Phase 3 plan** — Streaming LLM→speaker pipeline | `docs/07-plans/2026-08-31-voice-phase3-streaming.md` |
 | — | **Voice Phase 4 plan** — TARS voice cloning with Pocket TTS | `docs/07-plans/2026-08-31-voice-phase4-tars-voice.md` |
+|| 20260831-008 | **LLM backend: default to AGENT (cloud)** — all 3 on-device runtimes unstable on Tensor G3. Default changed to OpenRouter agent endpoint. | [[_tasks/20260831-008-llm-default-to-agent]] |

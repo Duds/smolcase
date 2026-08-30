@@ -76,8 +76,8 @@ class GeminiNanoBackend(private val context: Context, private val dials: Persona
                 }
 
                 val prompt = CreaturePersona.prompt(dials.humor, dials.honesty) +
-                    "\n\nContext from the creature's memory:\n" + soulContext +
-                    "\n\nThe human says: " + userText
+                    "\n\n" + soulContext +
+                    "\n\nThe person says: " + userText
 
                 val response = model.generateContent(
                     generateContentRequest(TextPart(prompt)) {}

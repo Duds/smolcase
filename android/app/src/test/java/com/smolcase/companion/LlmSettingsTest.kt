@@ -18,8 +18,8 @@ class LlmSettingsTest {
     }
 
     @Test
-    fun `RULES is the default backend`() {
-        assertEquals(LlmSettings.Backend.RULES, LlmSettings.Backend.valueOf("RULES"))
+    fun `AGENT is the default backend`() {
+        assertEquals(LlmSettings.Backend.AGENT, LlmSettings.Backend.valueOf("AGENT"))
     }
 
     @Test

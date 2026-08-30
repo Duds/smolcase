@@ -86,10 +86,17 @@ class ConversationEngine(context: Context, private val memory: MemoryStore) {
             LlmSettings.Backend.RULES -> null
         }
 
-        if (backend == null ||
-            (settings.backend == LlmSettings.Backend.AGENT && !settings.agentConfigured)
-        ) {
+        if (backend == null) {
             onReply(IntentRouter.unknownReply())
+            return
+        }
+        if (settings.backend == LlmSettings.Backend.AGENT && !settings.agentConfigured) {
+            onReply(
+                IntentRouter.Reply(
+                    "I can't answer that yet — set up an API key in Settings.",
+                    excitement = 0.2f, happy = 0.1f, blinks = 0
+                )
+            )
             return
         }
 

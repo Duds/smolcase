@@ -47,7 +47,7 @@ class SettingsActivity : ComponentActivity() {
     private var honestySeek: SeekBar? = null
     private var savedHumor = PersonalityDials.DEFAULT_HUMOR
     private var savedHonesty = PersonalityDials.DEFAULT_HONESTY
-    private var savedBackend: LlmSettings.Backend = LlmSettings.Backend.RULES
+    private var savedBackend: LlmSettings.Backend = LlmSettings.Backend.AGENT
     private var dirty = false
     private var creatureSenses: com.smolcase.companion.sensors.CreatureSenses? = null
     private var sensorGroup: com.smolcase.companion.ui.SensorToggleGroup? = null
@@ -121,11 +121,11 @@ class SettingsActivity : ComponentActivity() {
         // =================================================================
         val thinkingSection = SettingsSection(this, "Thinking Engine", initiallyExpanded = true)
 
-        val radioRules = RadioButton(this).apply {
+        val radioAgent = RadioButton(this).apply {
             id = android.view.View.generateViewId()
-            text = "Rules only (offline, dumb but charming)"
+            text = "Agent (cloud, any OpenAI-compatible)"
             setTextColor(SettingsTheme.VALUE_COLOR)
-            contentDescription = "Rules only backend"
+            contentDescription = "Agent cloud endpoint"
             minimumHeight = (SettingsTheme.MIN_TOUCH_HEIGHT_DP * density).toInt()
         }
         val radioNano = RadioButton(this).apply {
@@ -135,22 +135,22 @@ class SettingsActivity : ComponentActivity() {
             contentDescription = "Gemini Nano on device"
             minimumHeight = (SettingsTheme.MIN_TOUCH_HEIGHT_DP * density).toInt()
         }
-        val radioAgent = RadioButton(this).apply {
-            id = android.view.View.generateViewId()
-            text = "Agent (cloud, any OpenAI-compatible)"
-            setTextColor(SettingsTheme.VALUE_COLOR)
-            contentDescription = "Agent cloud endpoint"
-            minimumHeight = (SettingsTheme.MIN_TOUCH_HEIGHT_DP * density).toInt()
-        }
         val radioGemma = RadioButton(this).apply {
             id = android.view.View.generateViewId()
-            text = "Gemma 4 E2B (on-device, sideloaded)"
+            text = "Gemma 4 E2B (on-device, sideloaded — unstable)"
+            setTextColor(android.graphics.Color.parseColor("#888888"))
+            contentDescription = "Gemma 4 on device, use at your own risk"
+            minimumHeight = (SettingsTheme.MIN_TOUCH_HEIGHT_DP * density).toInt()
+        }
+        val radioRules = RadioButton(this).apply {
+            id = android.view.View.generateViewId()
+            text = "Rules only (offline, no AI)"
             setTextColor(SettingsTheme.VALUE_COLOR)
-            contentDescription = "Gemma 4 on device"
+            contentDescription = "Rules only backend"
             minimumHeight = (SettingsTheme.MIN_TOUCH_HEIGHT_DP * density).toInt()
         }
         backendGroup = RadioGroup(this).apply {
-            addView(radioRules); addView(radioNano); addView(radioAgent); addView(radioGemma)
+            addView(radioAgent); addView(radioNano); addView(radioGemma); addView(radioRules)
             setOnCheckedChangeListener { _, _ ->
                 markDirty()
                 if (::agentForm.isInitialized) {
@@ -159,14 +159,24 @@ class SettingsActivity : ComponentActivity() {
             }
         }
         when (savedBackend) {
-            LlmSettings.Backend.RULES -> backendGroup.check(radioRules.id)
-            LlmSettings.Backend.NANO -> backendGroup.check(radioNano.id)
             LlmSettings.Backend.AGENT -> backendGroup.check(radioAgent.id)
+            LlmSettings.Backend.NANO -> backendGroup.check(radioNano.id)
             LlmSettings.Backend.GEMMA -> backendGroup.check(radioGemma.id)
+            LlmSettings.Backend.RULES -> backendGroup.check(radioRules.id)
         }
         thinkingSection.addContent(backendGroup)
 
         // Agent endpoint form (collapsible under the radio)
+        // Note under AGENT radio
+        val agentNote = TextView(this).apply {
+            text = "Requires an API key from OpenRouter, Together, or any OpenAI-compatible provider"
+            setTextColor(SettingsTheme.HINT_COLOR)
+            textSize = 12f
+            setPadding(0, 0, 0, (8 * density).toInt())
+            contentDescription = "Agent requires API key"
+        }
+        thinkingSection.addContent(agentNote)
+
         agentForm = AgentEndpointForm(this, settings)
         agentForm.visibility = if (savedBackend == LlmSettings.Backend.AGENT) android.view.View.VISIBLE else android.view.View.GONE
         thinkingSection.addContent(agentForm)

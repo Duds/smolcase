@@ -55,7 +55,7 @@ class AgentBackend(
                             .put(
                                 "content",
                                 CreaturePersona.prompt(dials.humor, dials.honesty) +
-                                    "\n\nContext from the creature's memory:\n" + soulContext
+                                    "\n\n" + soulContext
                             )
                     )
                     .put(JSONObject().put("role", "user").put("content", userText))
