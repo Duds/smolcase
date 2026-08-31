@@ -20,6 +20,7 @@
 | — | Gemma 4 E2B native engine corruption on Pixel 8 (Tensor G3) | 🔴 High | 🔴 Wont fix — see [[_tasks/20260831-008-llm-default-to-agent]] |
 | [[_tasks/20260831-009-settings-contrast-bug|20260831-009]] | Settings text input fields fail WCAG AA contrast on black | 🟡 Medium | 🔴 Open — border line 1.8:1, button bg 1.3:1 |
 | [[_tasks/20260831-010-settings-ux-redesign-spike|20260831-010]] | Settings UX redesign spike — multi-page, tabs, styling | 🟡 Medium | 🔵 Spike — brainstorm only |
+| — | IntentRouter: "clear my reminders" matches "my reminders" first, never clears | 🟡 Medium | ✅ Fixed — IntentRouter ordering reversed |
 
 ---
 
@@ -134,4 +135,7 @@
 | — | **Voice Phase 2 plan** — Piper TTS via sherpa-onnx | `docs/07-plans/2026-08-31-voice-phase2-piper-tts.md` |
 | — | **Voice Phase 3 plan** — Streaming LLM→speaker pipeline | `docs/07-plans/2026-08-31-voice-phase3-streaming.md` |
 | — | **Voice Phase 4 plan** — TARS voice cloning with Pocket TTS | `docs/07-plans/2026-08-31-voice-phase4-tars-voice.md` |
-| | 20260831-008 | **LLM backend: default to AGENT (cloud)** — all 3 on-device runtimes unstable on Tensor G3. Default changed to OpenRouter agent endpoint. | [[_tasks/20260831-008-llm-default-to-agent]] |
+| 20260831-008 | **LLM backend: default to AGENT (cloud)** — all 3 on-device runtimes unstable on Tensor G3. Default changed to OpenRouter agent endpoint. | [[_tasks/20260831-008-llm-default-to-agent]] |
+| — | **LLM tool-calling (11 tools)** — AgentTool.kt + AgentBackend rewrite with two-turn tool loop | `AgentTool.kt`, `AgentBackend.kt`, `MemoryStore.kt` (fact storage), 9 unit tests |
+| — | **Cloud TTS -> OpenRouter/Deepgram Flux** — ElevenLabs replaced with OpenRouter audio/speech endpoint, `flux-sienna-en` voice | `CloudTtsBackend.kt` rewrite |
+| — | **IntentRouter bugfix** — "clear my reminders" now clears instead of listing | `IntentRouter.kt` ordering fix |

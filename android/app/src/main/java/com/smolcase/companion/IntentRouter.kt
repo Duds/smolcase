@@ -52,6 +52,14 @@ object IntentRouter {
         }
 
         return when {
+            // "clear my reminders" / "clear"+"reminder" must match before
+            // "my reminders" below, or the user can never clear their list.
+            text.contains("clear") && text.contains("reminder") ||
+                text.contains("forget everything") -> {
+                memory.clearReminders()
+                Reply("Done. Fresh start.", happy = 0.7f, blinks = 2)
+            }
+
             text.contains("what's next") || text.contains("whats next") ||
                 text.contains("what do i have") || text.contains("my reminders") -> {
                 val reminders = memory.getReminders()
@@ -61,12 +69,6 @@ object IntentRouter {
                     val list = reminders.take(3).joinToString(", then ")
                     Reply("Next up: $list.", happy = 0.5f)
                 }
-            }
-
-            text.contains("clear") && text.contains("reminder") ||
-                text.contains("forget everything") -> {
-                memory.clearReminders()
-                Reply("Done. Fresh start.", happy = 0.7f, blinks = 2)
             }
 
             text.contains("good morning") ->
