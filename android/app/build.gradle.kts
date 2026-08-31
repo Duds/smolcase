@@ -55,4 +55,6 @@ dependencies {
 
     // Unit tests (pure-Kotlin face math runs on the JVM)
     testImplementation("junit:junit:4.13.2")
+    // Real org.json for unit tests (Android SDK stubs throw "not mocked")
+    testImplementation("org.json:json:20231013")
 }

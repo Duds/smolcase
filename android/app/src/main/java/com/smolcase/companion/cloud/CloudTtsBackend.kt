@@ -6,16 +6,28 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.smolcase.companion.llm.LlmSettings
+import org.json.JSONObject
+import java.io.OutputStreamWriter
+import java.net.HttpURLConnection
+import java.net.URL
 import kotlin.concurrent.thread
 
 /**
- * Cloud TTS backend — fetches audio from a configurable endpoint and plays it.
+ * Cloud TTS backend — fetches audio from OpenRouter TTS API and plays it.
  *
- * Default: ElevenLabs-compatible API. Configurable base URL, key, and voice ID.
- * Falls back gracefully: returns false from speak() if network or decode fails,
- * letting the caller use local TTS instead.
+ * Uses the OpenRouter audio/speech endpoint (OpenAI-compatible) with the
+ * Deepgram Flux TTS model. Falls back gracefully: returns false from speak()
+ * if network or decode fails, letting the caller use local TTS instead.
  */
 class CloudTtsBackend(private val context: Context, private val settings: LlmSettings) {
+
+    companion object {
+        private const val TAG = "CloudTTS"
+        private const val OR_API_BASE = "https://openrouter.ai/api/v1"
+        private const val MODEL = "deepgram/flux-tts"
+        private const val VOICE = "flux-sienna-en"
+        private const val RESPONSE_FORMAT = "mp3"
+    }
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private var player: MediaPlayer? = null
@@ -26,33 +38,37 @@ class CloudTtsBackend(private val context: Context, private val settings: LlmSet
      */
     fun speak(text: String, onResult: ((Boolean) -> Unit)? = null): Boolean {
         if (!settings.cloudTtsEnabled) return false
-        if (settings.cloudTtsApiKey.isBlank()) return false
+
+        val apiKey = settings.agentApiKey
+        if (apiKey.isBlank()) {
+            Log.w(TAG, "Cloud TTS disabled: no OpenRouter API key set")
+            return false
+        }
 
         thread {
             try {
-                val url = java.net.URL(settings.cloudTtsBaseUrl + "/text-to-speech/" + settings.cloudTtsVoiceId)
-                val conn = (url.openConnection() as java.net.HttpURLConnection).apply {
+                val url = URL("$OR_API_BASE/audio/speech")
+                val conn = (url.openConnection() as HttpURLConnection).apply {
                     requestMethod = "POST"
                     connectTimeout = 10_000
-                    readTimeout = 15_000
+                    readTimeout = 30_000
                     setRequestProperty("Content-Type", "application/json")
-                    setRequestProperty("xi-api-key", settings.cloudTtsApiKey)
+                    setRequestProperty("Authorization", "Bearer $apiKey")
                     doOutput = true
                 }
 
-                val body = org.json.JSONObject().apply {
-                    put("text", text)
-                    put("model_id", settings.cloudTtsModelId)
-                    put("voice_settings", org.json.JSONObject().apply {
-                        put("stability", settings.cloudTtsStability / 100.0)
-                        put("similarity_boost", settings.cloudTtsSimilarity / 100.0)
-                    })
-                }
-                java.io.OutputStreamWriter(conn.outputStream).use { it.write(body.toString()) }
+                val body = JSONObject()
+                    .put("model", MODEL)
+                    .put("input", text)
+                    .put("voice", VOICE)
+                    .put("response_format", RESPONSE_FORMAT)
+
+                OutputStreamWriter(conn.outputStream).use { it.write(body.toString()) }
 
                 val code = conn.responseCode
                 if (code !in 200..299) {
-                    Log.w(TAG, "Cloud TTS HTTP $code")
+                    val err = conn.errorStream?.bufferedReader()?.readText() ?: "HTTP $code"
+                    Log.w(TAG, "Cloud TTS HTTP $code: $err")
                     mainHandler.post { onResult?.invoke(false) }
                     return@thread
                 }
@@ -98,9 +114,5 @@ class CloudTtsBackend(private val context: Context, private val settings: LlmSet
     fun shutdown() {
         player?.release()
         player = null
-    }
-
-    companion object {
-        private const val TAG = "CloudTTS"
     }
 }

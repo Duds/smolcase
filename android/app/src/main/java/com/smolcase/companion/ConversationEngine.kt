@@ -25,12 +25,19 @@ class ConversationEngine(context: Context, private val memory: MemoryStore) {
     private val mainHandler = Handler(Looper.getMainLooper())
     private val settings = LlmSettings(context)
     private val dials = PersonalityDials(context)
+
+    /**
+     * Optional reference to the robot's eye expression state, used by
+     * AgentBackend tool calls to trigger mood changes. Set after construction
+     * from MainActivity.
+     */
+    @Volatile var expressionState: com.smolcase.companion.matrix.EyeExpressionState? = null
     // Lazy: only the selected backend is ever constructed. Constructing all
     // three meant the ML Kit AICore client AND the Gemma engine were alive
     // in every session — impossible to attribute native CPU burn, and the
     // 2.4 GB Gemma load shouldn't happen for RULES/KIMI users anyway.
     private val nano by lazy { GeminiNanoBackend(context.applicationContext, dials) }
-    private val kimi by lazy { AgentBackend(settings, dials) }
+    private val kimi by lazy { AgentBackend(settings, dials, memory = memory, expressionState = expressionState) }
     private val gemma by lazy { GemmaBackend(context.applicationContext, dials) }
 
     // Cloud reply gen: independent AgentBackend using cloud_reply_gen_* settings

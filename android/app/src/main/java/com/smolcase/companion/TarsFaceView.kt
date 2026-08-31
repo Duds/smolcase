@@ -46,7 +46,7 @@ class TarsFaceView @JvmOverloads constructor(
     // Matrix resolution
     private val matrix = ApplianceMatrixCanvas(cols = 38, rows = 68, ghostAlpha = 0.05f)
     private val rasterizer = CozmoEyeRasterizer(matrix)
-    private val expressionState = EyeExpressionState()
+    val expressionState = EyeExpressionState()
     private val interpolator = CozmoEyeInterpolator(speed = 0.22f)
 
     // Creature tracking state

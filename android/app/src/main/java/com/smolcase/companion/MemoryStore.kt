@@ -90,6 +90,38 @@ class MemoryStore(context: Context) {
         prefs.edit().remove(KEY_REMINDERS).apply()
     }
 
+    //---- Fact storage (key-value memory for LLM tool calls) ----
+
+    /**
+     * Store a named fact about the human, world, or anything the LLM
+     * wants to remember across turns. Keys prefixed with [KEY_FACT_PREFIX].
+     */
+    fun putFact(key: String, value: String) {
+        prefs.edit().putString(KEY_FACT_PREFIX + key, value).apply()
+    }
+
+    /** Retrieve a stored fact, or null if never set. */
+    fun getFact(key: String): String? = prefs.getString(KEY_FACT_PREFIX + key, null)
+
+    /** Remove a single fact by key. */
+    fun removeFact(key: String) {
+        prefs.edit().remove(KEY_FACT_PREFIX + key).apply()
+    }
+
+    /**
+     * Return all stored facts as a map. Used by the LLM tool
+     * [AgentTool.TOOL_LIST_FACTS] to browse what it knows.
+     */
+    fun getAllFacts(): Map<String, String> {
+        val result = LinkedHashMap<String, String>()
+        for ((k, v) in prefs.all) {
+            if (k.startsWith(KEY_FACT_PREFIX)) {
+                result[k.removePrefix(KEY_FACT_PREFIX)] = v.toString()
+            }
+        }
+        return result
+    }
+
     /**
      * How many minutes later than usual you first appeared today
      * (0 if you're early/on time, or if no baseline exists yet).
@@ -113,6 +145,12 @@ class MemoryStore(context: Context) {
                 append(reminders.joinToString("; "))
                 append(".\n")
             }
+            val facts = getAllFacts()
+            if (facts.isNotEmpty()) {
+                append("Things I know: ")
+                append(facts.entries.joinToString("; ") { "${it.key}=${it.value}" })
+                append(".\n")
+            }
             append("You first met your human on ${prefs.getString(KEY_FIRST_DATE, "recently")}.")
         }
     }
@@ -124,6 +162,8 @@ class MemoryStore(context: Context) {
         private const val KEY_FIRST_DATE = "first_seen_date"
         private const val KEY_REMINDERS = "reminders"
         private const val KEY_USUAL_MINUTES = "usual_first_seen_minutes"
+        /** Prefix for all LLM tool-persisted fact keys. */
+        const val KEY_FACT_PREFIX = "fact_"
 
         /** Minutes since local midnight — pure, unit-tested. */
         fun minutesSinceMidnight(now: Long, tz: TimeZone): Int {

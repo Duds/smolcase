@@ -42,3 +42,6 @@ Thumbs.db
 logs/*.png
 models/*.litertlm
 models/*.xnnpack_cache
+
+# Scratchpad (personal working notes)
+.workspace-scratchpad.md

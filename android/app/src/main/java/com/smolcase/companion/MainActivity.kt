@@ -71,6 +71,7 @@ class MainActivity : ComponentActivity() {
         brain = CreatureBrain(this, eyesView)
         brain.onGreetingLine = { line -> voice?.say(line) }
         conversation = ConversationEngine(this, memory)
+        conversation.expressionState = eyesView.expressionState
         setContentView(eyesView)
 
         eyesView.setDials(dials.humor, dials.honesty)
