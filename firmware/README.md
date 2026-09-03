@@ -6,6 +6,8 @@
 
 The ESP32 acts as a **dumb command executor**. It receives servo angle commands over BLE from the Pixel 8 and outputs PWM signals.
 
+**See:** [[docs/03-decisions/004-esp32-ble-bridge|ADR-004: ESP32 BLE Bridge]] (BLE GATT protocol, power)
+
 ## Protocol (TBD)
 
 BLE GATT characteristic for servo commands:

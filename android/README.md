@@ -6,6 +6,8 @@ The creature can now *think*. Unknown speech falls through to a configurable
 LLM backend with soul-file context; known commands still use IntentRouter
 (instant, offline).
 
+**See:** [[AGENTS]] §5 (Android architecture), [[docs/03-decisions/001-pixel8-brain|ADR-001]]
+
 - `llm/LlmSettings.kt` — backend choice (RULES / NANO / KIMI) + Kimi config,
   stored in SharedPreferences
 - `llm/GeminiNanoBackend.kt` — Gemini Nano on-device via ML Kit GenAI Prompt
@@ -80,6 +82,8 @@ correctly *under*-react? Do you catch yourself saying good morning to it?
 ---
 
 ## SMOLCASE Companion — Stage 1: Tracking Eyes (built 2026-08-15)
+
+**See:** [[docs/06-specs/2026-08-22-expressive-appliance-eyes-design]] (current face spec)
 
 Design Thinking Prototype A: fullscreen creature face whose eyes track *you*
 via the front camera (CameraX + ML Kit, fully on-device).

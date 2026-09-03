@@ -58,5 +58,7 @@ Byte 2+:  [time_ms, servo0, servo1, ...] × N
 - Shared ground essential
 
 ## Related
-- ADR-001: Pixel 8 as Brain
-- `firmware/README.md`
+- [[docs/03-decisions/001-pixel8-brain\|ADR-001: Pixel 8 as Brain]] — no GPIO → BLE bridge needed
+- [[docs/03-decisions/005-case-architecture-2leg\|ADR-005]] — UART servo interface supersedes PWM (see §Comms)
+- [[firmware/README]] — firmware placeholder
+- [[docs/06-specs/2026-08-29-settings-expansion-design]] — BLE integration for sensor readout

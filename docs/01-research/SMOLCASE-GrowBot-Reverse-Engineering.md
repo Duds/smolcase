@@ -3,6 +3,8 @@
 > **Date:** 2026-08-06
 > **Subject:** Comprehensive reverse-engineering of britcruise9's GrowBot ecosystem for the SMOLCASE (Small Mobile Operating Logic / Cybernetic Automated Servo Ensemble) concept.
 > **Sources:** GitHub repos, growbot.dev front-end source, artoftheproblem.com, YouTube videos, web research.
+> **Informs:** [[docs/03-decisions/001-pixel8-brain|ADR-001]], [[docs/03-decisions/004-esp32-ble-bridge|ADR-004]], [[docs/03-decisions/005-case-architecture-2leg|ADR-005]]
+> **See also:** [[docs/02-behaviour-training/SMOLCASE-Behaviour-Training-Plan]]
 
 ---
 

@@ -3,6 +3,7 @@
 **Date:** 2026-08-17
 **Status:** Draft — pending owner review
 **Scope:** Android companion app, `TarsFaceView.kt` internal attention behaviour only. No public API changes. Explicitly excluded: `FaceTracker`, gait/motion code, telemetry feed content, persona/voice.
+**Related:** [[docs/01-research/SMOLCASE-Robot-Eye-Libraries-Review]] (idle wander pattern source), [[docs/06-specs/2026-08-16-tars-face-persona-design]], [[docs/06-specs/2026-08-22-expressive-appliance-eyes-design]]
 
 ## Background
 

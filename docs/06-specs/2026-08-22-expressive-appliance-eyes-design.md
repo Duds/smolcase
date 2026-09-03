@@ -3,7 +3,9 @@
 **Author:** Dale Rogers & Crush  
 **Date:** 2026-08-22  
 **Status:** Approved  
-**Supersedes:** `docs/06-specs/2026-08-16-tars-face-persona-design.md` (eye & UI visual system only; TARS personality & humor/honesty dials remain as underlying behavioral engine)
+**Supersedes:** [[docs/06-specs/2026-08-16-tars-face-persona-design]] (eye & UI visual system only; TARS personality & humor/honesty dials remain as underlying behavioral engine)
+**Implementation plan:** [[docs/07-plans/2026-08-22-expressive-appliance-eyes]]
+**Related:** [[docs/06-specs/2026-08-17-idle-gaze-wander-design]], [[docs/01-research/SMOLCASE-Robot-Eye-Libraries-Review]], [[docs/06-specs/2026-08-17-lcd-panel-eyes-design]] (predecessor)
 
 ---
 

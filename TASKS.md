@@ -139,3 +139,6 @@
 | — | **LLM tool-calling (11 tools)** — AgentTool.kt + AgentBackend rewrite with two-turn tool loop | `AgentTool.kt`, `AgentBackend.kt`, `MemoryStore.kt` (fact storage), 9 unit tests |
 | — | **Cloud TTS -> OpenRouter/Deepgram Flux** — ElevenLabs replaced with OpenRouter audio/speech endpoint, `flux-sienna-en` voice | `CloudTtsBackend.kt` rewrite |
 | — | **IntentRouter bugfix** — "clear my reminders" now clears instead of listing | `IntentRouter.kt` ordering fix |
+## Events
+
+- 2026-09-03: Migrated from ~/20-INDIE to ~/00-PERSONAL/projects/ (indie domain dissolved, task 20260829-025)

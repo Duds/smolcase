@@ -2,7 +2,9 @@
 
 **Date:** 2026-08-17
 **Status:** Approved (owner pre-approved "spec and build")
-**Supersedes:** nothing; extends the LLM backend layer from the v0.5-tars design
+**Supersedes:** nothing; extends the LLM backend layer from the [[docs/06-specs/2026-08-16-tars-face-persona-design|v0.5-tars design]]
+**Implementation plan:** [[docs/07-plans/2026-08-17-gemma-backend]]
+**Related:** [[docs/03-decisions/001-pixel8-brain\|ADR-001]], [[docs/06-specs/2026-08-29-settings-expansion-design]] (AgentBackend generalization), [[docs/03-decisions/004-esp32-ble-bridge\|ADR-004]] (no cloud dependency for core locomotion)
 
 ## Problem
 

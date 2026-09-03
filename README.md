@@ -2,7 +2,7 @@
 
 **S**mall **M**obile **O**perating **L**ogic / **C**ybernetic **A**utomated **S**ervo **E**nsemble
 
-> A phone-brain biped robot. Inspired by [GrowBot](https://growbot.dev), built with a Pixel 8, MuJoCo simulation, and ~20 specialist TFLite policies.
+> A phone-brain biped robot. Inspired by [GrowBot](https://growbot.dev), built with a Pixel 8, MuJoCo simulation, and ~20 specialist TFLite policies. See the deep-dive in [[docs/01-research/SMOLCASE-GrowBot-Reverse-Engineering]] and architecture decisions in [[docs/03-decisions/001-pixel8-brain]], [[docs/03-decisions/002-hierarchical-policies]], [[docs/03-decisions/003-cpg-mujoco-tflite]].
 
 ---
 
@@ -53,12 +53,12 @@ Unlike monolithic robot platforms, SMOLCASE is **hierarchical and modular**:
 
 | Subsystem | Status | Next Action |
 |-----------|--------|-------------|
-| **Simulation** | 🟢 Active | MuJoCo env running, Walk Forward trained |
+| **Simulation** | 🟢 Active | MuJoCo env running, Walk Forward trained — see [[docs/02-behaviour-training/SMOLCASE-Behaviour-Training-Plan]] |
 | **ML Training** | 🟡 In Progress | 1/30 behaviours trained |
-| **Mechanical Design** | ⚪ Not Started | Awaiting servo selection → Fusion 360 |
-| **Firmware** | ⚪ Not Started | Awaiting ESP32 + servo specs |
-| **Android App** | ⚪ Not Started | After simulation curriculum complete |
-| **Kimi Integration** | ⚪ Not Started | Future personality layer |
+| **Mechanical Design** | ⚪ Not Started | Awaiting servo selection → Fusion 360 — see [[docs/04-hardware/SMOLCASE-Case-Design-Brainstorm]] |
+| **Firmware** | ⚪ Not Started | Awaiting ESP32 + servo specs — see [[docs/03-decisions/004-esp32-ble-bridge]] |
+| **Android App** | 🔵 Shipping v0.7 | Dot matrix eyes, TARS persona, cloud intelligence — see [[AGENTS]] §5 |
+| **Kimi Integration** | 🟢 Shipping | Now generalised as [[docs/06-specs/2026-08-29-settings-execs/2026-08-29-settings-expansion-design\|Agent Backend]] |"}, {"old_string": "| Pixel 8 instead of Pi Zero | Full sensor suite, screen as face, Kimi integration | [ADR-001](docs/03-decisions/001-pixel8-brain.md) |\n| Hierarchical policies | Modular, interpretable, failure-isolated | [ADR-002](docs/03-decisions/002-hierarchical-policies.md) |\n| CPG + MuJoCo + TFLite stack | Physics sim for training, TFLite for runtime, CPG for safety | [ADR-003](docs/03-decisions/003-cpg-mujoco-tflite.md) |\n| ESP32 BLE bridge | Wireless, cheap, proven phone-robot pattern | [ADR-004](docs/03-decisions/004-esp32-ble-bridge.md) |", "new_string": "| Pixel 8 instead of Pi Zero | Full sensor suite, screen as face, Kimi integration | [[docs/03-decisions/001-pixel8-brain\|ADR-001]] |\n| Hierarchical policies | Modular, interpretable, failure-isolated | [[docs/03-decisions/002-hierarchical-policies\|ADR-002]] |\n| CPG + MuJoCo + TFLite stack | Physics sim for training, TFLite for runtime, CPG for safety | [[docs/03-decisions/003-cpg-mujoco-tflite\|ADR-003]] |\n| ESP32 BLE bridge | Wireless, cheap, proven phone-robot pattern | [[docs/03-decisions/004-esp32-ble-bridge\|ADR-004]] |\n| 2-leg CASE architecture | Minimimal part count, 360° tumble gait | [[docs/03-decisions/005-case-architecture-2leg\|ADR-005]] |"}, {"old_string": "Full curriculum with reward functions and hyperparameters: [`docs/02-behaviour-training/`](docs/02-behaviour-training/)", "new_string": "Full curriculum with reward functions and hyperparameters: [[docs/02-behaviour-training/SMOLCASE-Behaviour-Training-Plan]]"}, {"old_string": "- [`docs/01-research/SMOLCASE-GrowBot-Reverse-Engineering.md`](docs/01-research/SMOLCASE-GrowBot-Reverse-Engineering.md)", "new_string": "- [[docs/01-research/SMOLCASE-GrowBot-Reverse-Engineering]]"}, {"old_string": "| On-Device Runtime | TensorFlow Lite (Pixel 8 GPU delegate) |", "new_string": "| On-Device Runtime | TensorFlow Lite (Pixel 8 CPU — see [[docs/06-specs/2026-08-17-gemma-backend-design\|Gemma Backend spec]] §Why CPU) |"}]
 
 ---
 
@@ -125,10 +125,11 @@ SMOLCASE/
 
 | Decision | Rationale | Document |
 |----------|-----------|----------|
-| Pixel 8 instead of Pi Zero | Full sensor suite, screen as face, Kimi integration | [ADR-001](docs/03-decisions/001-pixel8-brain.md) |
-| Hierarchical policies | Modular, interpretable, failure-isolated | [ADR-002](docs/03-decisions/002-hierarchical-policies.md) |
-| CPG + MuJoCo + TFLite stack | Physics sim for training, TFLite for runtime, CPG for safety | [ADR-003](docs/03-decisions/003-cpg-mujoco-tflite.md) |
-| ESP32 BLE bridge | Wireless, cheap, proven phone-robot pattern | [ADR-004](docs/03-decisions/004-esp32-ble-bridge.md) |
+| Pixel 8 instead of Pi Zero | Full sensor suite, screen as face, Kimi integration | [[docs/03-decisions/001-pixel8-brain\|ADR-001]] |
+| Hierarchical policies | Modular, interpretable, failure-isolated | [[docs/03-decisions/002-hierarchical-policies\|ADR-002]] |
+| CPG + MuJoCo + TFLite stack | Physics sim for training, TFLite for runtime, CPG for safety | [[docs/03-decisions/003-cpg-mujoco-tflite\|ADR-003]] |
+| ESP32 BLE bridge | Wireless, cheap, proven phone-robot pattern | [[docs/03-decisions/004-esp32-ble-bridge\|ADR-004]] |
+| 2-leg CASE architecture | Minimal part count, 360° tumble gait | [[docs/03-decisions/005-case-architecture-2leg\|ADR-005]] |
 
 ---
 
@@ -144,7 +145,7 @@ SMOLCASE/
 | **4 — Expressive** | Bow, Greet, Cower, Shake, Head Tilt |
 | **5 — Advanced** | Climb Slope, Navigate Obstacle, Push Object, Follow |
 
-Full curriculum with reward functions and hyperparameters: [`docs/02-behaviour-training/`](docs/02-behaviour-training/)
+Full curriculum with reward functions and hyperparameters: [[docs/02-behaviour-training/SMOLCASE-Behaviour-Training-Plan]]
 
 ---
 
@@ -152,7 +153,7 @@ Full curriculum with reward functions and hyperparameters: [`docs/02-behaviour-t
 
 Deep reverse-engineering of GrowBot hardware, software, phone-creature architecture, and monetization analysis:
 
-- [`docs/01-research/SMOLCASE-GrowBot-Reverse-Engineering.md`](docs/01-research/SMOLCASE-GrowBot-Reverse-Engineering.md)
+- [[docs/01-research/SMOLCASE-GrowBot-Reverse-Engineering]]
 
 Key external references:
 - [growbot.dev](https://growbot.dev) — GrowBot website (retired)
@@ -169,8 +170,8 @@ Key external references:
 |-------|-----------|
 | Simulation | MuJoCo 3.11.0, Gymnasium 1.3.0 |
 | RL Training | Stable-Baselines3 (PPO) |
-| Model Export | TensorFlow → TFLite |
-| On-Device Runtime | TensorFlow Lite (Pixel 8 GPU delegate) |
+| Model Export | TensorFlow → TFLite — see [[models/README]] |
+| On-Device Runtime | TensorFlow Lite (Pixel 8 CPU — [[docs/06-specs/2026-08-17-gemma-backend-design\|see Gemma spec §Why CPU]]) |
 | Phone OS | Android 15 (Pixel 8) |
 | Servo Bridge | ESP32 (Arduino core) |
 | Communication | BLE 5.0 |

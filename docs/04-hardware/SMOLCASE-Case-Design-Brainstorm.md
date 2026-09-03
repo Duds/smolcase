@@ -3,6 +3,8 @@
 **Date:** 2026-08-14
 **Method:** IDEO / d.school Design Thinking, run properly this time
 **Supersedes:** v1 of this document (quadruped assumption was wrong)
+**Result:** [[docs/03-decisions/005-case-architecture-2leg|ADR-005]] (2-leg CASE)
+**See also:** [[mech/SMOLCASE-CASE-Layout-Spec]] (Fusion 360 datum layout)
 
 ## v2 Corrections (from owner, 2026-08-14)
 

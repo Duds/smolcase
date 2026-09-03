@@ -3,6 +3,8 @@
 > **Date:** 2026-08-17
 > **Subject:** Review of four eye-related open-source libraries for conceptual fit with SMOLCASE — FluxGarage/RoboEyes, orji123/IrisOLED, HanZhang-psych/pupeyes, pymovements.
 > **Verdict:** Two rejected outright (wrong problem domain). Two rejected as code (wrong layer, wrong persona) but their **behavioural animation patterns are worth stealing** for `TarsFaceView.kt`.
+> **Informs:** [[docs/06-specs/2026-08-17-idle-gaze-wander-design]], [[docs/06-specs/2026-08-22-expressive-appliance-eyes-design]]
+> **See also:** [[docs/06-specs/2026-08-16-tars-face-persona-design]], [[AGENTS]] §5.2 (eye topography), [[docs/06-specs/2026-08-17-lcd-panel-eyes-design]]
 
 ---
 

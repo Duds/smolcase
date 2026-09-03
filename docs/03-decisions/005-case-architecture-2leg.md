@@ -86,9 +86,10 @@ Rule: Fusion 360 components, BOM lines, firmware constants, and ADRs share these
 
 ## Related
 
-- ADR-001: Pixel 8 as Brain
-- ADR-002: Hierarchical Policies
-- ADR-003: CPG + MuJoCo + TFLite (2-oscillator CPG)
-- ADR-004: ESP32 BLE Bridge (UART servo interface supersedes its PWM note)
-- [`docs/04-hardware/SMOLCASE-Case-Design-Brainstorm.md`](../04-hardware/SMOLCASE-Case-Design-Brainstorm.md) — ideation source
-- [`docs/01-research/SMOLCASE-GrowBot-Reverse-Engineering.md`](../01-research/SMOLCASE-GrowBot-Reverse-Engineering.md) — 2-servo biped evidence
+- [[docs/03-decisions/001-pixel8-brain|ADR-001: Pixel 8 as Brain]]
+- [[docs/03-decisions/002-hierarchical-policies|ADR-002: Hierarchical Policies]]
+- [[docs/03-decisions/003-cpg-mujoco-tflite|ADR-003: CPG + MuJoCo + TFLite]] (2-oscillator CPG)
+- [[docs/03-decisions/004-esp32-ble-bridge|ADR-004: ESP32 BLE Bridge]] (UART servo interface supersedes its PWM note)
+- [[docs/04-hardware/SMOLCASE-Case-Design-Brainstorm]] — ideation source
+- [[docs/01-research/SMOLCASE-GrowBot-Reverse-Engineering]] — 2-servo biped evidence
+- [[mech/SMOLCASE-CASE-Layout-Spec]] — Fusion 360 datum layout

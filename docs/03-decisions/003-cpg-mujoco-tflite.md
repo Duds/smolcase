@@ -114,5 +114,9 @@ Three distinct approaches exist for legged locomotion control. We needed to unde
 ```
 
 ## Related
-- ADR-002: Hierarchical Policy Architecture
-- `sim/src/smolcase_train.py`
+- [[docs/03-decisions/002-hierarchical-policies\|ADR-002: Hierarchical Policy Architecture]] — arbiter selects active policy
+- [[docs/03-decisions/004-esp32-ble-bridge\|ADR-004]] — BLE carries CPG output to servos
+- [[docs/03-decisions/005-case-architecture-2leg\|ADR-005]] — 2-oscillator CPG maps to 2-leg gait
+- [[models/README]] — TFLite model manifest
+- [[docs/02-behaviour-training/SMOLCASE-Behaviour-Training-Plan]] — behaviour training details
+- [[docs/07-plans/wayfinder-map]] — current training frontier

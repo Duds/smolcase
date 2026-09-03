@@ -2,7 +2,9 @@
 
 **Date:** 2026-08-22  
 **Status:** In Progress  
-**Spec Reference:** `docs/06-specs/2026-08-22-expressive-appliance-eyes-design.md`
+**Spec Reference:** [[docs/06-specs/2026-08-22-expressive-appliance-eyes-design]]
+**Supersedes:** [[docs/07-plans/2026-08-16-tars-face-persona]], [[docs/07-plans/2026-08-17-lcd-panel-eyes]]
+**Related:** [[docs/01-research/SMOLCASE-Robot-Eye-Libraries-Review]], [[docs/06-specs/2026-08-17-idle-gaze-wander-design]]
 
 ---
 

@@ -2,7 +2,7 @@
 
 > Placeholder — Fusion 360 CAD models will live here.
 >
-> **Start here:** [`SMOLCASE-CASE-Layout-Spec.md`](SMOLCASE-CASE-Layout-Spec.md) — dimensioned layout spec v1 (datums, pod pockets, phone channel, legs, lid, assembly order).
+> **Start here:** [[SMOLCASE-CASE-Layout-Spec]] — dimensioned layout spec v1 (datums, pod pockets, phone channel, legs, lid, assembly order).
 
 ## Design Philosophy
 

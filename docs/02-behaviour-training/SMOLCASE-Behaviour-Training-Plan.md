@@ -5,6 +5,8 @@
 > **Platform:** 2-servo biped (Feetech SCS0009) + Pixel 8 brain  
 > **Physics:** MuJoCo `growbot_current_body.xml`  
 > **Training:** PPO via stable-baselines3  
+> **Informs:** [[docs/03-decisions/002-hierarchical-policies|ADR-002]], [[docs/03-decisions/003-cpg-mujoco-tflite|ADR-003]]  
+> **See also:** [[models/README]], [[docs/07-plans/wayfinder-map]]  
 
 ---
 

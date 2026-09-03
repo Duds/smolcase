@@ -61,5 +61,6 @@ High-Level Intent
 ```
 
 ## Related
-- ADR-003: CPG vs MuJoCo vs TFLite
-- `docs/02-behaviour-training/SMOLCASE-Behaviour-Training-Plan.md`
+- [[docs/03-decisions/003-cpg-mujoco-tflite\|ADR-003: CPG vs MuJoCo vs TFLite]] — three-layer control stack
+- [[docs/02-behaviour-training/SMOLCASE-Behaviour-Training-Plan]] — 30-behaviour curriculum
+- [[docs/03-decisions/005-case-architecture-2leg\|ADR-005]] — 2-leg body matches hierarchical simplicity

@@ -3,6 +3,9 @@
 **Date:** 2026-08-16
 **Status:** Approved design (sections 1–4 approved in dialogue), pending written-spec review
 **Scope:** Android companion app only — face rendering, voice, persona. Explicitly excluded: gait/motion vocabulary (MuJoCo/ML curriculum stays; SMOLCASE never does "the wheel").
+**Superseded by:** [[docs/06-specs/2026-08-22-expressive-appliance-eyes-design]] (visual system; persona/dials remain)
+**Implementation plan:** [[docs/07-plans/2026-08-16-tars-face-persona]]
+**Related:** [[docs/03-decisions/001-pixel8-brain\|ADR-001]], [[docs/06-specs/2026-08-17-idle-gaze-wander-design]], [[docs/06-specs/2026-08-17-lcd-panel-eyes-design]]
 
 ## Background
 

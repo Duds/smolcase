@@ -1,6 +1,6 @@
 # Hardware Specification
 
-> Placeholder — populated when mechanical design begins in Fusion 360.
+> Placeholder — populated when mechanical design begins in Fusion 360.\n> See the [[docs/04-hardware/SMOLCASE-Case-Design-Brainstorm|Case Design Brainstorm]] for ideation.\n> See [[mech/SMOLCASE-CASE-Layout-Spec]] for the Fusion 360 datum layout.\n> Component naming per [[docs/03-decisions/005-case-architecture-2leg\\|ADR-005]].
 
 ## Target Spec
 

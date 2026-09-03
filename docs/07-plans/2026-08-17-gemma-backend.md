@@ -1,8 +1,9 @@
 # Gemma Backend — Implementation Plan
 
-**Spec:** docs/06-specs/2026-08-17-gemma-backend-design.md
+**Spec:** [[docs/06-specs/2026-08-17-gemma-backend-design]]
 **Branch:** `gemma-backend` → merge to `main` when green on-device
 **Started:** 2026-08-17
+**Related:** [[docs/06-specs/2026-08-29-settings-expansion-design]] (AgentBackend generalization), [[AGENTS]] §5.1 (LiteRT-LM gotchas)
 
 ## Tasks
 

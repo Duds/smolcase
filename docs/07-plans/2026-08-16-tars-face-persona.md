@@ -4,11 +4,15 @@
 
 **Goal:** Replace the cute cartoon-eyes face with a TARS-style phosphor-green glyph-grid face with scrolling telemetry, retune the voice to a low deadpan register, and add humor/honesty personality dials — shipping as app v0.5-tars.
 
+**See:** [[docs/06-specs/2026-08-16-tars-face-persona-design]] (approved spec)
+**Superseded by:** [[docs/07-plans/2026-08-22-expressive-appliance-eyes]] (dot matrix refactor)
+**Related:** [[docs/07-plans/2026-08-17-lcd-panel-eyes]], [[docs/03-decisions/001-pixel8-brain\|ADR-001]]
+
 **Architecture:** New `TarsFaceView` (Canvas-rendered monospace glyph grids) is a drop-in replacement for `EyesView` with the same public API. Rendering math lives in two pure-Kotlin, JVM-testable classes (`GlyphGrid`, `TelemetryFeed`) so the View stays thin. Voice commands for the dials are parsed by a pure `DialCommand` object and routed in `IntentRouter`; the dials are injected into every LLM prompt via `CreaturePersona.prompt(humor, honesty)`.
 
 **Tech Stack:** Kotlin, Android Views (Canvas/Paint), SharedPreferences, JUnit 4 (new test infra), existing ML Kit GenAI / Kimi backends.
 
-**Spec:** `docs/06-specs/2026-08-16-tars-face-persona-design.md` (approved 2026-08-16)
+**Spec:** [[docs/06-specs/2026-08-16-tars-face-persona-design]] (approved 2026-08-16)
 
 ## Global Constraints
 

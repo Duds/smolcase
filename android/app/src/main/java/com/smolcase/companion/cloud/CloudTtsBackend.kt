@@ -16,16 +16,17 @@ import kotlin.concurrent.thread
  * Cloud TTS backend — fetches audio from OpenRouter TTS API and plays it.
  *
  * Uses the OpenRouter audio/speech endpoint (OpenAI-compatible) with the
- * Deepgram Flux TTS model. Falls back gracefully: returns false from speak()
- * if network or decode fails, letting the caller use local TTS instead.
+ * Microsoft MAI-Voice-2-Flash model (en-US-Harper voice). Falls back
+ * gracefully: returns false from speak() if network or decode fails, letting
+ * the caller use local TTS instead.
  */
 class CloudTtsBackend(private val context: Context, private val settings: LlmSettings) {
 
     companion object {
         private const val TAG = "CloudTTS"
         private const val OR_API_BASE = "https://openrouter.ai/api/v1"
-        private const val MODEL = "deepgram/flux-tts"
-        private const val VOICE = "flux-sienna-en"
+        private const val MODEL = "microsoft/mai-voice-2-flash"
+        private const val VOICE = "en-US-Harper:MAI-Voice-2"
         private const val RESPONSE_FORMAT = "mp3"
     }
 

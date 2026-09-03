@@ -13,7 +13,7 @@ What is the exact 3D geometry for the SMOLCASE physical body, defined as paramet
 **Scope:**
 Main chassis (`SC-CASE`) housing the Pixel 8, internal electronics, and battery. Two 1-piece 360°-rotating legs (`SC-LEG-L`, `SC-LEG-R`) hinged at ~2/3 case height. Internal bracketry: servo pods (`SC-POD-L/R`), PCB bracket (`SC-RIB`), battery retainer (`SC-BLY`), back lid (`SC-SHL`), phone latch (`SC-JAW`).
 
-**Known constraints from ADR-005:**
+**Known constraints from [[docs/03-decisions/005-case-architecture-2leg|ADR-005]]:**
 - Pixel 8 dimensions: ~150.5 × 70.8 × 8.9 mm — chassis must accommodate with screen exposed
 - Servo mounting pods at ~2/3 case height
 - Battery compartment: LiPo or 18650, accessed from rear

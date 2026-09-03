@@ -10,10 +10,10 @@ blocked-by: []
 
 Which specific 360° serial-bus servo model should SMOLCASE use for powering SC-LEG-L and SC-LEG-R?
 
-**Constraints from ADR-005:**
+**Constraints from [[docs/03-decisions/005-case-architecture-2leg|ADR-005]]:**
 - Exactly 2 servos (one per leg, hinged at ~2/3 case height)
 - 360° continuous rotation (not positional)
-- Serial-bus protocol (for ESP32 BLE bridge compatibility — ADR-004)
+- Serial-bus protocol (for ESP32 BLE bridge compatibility — [[docs/03-decisions/004-esp32-ble-bridge|ADR-004]])
 - Must lift/hold/articulate a ~300g robot on a desk surface
 
 **Research dimensions:**

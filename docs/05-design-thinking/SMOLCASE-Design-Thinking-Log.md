@@ -4,6 +4,8 @@
 **Started:** 2026-08-15 (fresh pass; supersedes the hardware-only brainstorm of 2026-08-14 in scope, not in its technical findings)
 **Current phase:** Phase 4 · Prototype (planning complete, build not started)
 
+**See also:** [[docs/04-hardware/SMOLCASE-Case-Design-Brainstorm]] (hardware ideation), [[docs/07-plans/wayfinder-map]], [[docs/03-decisions/005-case-architecture-2leg|ADR-005]]
+
 ---
 
 ## Phase 1 · Empathize — findings

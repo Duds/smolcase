@@ -8,27 +8,29 @@ Ship a desk-ready SMOLCASE robot that walks, talks, and responds autonomously �
 
 - **Domain**: Hardware + firmware + Android + MuJoCo RL integration
 - **Skills to consult**: `tdd`, `code-standards`, `grill-me`, `living-map`, `7s-code`
-- **Key references**: `AGENTS.md` (gotchas, architecture), `docs/03-decisions/` (ADR-001–005), `docs/06-specs/` (approved specs)
+- **Key references**: [[AGENTS]] (gotchas, architecture), [[docs/03-decisions/]] (ADR-001–005), [[docs/06-specs/]] (approved specs)
 - **Safety Rule**: Snapshot current state before modifying any existing hardware paths or configs
-- **Architecture**: Exactly 2 legs, 2x 360° serial-bus servos per ADR-005. Never design for 4 legs or multi-jointed limbs.
-- **Software side is shipping**: Gemma 4 E2B backend, dot matrix eyes, settings/cloud features are all complete and tested. No rework needed.
+- **Architecture**: Exactly 2 legs, 2x 360° serial-bus servos per [[docs/03-decisions/005-case-architecture-2leg\|ADR-005]]. Never design for 4 legs or multi-jointed limbs.
+- **Software side is shipping**: [[docs/06-specs/2026-08-17-gemma-backend-design|Gemma 4 E2B backend]], [[docs/06-specs/2026-08-22-expressive-appliance-eyes-design|dot matrix eyes]], [[docs/06-specs/2026-08-29-settings-expansion-design|settings/cloud features]] are all complete and tested. No rework needed.
 
 ## Decisions so far
 
-- [ADR-001: Pixel 8 as brain](docs/03-decisions/001-pixel8-brain.md): Phone is the onboard computer; no separate SBC required.
-- [ADR-002: Hierarchical policies](docs/03-decisions/002-hierarchical-policies.md): ~20 small TFLite models instead of one monolithic policy.
-- [ADR-003: CPG + MuJoCo + TFLite](docs/03-decisions/003-cpg-mujoco-tflite.md): Three-layer control architecture with CPG baseline, MuJoCo simulation, TFLite on-device inference.
-- [ADR-004: ESP32 BLE bridge](docs/03-decisions/004-esp32-ble-bridge.md): ESP32 as wireless bridge; Pixel 8 sends BLE commands, ESP32 translates to serial-bus servo protocol.
-- [ADR-005: 2-leg CASE architecture](docs/03-decisions/005-case-architecture-2leg.md): Two 360° serial-bus servos, `SC-CASE` chassis, `SC-LEG-L`/`SC-LEG-R` legs hinged at ~2/3 case height.
-- [Expressive Appliance Dot Matrix Eyes completed](docs/06-specs/2026-08-22-expressive-appliance-eyes-design.md): SDF eye rasterizer, mood state machine, telemetry pips, 20/20 tests, debug APK built.
-- [Settings Expansion & Cloud Intelligence completed](docs/06-specs/2026-08-29-settings-expansion-design.md): WCAG AA settings, cloud TTS/Vision/ReplyGen, Pixel sensor integration, all tests passing.
-- [Gemma 4 E2B on-device inference verified](docs/06-specs/2026-08-17-gemma-backend-design.md): LiteRT-LM 0.16.0, CPU backend, sideloaded `.litertlm`, live inference on Pixel 8.
+- [[docs/03-decisions/001-pixel8-brain\|ADR-001: Pixel 8 as brain]]: Phone is the onboard computer; no separate SBC required.
+- [[docs/03-decisions/002-hierarchical-policies\|ADR-002: Hierarchical policies]]: ~20 small TFLite models instead of one monolithic policy.
+- [[docs/03-decisions/003-cpg-mujoco-tflite\|ADR-003: CPG + MuJoCo + TFLite]]: Three-layer control architecture with CPG baseline, MuJoCo simulation, TFLite on-device inference.
+- [[docs/03-decisions/004-esp32-ble-bridge\|ADR-004: ESP32 BLE bridge]]: ESP32 as wireless bridge; Pixel 8 sends BLE commands, ESP32 translates to serial-bus servo protocol.
+- [[docs/03-decisions/005-case-architecture-2leg\|ADR-005: 2-leg CASE architecture]]: Two 360° serial-bus servos, `SC-CASE` chassis, `SC-LEG-L`/`SC-LEG-R` legs hinged at ~2/3 case height.
+- [[docs/06-specs/2026-08-22-expressive-appliance-eyes-design|Expressive Appliance Dot Matrix Eyes completed]]: SDF eye rasterizer, mood state machine, telemetry pips, 20/20 tests, debug APK built.
+- [[docs/06-specs/2026-08-29-settings-expansion-design|Settings Expansion & Cloud Intelligence completed]]: WCAG AA settings, cloud TTS/Vision/ReplyGen, Pixel sensor integration, all tests passing.
+- [[docs/06-specs/2026-08-17-gemma-backend-design|Gemma 4 E2B on-device inference verified]]: LiteRT-LM 0.16.0, CPU backend, sideloaded `.litertlm`, live inference on Pixel 8.
 
 ## Frontier
 
-- [20260829-002: Fix conversation quality regressions](_tasks/20260829-002-conversation-quality-fixes.md) (wayfinder:task)
+- [20260830-001 through 006: Conversation bug fixes](_tasks/20260830-001-directives-repetition.md) (wayfinder:task — replaces 20260829-002)
 - [20260829-003: Decide serial-bus servo model for ~300g robot](_tasks/20260829-003-servo-selection.md) (wayfinder:research)
 - [20260829-004: Design SC-CASE chassis and leg geometry in CAD](_tasks/20260829-004-sc-case-cad-design.md) (wayfinder:prototype)
+- [20260830-008: Spec — Factory reset / reset-to-scratch](_tasks/20260830-008-reset-to-scratch.md) (wayfinder:spec)
+- [20260830-009: Spec — First-start wakeup / onboarding](_tasks/20260830-009-wakeup-routine.md) (wayfinder:spec, blocked by 008)
 
 ## Blocked Tickets
 

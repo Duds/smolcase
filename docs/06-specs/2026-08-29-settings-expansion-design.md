@@ -2,6 +2,9 @@
 
 ## Overview
 
+> **Related:** [[docs/06-specs/2026-08-17-gemma-backend-design]] (Gemma backend), [[docs/03-decisions/001-pixel8-brain\|ADR-001]] (sensor suite), [[AGENTS]] §5 (Android architecture)
+> See [[TASKS]] for implementation tracking.
+
 SMOLCASE currently has a minimal programmatic Settings screen with LLM backend
 selection (RULES / NANO / KIMI / GEMMA), Kimi API configuration, humor/honesty
 dials, and a voice picker. This spec expands Settings into a full creature

@@ -2,7 +2,8 @@
 
 **Date:** 2026-08-15
 **Feeds:** `mech/smolcase_v1.f3d`
-**Governing decisions:** ADR-005 (2-leg CASE), ADR-005 §1a (monolithic tub + SHELL lid, internally-loaded servos)
+**Governing decisions:** [[docs/03-decisions/005-case-architecture-2leg|ADR-005]] (2-leg CASE), ADR-005 §1a (monolithic tub + SHELL lid, internally-loaded servos)
+**Related:** [[docs/04-hardware/SMOLCASE-Case-Design-Brainstorm]] (ideation source)
 **Units:** mm throughout. All dimensions are *design targets* — verify against physical parts and the STS3215 STEP file before committing to print.
 
 ---

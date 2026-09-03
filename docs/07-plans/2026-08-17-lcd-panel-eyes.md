@@ -1,8 +1,9 @@
 # Plan: LCD Panel Eyes — TarsFaceView Legibility Revision
 
 **Date:** 2026-08-17
-**Spec:** [`docs/06-specs/2026-08-17-lcd-panel-eyes-design.md`](../06-specs/2026-08-17-lcd-panel-eyes-design.md)
+**Spec:** [[docs/06-specs/2026-08-17-lcd-panel-eyes-design]]
 **Files touched:** `GlyphGrid.kt`, `TarsFaceView.kt`, `GlyphGridTest.kt` (+ new test class if needed)
+**Superseded by:** [[docs/07-plans/2026-08-22-expressive-appliance-eyes]]
 **Files NOT touched:** `TelemetryFeed.kt` (takes `lineLength` from grid.cols — adapts automatically), `MainActivity`, `FaceTracker`, `CreatureBrain`, `CreatureVoice`, all llm/*, MuJoCo/sim.
 
 ## Approach

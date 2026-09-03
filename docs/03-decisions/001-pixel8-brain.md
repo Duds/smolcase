@@ -26,5 +26,8 @@ Use a **Google Pixel 8** as SMOLCASE's primary onboard computer instead of a Ras
 - **Form factor**: Phone is larger and heavier than Pi Zero — affects mechanical design
 
 ## Related
-- ADR-004: ESP32 BLE Bridge
-- `docs/01-research/SMOLCASE-GrowBot-Reverse-Engineering.md`
+- [[docs/03-decisions/004-esp32-ble-bridge\|ADR-004: ESP32 BLE Bridge]] — no GPIO → need wireless servo control
+- [[docs/01-research/SMOLCASE-GrowBot-Reverse-Engineering]] — GrowBot's Pi Zero design
+- [[docs/06-specs/2026-08-17-gemma-backend-design]] — on-device LLM on Pixel 8
+- [[docs/06-specs/2026-08-22-expressive-appliance-eyes-design]] — screen as expressive face
+- [[docs/03-decisions/005-case-architecture-2leg\|ADR-005]] — phone form factor drives case design

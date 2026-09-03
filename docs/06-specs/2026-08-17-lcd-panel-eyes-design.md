@@ -2,8 +2,11 @@
 
 **Date:** 2026-08-17
 **Status:** Draft — pending owner review
-**Amends:** `2026-08-16-tars-face-persona-design.md` §1 (The Face). All other sections (telemetry sources, voice, dials, rollout) unchanged.
+**Amends:** [[docs/06-specs/2026-08-16-tars-face-persona-design]] §1 (The Face). All other sections (telemetry sources, voice, dials, rollout) unchanged.
 **Scope:** `TarsFaceView.kt` rendering only. Public API, state timing (AWAKE/DROWSY/SLEEPING), telemetry feed content, and the idle-gaze-wander spec all untouched.
+**Superseded by:** [[docs/06-specs/2026-08-22-expressive-appliance-eyes-design]]
+**Implementation plan:** [[docs/07-plans/2026-08-17-lcd-panel-eyes]]
+**Related:** [[docs/06-specs/2026-08-17-idle-gaze-wander-design]], [[docs/01-research/SMOLCASE-Robot-Eye-Libraries-Review]]
 
 ## Background — field test result
 

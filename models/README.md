@@ -20,7 +20,7 @@ Saved every 50K steps during training. See `checkpoints/` directory.
 
 ## Next Policies to Train
 
-See `docs/02-behaviour-training/SMOLCASE-Behaviour-Training-Plan.md` for full curriculum.
+See [[docs/02-behaviour-training/SMOLCASE-Behaviour-Training-Plan]] for full curriculum.
 
 Priority queue:
 1. Walk Backward

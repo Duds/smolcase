@@ -1,8 +1,9 @@
 # GOAL.md — SMOLCASE Destination Contract
 
 > **Purpose**: Define the current destination, success criteria, and constraints.
-> The Wayfinder Map at [`docs/07-plans/wayfinder-map.md`](docs/07-plans/wayfinder-map.md) holds the decision tickets.
-> The task board at [`TASKS.md`](TASKS.md) tracks execution.
+> The Wayfinder Map at [[docs/07-plans/wayfinder-map]] holds the decision tickets.
+> The task board at [[TASKS]] tracks execution.
+> See [[AGENTS]] for conventions and gotchas.
 
 ---
 
@@ -27,11 +28,11 @@
 
 ## Constraints
 
-- Exactly **2 legs, 2 servos** (ADR-005) — never more
-- Eyes stay in upper screen half ($Y \le 0.50$), solid LED clusters (no pupils/glint)
+- Exactly **2 legs, 2 servos** ([[docs/03-decisions/005-case-architecture-2leg\|ADR-005]]) — never more
+- Eyes stay in upper screen half ($Y \le 0.50$), solid LED clusters (no pupils/glint) — see [[docs/06-specs/2026-08-22-expressive-appliance-eyes-design]]
 - TARS register: deadpan, dry wit, no emojis, military commander / coach
-- LiteRT-LM stays at `0.16.0`; GemmaBackend.kt is stable — do not modify
-- All hardware decisions documented as ADRs in `docs/03-decisions/`
+- LiteRT-LM stays at `0.16.0`; GemmaBackend.kt is stable — see [[docs/06-specs/2026-08-17-gemma-backend-design]]
+- All hardware decisions documented as ADRs in [[docs/03-decisions/]]
 
 ---
 
@@ -39,8 +40,10 @@
 
 | Document | Purpose |
 |----------|---------|
-| [Wayfinder Map](docs/07-plans/wayfinder-map.md) | Decision tickets for remaining unknowns |
-| [TASKS.md](TASKS.md) | Execution task board |
-| [AGENTS.md](AGENTS.md) | Codebase conventions, gotchas, commands |
-| [PROJECT_INDEX.md](PROJECT_INDEX.md) | Central index, status board, discovery archive |
-| `docs/03-decisions/` | Architecture Decision Records (ADR-001 through ADR-005) |
+|| [[docs/07-plans/wayfinder-map\|Wayfinder Map]] | Decision tickets for remaining unknowns |
+|| [[TASKS]] | Execution task board |
+|| [[AGENTS]] | Codebase conventions, gotchas, commands |
+|| [[PROJECT_INDEX]] | Central index, status board, discovery archive |
+|| [[docs/03-decisions/]] | Architecture Decision Records (ADR-001 through ADR-005) |
+|| [[docs/06-specs/]] | Approved design specs (Eyes, Gemma, Settings) |
+|| [[docs/02-behaviour-training/SMOLCASE-Behaviour-Training-Plan]] | 30-behaviour training curriculum |
