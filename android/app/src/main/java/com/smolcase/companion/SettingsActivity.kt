@@ -194,6 +194,7 @@ class SettingsActivity : ComponentActivity() {
                 max = 100
                 progress = initial
                 minimumHeight = (SettingsTheme.MIN_TOUCH_HEIGHT_DP * density).toInt()
+                SettingsTheme.styleSeekBar(this)
                 contentDescription = "$labelText $initial percent"
                 setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                     override fun onProgressChanged(s: SeekBar, p: Int, fromUser: Boolean) {
@@ -314,6 +315,7 @@ class SettingsActivity : ComponentActivity() {
                 max = 100
                 progress = initial
                 minimumHeight = (SettingsTheme.MIN_TOUCH_HEIGHT_DP * density).toInt()
+                SettingsTheme.styleSeekBar(this)
                 contentDescription = "$labelText $initial percent"
                 setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                     override fun onProgressChanged(s: SeekBar, p: Int, fromUser: Boolean) {

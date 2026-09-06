@@ -18,8 +18,10 @@ import android.widget.TextView
  *   White (#FFFFFF)          → 13.5:1 ✓
  *   Light gray (#E0E0E0)     →  9.3:1 ✓
  *   Mid gray (#A0A0A0)       →  6.6:1 ✓
- *   Accent blue (#4FC3F7)    →  4.8:1 ✓ (focus / active)
+ *   Accent blue (#4FC3F7)    → 10.5:1 ✓ (focus / active / caret / seek track)
  *   Error red (#EF5350)      →  4.9:1 ✓
+ *   Field border (#6E6E6E)   →  4.1:1 ✓ (UI component boundary ≥3)
+ *   Button bg (#6E6E6E)      →  4.1:1 ✓ vs black, white text 5.1:1 ✓
  *   Divider gray (#333333)   →  1.75:1 — decorative only (not conveying info)
  */
 object SettingsTheme {
@@ -54,11 +56,11 @@ object SettingsTheme {
     /** Section divider vertical margin (8dp). */
     const val DIVIDER_MARGIN_DP = 8
 
-    /** Button background — dark gray for contrast against black canvas. */
-    @JvmField val BUTTON_BG_COLOR: Int = Color.parseColor("#2A2A2A")
+    /** Button background — 4.1:1 vs black canvas, 5.1:1 vs white text. */
+    @JvmField val BUTTON_BG_COLOR: Int = Color.parseColor("#6E6E6E")
 
-    /** Field active border — visible against black. */
-    @JvmField val FIELD_BORDER_COLOR: Int = Color.parseColor("#555555")
+    /** Field active border — 4.1:1 vs black, meets ≥3:1 component boundary. */
+    @JvmField val FIELD_BORDER_COLOR: Int = Color.parseColor("#6E6E6E")
 
     /** Create a styled EditText with visible bottom border line. */
     fun styledEditText(context: android.content.Context, hint: String, value: String): EditText {
@@ -69,6 +71,12 @@ object SettingsTheme {
             setTextColor(VALUE_COLOR)
             setHintTextColor(HINT_COLOR)
             setBackgroundDrawable(createBottomBorderDrawable(density))
+            // Tint the caret to accent blue so it stays visible on black and distinct from white text.
+            textCursorDrawable = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(FOCUS_COLOR)
+                setSize((2 * density).toInt(), (20 * density).toInt())
+            }
             setPadding(
                 (PADDING_HORIZONTAL_DP * density).toInt(),
                 (10 * density).toInt(),
@@ -98,6 +106,18 @@ object SettingsTheme {
             setId(0, 0); setId(1, 1)
             setLayerGravity(1, android.view.Gravity.BOTTOM)
         }
+    }
+
+    /**
+     * Apply WCAG AA-safe track/thumb contrast to a SeekBar on the black canvas:
+     * filled portion accent blue (10.5:1), unfilled track mid-gray (4.1:1),
+     * thumb white (13.5:1).
+     */
+    fun styleSeekBar(seek: SeekBar) {
+        seek.progressTintList = android.content.res.ColorStateList.valueOf(FOCUS_COLOR)
+        seek.progressBackgroundTintList = android.content.res.ColorStateList.valueOf(FIELD_BORDER_COLOR)
+        seek.thumbTintList = android.content.res.ColorStateList.valueOf(LABEL_COLOR)
+        seek.splitTrack = false
     }
 
     /** Apply WCAG AA-safe styling to a Button. */
