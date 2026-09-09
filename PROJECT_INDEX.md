@@ -103,6 +103,7 @@
 | Reset-to-scratch spec | 🟡 Drafted | [[docs/06-specs/2026-08-30-reset-to-scratch-design\|Spec]] + [[docs/07-plans/2026-08-30-reset-to-scratch\|plan]] |
 | Wakeup/onboarding spec | 🟡 Drafted | [[docs/06-specs/2026-08-30-wakeup-onboarding-design\|Spec]] + [[docs/07-plans/2026-08-30-wakeup-onboarding\|plan]] |
 | Native GPU face renderer | 🟢 Complete | Face parity: [[docs/07-plans/2026-09-10-gpu-face-parity\|plan]], [[docs/06-specs/2026-09-10-gpu-face-parity-design\|design]]; `android/app/src/main/java/com/smolcase/companion/face/` |
+| Settings UI styling match | 🔵 Active | [[docs/06-specs/2026-09-10-settings-ui-prototype-styling\|Spec]] + [[docs/07-plans/2026-09-10-settings-ui-styling\|plan]]; task [[_tasks/20260910-003-settings-compose-styling\|20260910-003]] |
 
 ---
 

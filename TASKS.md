@@ -36,6 +36,7 @@
 | 20260909-002 | [[_tasks/20260909-002-dot-matrix-viewport|SMOLCASE dot matrix viewport spike]] | 🟡 Medium | 🗄 Retired 2026-09-10 — dot pass ships in GPU renderer |
 | 20260909-003 | [[_tasks/20260909-003-face-expressions|SMOLCASE face expressions spike]] | 🟡 Medium | 🗄 Retired 2026-09-10 — 16 presets validated, shipped |
 | 20260910-002 | [[_tasks/20260910-002-multi-session-routing|Multi-session routing: voice, vision, conversation, tooling]] | 🟡 Medium | Open — design spike first |
+| 20260910-003 | [[_tasks/20260910-003-settings-compose-styling|Settings UI styling match to prototype (Cybernetic Companion Deck)]] | 🟡 Medium | 🔵 Active — [[docs/06-specs/2026-09-10-settings-ui-prototype-styling|spec]] + [[docs/07-plans/2026-09-10-settings-ui-styling|plan]] ready |
 
 ---
 

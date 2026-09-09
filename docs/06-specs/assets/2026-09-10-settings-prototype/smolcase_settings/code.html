@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><title>SMOLCASE Hardware Config</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#0f131c;}body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "secondary-fixed": "#ffd9dc", "tertiary-fixed-dim": "#7bd0ff", "surface-container": "#1c2028", "on-secondary-container": "#fff1f1", "on-primary-fixed-variant": "#004f54", "neon-coral": "#F43F5E", "on-tertiary-fixed": "#001e2c", "secondary-container": "#dd034e", "surface-container-high": "#262a33", "led-matrix-off": "#0D1520", "error-container": "#93000a", "secondary": "#ffb2ba", "status-warning": "#F59E0B", "on-primary-container": "#006970", "inverse-surface": "#dfe2ee", "background": "#0f131c", "primary-fixed": "#7df4ff", "on-tertiary-fixed-variant": "#004c69", "status-online": "#10B981", "primary-fixed-dim": "#00dbe9", "on-error-container": "#ffdad6", "surface": "#0f131c", "on-surface-variant": "#b9cacb", "on-tertiary-container": "#00668b", "on-surface": "#dfe2ee", "surface-container-low": "#181c24", "surface-tint": "#00dbe9", "inverse-primary": "#006970", "on-secondary-fixed": "#400010", "on-tertiary": "#00354a", "text-mid": "#94A3B8", "surface-bright": "#353942", "surface-container-highest": "#31353e", "led-matrix-dim": "#082B3E", "outline": "#849495", "on-background": "#dfe2ee", "tertiary-fixed": "#c4e7ff", "surface-dim": "#0f131c", "surface-border-active": "#00F0FF", "oled-pure": "#05070B", "surface-container-lowest": "#0a0e16", "text-bright": "#F1F5F9", "error": "#ffb4ab", "inverse-on-surface": "#2c3039", "on-secondary-fixed-variant": "#910030", "on-error": "#690005", "outline-variant": "#3b494b", "on-primary-fixed": "#002022", "surface-border": "#1E2A3E", "primary": "#dbfcff", "surface-variant": "#31353e", "surface-panel": "#141C2B", "on-secondary": "#67001f", "secondary-fixed-dim": "#ffb2ba", "text-dim": "#64748B", "primary-container": "#00f0ff", "surface-deck": "#0E1420", "tertiary-container": "#aee0ff", "tertiary": "#eef7ff", "on-primary": "#00363a" }, borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, spacing: { "space-2xl": "3rem", "space-sm": "0.5rem", "space-xl": "2rem", "space-md": "0.75rem", "space-base": "1rem", "screen-margin": "1rem", "space-xs": "0.25rem", "space-lg": "1.5rem", "panel-gutter": "0.75rem", "space-xxs": "0.125rem" }, fontFamily: { "telemetry-num": ["JetBrains Mono"], "body-md": ["Inter"], "body-lg": ["Inter"], "body-sm": ["Inter"], "label-code-md": ["JetBrains Mono"], "headline-md": ["Space Grotesk"], "headline-lg": ["Space Grotesk"], "label-code-sm": ["JetBrains Mono"], "headline-xl-mobile": ["Space Grotesk"], "headline-xl": ["Space Grotesk"], "label-code-lg": ["JetBrains Mono"] }, fontSize: { "telemetry-num": ["20px", { "lineHeight": "24px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "label-code-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500" }], "headline-md": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "headline-lg": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-code-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "500" }], "headline-xl-mobile": ["26px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "headline-xl": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "label-code-lg": ["14px", { "lineHeight": "18px", "letterSpacing": "0.05em", "fontWeight": "600" }] } } } };</script></head><body class="bg-surface text-on-surface font-body-md text-body-md flex flex-col min-h-screen"><header class="fixed top-0 inset-x-0 z-50 bg-oled-pure/90 backdrop-blur-xl pt-safe"><div class="flex flex-col"><div class="flex items-center justify-between px-space-base h-7 bg-surface-container-lowest/80 text-text-dim"><div class="flex items-center gap-space-xs"><span class="w-1.5 h-1.5 rounded-full bg-status-online shadow-[0_0_6px_rgba(16,185,129,0.8)]"></span><span class="font-label-code-sm text-label-code-sm text-primary tracking-wider">SYS_CHASSIS // DEV:READY</span></div><div class="flex items-center gap-space-md font-label-code-sm text-label-code-sm"><span class="flex items-center gap-space-xxs text-text-mid"><span class="material-symbols-outlined text-[12px]">memory</span> 120MHz</span><span class="flex items-center gap-space-xxs text-primary-container font-semibold"><span class="material-symbols-outlined text-[13px]">battery_charging_full</span> 94%</span></div></div><div class="h-14 px-space-sm flex items-center justify-between"><div class="flex items-center gap-space-xs"><button class="w-11 h-11 flex items-center justify-center rounded-lg text-text-bright hover:text-primary-container transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-2xl">chevron_left</span></button><div class="flex flex-col"><span class="font-label-code-sm text-label-code-sm text-primary-container uppercase tracking-widest leading-none">RETURN TO FACE</span><h1 class="font-headline-md text-headline-md text-text-bright tracking-tight uppercase leading-snug">Smolcase Config</h1></div></div><div class="flex items-center gap-space-sm pr-space-xs"><span class="px-2 py-0.5 rounded bg-surface-deck text-primary-container font-label-code-sm text-label-code-sm shadow-[0_0_8px_rgba(0,240,255,0.15)]">REV_3</span><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1WI2scnyTrilQAi8uOY2QQTVDDNiMyUPwKfj7JeioT8-vGUh-srUwrL-ngSAWzN2vCoJfs-gkY1EL2ZiKMjivrgPSZCpmARcyDRiZy5FFrEmRwXkPiW984vvaHxDmcScPHemd7l-V9kvE7WFwyJ1YbsQ1c8OQBE1oLUz9fnqON2giZUBeGZ-gW85Hx-t3qOa5P0G-pBZGqt2CQ9LlhWKKtJ5KHJ982f7hqQZyymDTQRj5yoZGCpncptgMw-VL31Rb4qdvRju1rv"/></div></div></div></header><main class="flex flex-col relative w-full pt-20 pb-24 bg-surface flex-1"><div class="flex flex-col w-full px-space-base pb-10 gap-space-lg text-on-surface">
+<!-- TOP COMPANION LIVE MIRROR / STATUS CHIP -->
+<section class="flex flex-col gap-space-xs">
+<div class="bg-surface-deck rounded-xl p-space-base flex flex-col gap-space-md shadow-[0_8px_20px_rgba(5,7,11,0.7)] relative overflow-hidden">
+<!-- Glow ambient backdrop -->
+<div class="absolute -right-12 -top-12 w-36 h-36 rounded-full bg-primary-container/10 blur-2xl pointer-events-none"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-container opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-primary-container shadow-[0_0_8px_rgba(0,240,255,0.9)]"></span>
+</span>
+<span class="font-label-code-md text-label-code-md text-primary tracking-widest uppercase">STATUS: ONLINE // LISTENING</span>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-text-dim px-space-xs py-0.5 rounded bg-oled-pure">CORE_V3.8</span>
+</div>
+<!-- Live Dot Matrix Face Widget with Interactive Emote Switch -->
+<div class="bg-oled-pure rounded-lg p-space-base flex flex-col items-center justify-center gap-space-sm relative">
+<div class="flex items-center justify-between w-full px-space-xs">
+<span class="font-label-code-sm text-label-code-sm text-text-dim uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary-container">visibility</span>
+            LED MATRIX [64x32 PIXEL PROJECTION]
+          </span>
+<button class="font-label-code-sm text-label-code-sm text-neon-coral bg-neon-coral/10 hover:bg-neon-coral/20 px-space-sm py-0.5 rounded transition-colors flex items-center gap-1" id="face-toggle-btn">
+<span class="material-symbols-outlined text-[13px]">favorite</span>
+            TOGGLE BLUSH
+          </button>
+</div>
+<!-- Matrix Simulation Display -->
+<div class="w-full max-w-xs h-28 bg-surface-container-lowest rounded-md flex items-center justify-center relative overflow-hidden px-4">
+<!-- Dot grid lines -->
+<div class="absolute inset-0 opacity-15 bg-[radial-gradient(#00f0ff_1px,transparent_1px)] [background-size:8px_8px] pointer-events-none"></div>
+<!-- Eyes Face Canvas -->
+<div class="flex items-center justify-around w-4/5 z-10" id="face-canvas">
+<!-- Left Eye (Cyan standard) -->
+<div class="flex flex-col items-center gap-1.5 transition-transform duration-300 transform scale-100">
+<div class="flex gap-1">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container shadow-[0_0_8px_rgba(0,240,255,0.8)]"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container shadow-[0_0_8px_rgba(0,240,255,0.8)]"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container shadow-[0_0_8px_rgba(0,240,255,0.8)]"></span>
+</div>
+<div class="flex gap-1">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container shadow-[0_0_8px_rgba(0,240,255,0.8)]"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container shadow-[0_0_8px_rgba(0,240,255,0.8)]"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container shadow-[0_0_8px_rgba(0,240,255,0.8)]"></span>
+</div>
+<div class="flex gap-1">
+<span class="w-2.5 h-2.5 rounded-full bg-led-matrix-off"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container shadow-[0_0_6px_rgba(0,240,255,0.6)]"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-led-matrix-off"></span>
+</div>
+</div>
+<!-- Mouth subtle smile -->
+<div class="flex gap-1 items-end pt-5">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container/40"></span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container/80"></span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container shadow-[0_0_4px_rgba(0,240,255,0.8)]"></span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container/80"></span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container/40"></span>
+</div>
+<!-- Right Eye (Interchangeable Blush/Standard) -->
+<div class="flex flex-col items-center gap-1.5 transition-all duration-300" id="right-eye">
+<div class="flex gap-1">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container shadow-[0_0_8px_rgba(0,240,255,0.8)] eye-dot"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container shadow-[0_0_8px_rgba(0,240,255,0.8)] eye-dot"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container shadow-[0_0_8px_rgba(0,240,255,0.8)] eye-dot"></span>
+</div>
+<div class="flex gap-1">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container shadow-[0_0_8px_rgba(0,240,255,0.8)] eye-dot"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container shadow-[0_0_8px_rgba(0,240,255,0.8)] eye-dot"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container shadow-[0_0_8px_rgba(0,240,255,0.8)] eye-dot"></span>
+</div>
+<div class="flex gap-1">
+<span class="w-2.5 h-2.5 rounded-full bg-led-matrix-off eye-dim"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container shadow-[0_0_6px_rgba(0,240,255,0.6)] eye-dot"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-led-matrix-off eye-dim"></span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs text-text-dim font-label-code-sm text-label-code-sm">
+<span class="material-symbols-outlined text-[14px]">touch_app</span>
+<span>Hold hardware face screen anytime to return to Companion Mode.</span>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 1: THINKING ENGINE (BACKEND SELECTOR) -->
+<section class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-container text-lg">neurology</span>
+<h2 class="font-headline-md text-headline-md uppercase tracking-tight text-text-bright">Thinking Engine</h2>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-text-dim">SYS_01 // LLM</span>
+</div>
+<!-- Segmented Backend Grid -->
+<div class="grid grid-cols-2 gap-space-xs p-1 bg-oled-pure rounded-lg">
+<!-- Option 1: Agent (Default Active) -->
+<button class="flex flex-col items-start p-space-sm rounded-lg bg-surface-deck text-left transition-all shadow-[0_0_10px_rgba(0,240,255,0.2)]">
+<div class="flex items-center justify-between w-full">
+<span class="font-label-code-md text-label-code-md text-primary-container font-semibold">Agent</span>
+<span class="px-1.5 py-0.5 rounded text-[9px] font-label-code-sm bg-primary-container/20 text-primary-container">ACTIVE</span>
+</div>
+<span class="font-body-sm text-body-sm text-text-mid mt-0.5">Cloud / OpenAI-comp.</span>
+</button>
+<!-- Option 2: Gemini Nano -->
+<button class="flex flex-col items-start p-space-sm rounded-lg bg-surface-container-low text-left opacity-75 hover:opacity-100 transition-all">
+<div class="flex items-center justify-between w-full">
+<span class="font-label-code-md text-label-code-md text-text-bright">Gemini Nano</span>
+<span class="material-symbols-outlined text-text-dim text-[14px]">lock</span>
+</div>
+<span class="font-body-sm text-body-sm text-text-dim mt-0.5">On-device &amp; private</span>
+</button>
+<!-- Option 3: Gemma 4 E2B -->
+<button class="flex flex-col items-start p-space-sm rounded-lg bg-surface-container-low text-left opacity-75 hover:opacity-100 transition-all">
+<div class="flex items-center justify-between w-full">
+<span class="font-label-code-md text-label-code-md text-text-bright">Gemma 4 E2B</span>
+<span class="px-1 py-0.5 rounded text-[8px] font-label-code-sm bg-status-warning/20 text-status-warning">UNSTABLE</span>
+</div>
+<span class="font-body-sm text-body-sm text-text-dim mt-0.5">Sideloaded / Tensor G3</span>
+</button>
+<!-- Option 4: Rules Only -->
+<button class="flex flex-col items-start p-space-sm rounded-lg bg-surface-container-low text-left opacity-75 hover:opacity-100 transition-all">
+<div class="flex items-center justify-between w-full">
+<span class="font-label-code-md text-label-code-md text-text-bright">Rules Only</span>
+<span class="material-symbols-outlined text-text-dim text-[14px]">offline_bolt</span>
+</div>
+<span class="font-body-sm text-body-sm text-text-dim mt-0.5">Deterministic / No AI</span>
+</button>
+</div>
+<!-- Agent Expanded Configuration Card -->
+<div class="bg-surface-deck rounded-xl p-space-base flex flex-col gap-space-md shadow-md">
+<div class="flex items-center justify-between">
+<span class="font-label-code-sm text-label-code-sm text-primary-container tracking-wider uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">tune</span> AGENT CONFIGURATION RAIL
+        </span>
+<span class="text-text-dim font-label-code-sm text-label-code-sm">REST // POST</span>
+</div>
+<!-- Provider & Base URL -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-code-sm text-label-code-sm text-text-dim uppercase">Provider Label</label>
+<div class="flex items-center bg-oled-pure rounded-md px-space-sm py-2">
+<input class="bg-transparent w-full text-text-bright font-label-code-md text-label-code-md focus:outline-none" type="text" value="OpenRouter"/>
+<span class="material-symbols-outlined text-text-dim text-sm">hub</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-code-sm text-label-code-sm text-text-dim uppercase">Base URL Endpoint</label>
+<div class="flex items-center bg-oled-pure rounded-md px-space-sm py-2">
+<input class="bg-transparent w-full text-text-bright font-label-code-md text-label-code-md focus:outline-none" type="text" value="https://openrouter.ai/api/v1"/>
+<span class="material-symbols-outlined text-status-online text-sm">check_circle</span>
+</div>
+</div>
+<!-- API Key Field with Mask Toggle -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex justify-between items-center">
+<label class="font-label-code-sm text-label-code-sm text-text-dim uppercase">Bearer API Token</label>
+<span class="font-label-code-sm text-label-code-sm text-text-dim">Encrypted KeyStore</span>
+</div>
+<div class="flex items-center bg-oled-pure rounded-md px-space-sm py-2">
+<input class="bg-transparent w-full text-text-bright font-label-code-md text-label-code-md tracking-wider focus:outline-none" id="api-key-input" type="password" value="sk-or-v1-98a27b8849c0d12a38b93a8F"/>
+<button class="text-text-dim hover:text-primary-container transition-colors ml-space-xs flex items-center" id="toggle-key-visibility">
+<span class="material-symbols-outlined text-base" id="eye-icon">visibility_off</span>
+</button>
+</div>
+</div>
+<!-- Model Specifier -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-code-sm text-label-code-sm text-text-dim uppercase">Inference Model</label>
+<div class="flex items-center bg-oled-pure rounded-md px-space-sm py-2">
+<input class="bg-transparent w-full text-text-bright font-label-code-md text-label-code-md focus:outline-none" type="text" value="mistralai/mixtral-8x22b-instruct"/>
+<span class="material-symbols-outlined text-text-dim text-sm">smart_toy</span>
+</div>
+</div>
+<!-- Sliders: Max Tokens & Temperature -->
+<div class="grid grid-cols-1 gap-space-md pt-space-xs">
+<!-- Max Tokens -->
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between items-center">
+<span class="font-label-code-sm text-label-code-sm text-text-dim uppercase">Max Tokens</span>
+<span class="font-telemetry-num text-telemetry-num text-primary-container" id="tokens-val">200</span>
+</div>
+<input class="w-full h-1.5 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary-container" id="tokens-slider" max="1024" min="64" step="16" type="range" value="200"/>
+<div class="flex justify-between font-label-code-sm text-label-code-sm text-text-dim">
+<span>64</span>
+<span>1024</span>
+</div>
+</div>
+<!-- Temperature -->
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between items-center">
+<span class="font-label-code-sm text-label-code-sm text-text-dim uppercase">Temperature [Entropy]</span>
+<span class="font-telemetry-num text-telemetry-num text-primary-container" id="temp-val">0.80</span>
+</div>
+<input class="w-full h-1.5 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary-container" id="temp-slider" max="2" min="0" step="0.05" type="range" value="0.80"/>
+<div class="flex justify-between font-label-code-sm text-label-code-sm text-text-dim">
+<span>0.00 (Rigid)</span>
+<span>2.00 (Chaotic)</span>
+</div>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-text-dim bg-surface-container-lowest/60 p-space-sm rounded-md">
+        Supports OpenAI-compatible endpoints: OpenRouter, Together, Groq, Perplexity, and private local vLLM daemons.
+      </p>
+</div>
+</section>
+<!-- SECTION 2: PERSONALITY DIALS -->
+<section class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-neon-coral text-lg">mood</span>
+<h2 class="font-headline-md text-headline-md uppercase tracking-tight text-text-bright">Personality Dials</h2>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-neon-coral px-1.5 py-0.5 rounded bg-neon-coral/10">smolcase_dials</span>
+</div>
+<div class="bg-surface-deck rounded-xl p-space-base flex flex-col gap-space-lg shadow-md">
+<!-- Humor Dial -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-text-mid text-base">theater_comedy</span>
+<span class="font-label-code-md text-label-code-md text-text-bright uppercase">Humor Bias</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-label-code-sm text-label-code-sm text-text-dim">QUIPPY / WITTY</span>
+<span class="font-telemetry-num text-telemetry-num text-neon-coral" id="humor-val">75%</span>
+</div>
+</div>
+<input class="w-full h-2 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-neon-coral" id="humor-slider" max="100" min="0" type="range" value="75"/>
+<div class="flex justify-between font-label-code-sm text-label-code-sm text-text-dim">
+<span>0% Serious Laboratory</span>
+<span>100% Unhinged Satire</span>
+</div>
+</div>
+<!-- Honesty Dial -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-text-mid text-base">verified</span>
+<span class="font-label-code-md text-label-code-md text-text-bright uppercase">Honesty &amp; Candor</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-label-code-sm text-label-code-sm text-primary-container">UNFILTERED BLUNT</span>
+<span class="font-telemetry-num text-telemetry-num text-primary-container" id="honesty-val">90%</span>
+</div>
+</div>
+<input class="w-full h-2 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary-container" id="honesty-slider" max="100" min="0" type="range" value="90"/>
+<div class="flex justify-between font-label-code-sm text-label-code-sm text-text-dim">
+<span>0% Polite Diplomacy</span>
+<span>100% Brutal Truth</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs text-text-dim font-label-code-sm text-label-code-sm pt-space-xs">
+<span class="material-symbols-outlined text-[13px] text-text-mid">info</span>
+<span>Local firmware registers apply live adjustments to generation prompts.</span>
+</div>
+</div>
+</section>
+<!-- SECTION 3: VOICE & SPEECH SYNTHESIS -->
+<section class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-container text-lg">graphic_eq</span>
+<h2 class="font-headline-md text-headline-md uppercase tracking-tight text-text-bright">Voice &amp; Speech</h2>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-text-dim">SPEECH_CORE</span>
+</div>
+<!-- Local Android Voice -->
+<div class="bg-surface-deck rounded-xl p-space-base flex flex-col gap-space-md shadow-md">
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-code-sm text-label-code-sm text-text-dim uppercase">Android Local TTS Engine Voice</label>
+<div class="flex items-center bg-oled-pure rounded-md px-space-sm py-2 justify-between">
+<span class="font-label-code-md text-label-code-md text-text-bright">Automatic Male Voice (en-US-x-sfg)</span>
+<span class="material-symbols-outlined text-text-dim text-sm">arrow_drop_down</span>
+</div>
+</div>
+<!-- Playback Trigger & Waveform Display -->
+<div class="flex items-center justify-between bg-oled-pure rounded-lg p-space-sm">
+<div class="flex items-center gap-space-sm">
+<button class="w-9 h-9 rounded-full bg-primary-container text-on-primary flex items-center justify-center shadow-[0_0_10px_rgba(0,240,255,0.4)] hover:scale-105 active:scale-95 transition-transform" id="play-tts-btn">
+<span class="material-symbols-outlined text-lg" id="play-icon">play_arrow</span>
+</button>
+<div class="flex flex-col">
+<span class="font-label-code-sm text-label-code-sm text-primary-container tracking-wide uppercase">SAMPLE TEST PHRASE</span>
+<span class="font-label-code-md text-label-code-md text-text-bright font-semibold">“Systems nominal.”</span>
+</div>
+</div>
+<!-- Mini Audio Spectrum bars -->
+<div class="flex items-center gap-1 h-6" id="waveform-container">
+<span class="w-1 bg-primary-container/40 h-2 rounded-full transition-all duration-150"></span>
+<span class="w-1 bg-primary-container/60 h-4 rounded-full transition-all duration-150"></span>
+<span class="w-1 bg-primary-container h-5 rounded-full transition-all duration-150"></span>
+<span class="w-1 bg-primary-container/80 h-3 rounded-full transition-all duration-150"></span>
+<span class="w-1 bg-primary-container/50 h-1.5 rounded-full transition-all duration-150"></span>
+</div>
+</div>
+<!-- Cloud TTS Sub-card (Toggleable) -->
+<div class="bg-surface-container-low rounded-lg p-space-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-code-md text-label-code-md text-text-bright">Cloud High-Fidelity TTS</span>
+<span class="font-body-sm text-body-sm text-text-dim">ElevenLabs streaming pipeline</span>
+</div>
+<!-- Tactile switch -->
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" id="cloud-tts-switch" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-text-dim peer-checked:after:bg-on-primary after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container peer-checked:shadow-[0_0_10px_rgba(0,240,255,0.4)]"></div>
+</label>
+</div>
+<!-- Collapsed/Expanded cloud TTS parameters container -->
+<div class="opacity-50 pointer-events-none flex flex-col gap-space-sm transition-opacity duration-200 pt-space-xs" id="cloud-tts-options">
+<div class="grid grid-cols-2 gap-space-xs">
+<div class="flex flex-col gap-0.5">
+<span class="font-label-code-sm text-label-code-sm text-text-dim">PROVIDER</span>
+<span class="font-label-code-md text-label-code-md text-text-bright bg-oled-pure px-2 py-1.5 rounded">ElevenLabs</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<span class="font-label-code-sm text-label-code-sm text-text-dim">MODEL</span>
+<span class="font-label-code-md text-label-code-md text-text-bright bg-oled-pure px-2 py-1.5 rounded truncate">eleven_monolingual_v1</span>
+</div>
+</div>
+<div class="flex flex-col gap-0.5">
+<span class="font-label-code-sm text-label-code-sm text-text-dim">VOICE ID</span>
+<span class="font-label-code-md text-label-code-md text-text-bright bg-oled-pure px-2 py-1.5 rounded font-mono">21m00Tcm4TlvDq8ikWAM</span>
+</div>
+<div class="flex justify-between font-label-code-sm text-label-code-sm text-text-mid pt-1">
+<span>Stability: <b class="text-primary-container">50%</b></span>
+<span>Similarity: <b class="text-primary-container">75%</b></span>
+</div>
+<span class="font-body-sm text-body-sm text-text-dim italic">Note: Android TTS acts automatically as zero-latency offline fallback.</span>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 4: CLOUD MULTIMODAL & COGNITIVE HOOKS -->
+<section class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-container text-lg">photo_camera_front</span>
+<h2 class="font-headline-md text-headline-md uppercase tracking-tight text-text-bright">Multimodal Cloud</h2>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-text-dim">VISION // HOOK</span>
+</div>
+<!-- Cloud Vision Frame -->
+<div class="bg-surface-deck rounded-xl p-space-base flex flex-col gap-space-md shadow-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-text-mid text-lg">center_focus_weak</span>
+<div>
+<span class="font-label-code-md text-label-code-md text-text-bright block">Cloud Vision Analysis</span>
+<span class="font-body-sm text-body-sm text-text-dim">Single-frame optical telemetry</span>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-text-dim peer-checked:after:bg-on-primary after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+<div class="bg-oled-pure rounded-lg p-space-sm flex flex-col gap-space-xs text-text-dim font-body-sm text-body-sm">
+<div class="flex items-center gap-1.5 text-primary-container font-label-code-sm text-label-code-sm">
+<span class="material-symbols-outlined text-[13px]">verified_user</span>
+<span>PRIVACY PROTOCOL</span>
+</div>
+<p>Captures a single camera frame only when explicitly triggered by physical interaction. Continuous cloud streaming is strictly hardware-prohibited.</p>
+<div class="flex justify-between font-label-code-sm text-label-code-sm text-text-mid pt-1">
+<span>TARGET MODEL: <b class="text-text-bright">gpt-4o</b></span>
+<span>FORMAT: <b class="text-text-bright">BASE64_JPEG</b></span>
+</div>
+</div>
+</div>
+<!-- Cloud Reply Generation Frame -->
+<div class="bg-surface-deck rounded-xl p-space-base flex flex-col gap-space-sm shadow-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-text-mid text-lg">cloud_sync</span>
+<div>
+<span class="font-label-code-md text-label-code-md text-text-bright block">Cloud Reply Generation</span>
+<span class="font-body-sm text-body-sm text-text-dim">Dedicated auxiliary reasoning route</span>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-text-dim peer-checked:after:bg-on-primary after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+<div class="flex items-center justify-between bg-oled-pure px-space-sm py-2 rounded-md font-label-code-sm text-label-code-sm text-text-dim">
+<span>MODEL: mixtral-8x22b-instruct</span>
+<span class="text-text-mid">ENDPOINT: OpenRouter</span>
+</div>
+</div>
+</section>
+<!-- SECTION 5: HARDWARE SENSORS & TELEMETRY REGISTERS -->
+<section class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-container text-lg">sensors</span>
+<h2 class="font-headline-md text-headline-md uppercase tracking-tight text-text-bright">Hardware Telemetry</h2>
+</div>
+<span class="font-label-code-sm text-label-code-sm text-status-online flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-status-online"></span>
+        I2C_BUS LIVE
+      </span>
+</div>
+<p class="font-body-sm text-body-sm text-text-dim">
+      Tactile environmental perception units. Sensor configurations persist immediately to the hardware EEPROM buffer.
+    </p>
+<!-- Sensors List Array -->
+<div class="flex flex-col gap-space-xs">
+<!-- Sensor 1: Magnetometer (ON) -->
+<div class="bg-surface-deck rounded-lg p-space-sm flex flex-col gap-space-xs shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-container text-base">explore</span>
+<div>
+<span class="font-label-code-md text-label-code-md text-text-bright font-semibold">Magnetometer</span>
+<span class="font-body-sm text-body-sm text-text-dim block">Bearing / Companion heading orientation</span>
+</div>
+</div>
+<input checked="" class="w-4 h-4 accent-primary-container rounded cursor-pointer" type="checkbox"/>
+</div>
+<div class="flex items-center justify-between bg-oled-pure px-space-sm py-1.5 rounded text-label-code-sm font-label-code-sm">
+<div class="flex items-center gap-1 text-text-dim">
+<span>INTERVAL:</span>
+<span class="text-text-bright bg-surface-container-low px-1.5 py-0.5 rounded">500 ms</span>
+</div>
+<div class="flex items-center gap-1 text-primary-container">
+<span class="material-symbols-outlined text-[12px]">radar</span>
+<span class="font-semibold">Heading 042° NNE</span>
+</div>
+</div>
+</div>
+<!-- Sensor 2: Accelerometer (ON) -->
+<div class="bg-surface-deck rounded-lg p-space-sm flex flex-col gap-space-xs shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-container text-base">vibration</span>
+<div>
+<span class="font-label-code-md text-label-code-md text-text-bright font-semibold">Accelerometer</span>
+<span class="font-body-sm text-body-sm text-text-dim block">Motion, pick-up, &amp; tap impulses</span>
+</div>
+</div>
+<input checked="" class="w-4 h-4 accent-primary-container rounded cursor-pointer" type="checkbox"/>
+</div>
+<div class="flex items-center justify-between bg-oled-pure px-space-sm py-1.5 rounded text-label-code-sm font-label-code-sm">
+<div class="flex items-center gap-1 text-text-dim">
+<span>INTERVAL:</span>
+<span class="text-text-bright bg-surface-container-low px-1.5 py-0.5 rounded">200 ms</span>
+</div>
+<div class="flex items-center gap-1 text-primary-container">
+<span class="material-symbols-outlined text-[12px]">screen_rotation</span>
+<span class="font-semibold">0.02g (Stationary desk)</span>
+</div>
+</div>
+</div>
+<!-- Sensor 3: Gyroscope (ON) -->
+<div class="bg-surface-deck rounded-lg p-space-sm flex flex-col gap-space-xs shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-container text-base">screen_lock_rotation</span>
+<div>
+<span class="font-label-code-md text-label-code-md text-text-bright font-semibold">Gyroscope</span>
+<span class="font-body-sm text-body-sm text-text-dim block">Continuous roll/tilt detection</span>
+</div>
+</div>
+<input checked="" class="w-4 h-4 accent-primary-container rounded cursor-pointer" type="checkbox"/>
+</div>
+<div class="flex items-center justify-between bg-oled-pure px-space-sm py-1.5 rounded text-label-code-sm font-label-code-sm">
+<div class="flex items-center gap-1 text-text-dim">
+<span>INTERVAL:</span>
+<span class="text-text-bright bg-surface-container-low px-1.5 py-0.5 rounded">200 ms</span>
+</div>
+<div class="flex items-center gap-1 text-primary-container">
+<span class="material-symbols-outlined text-[12px]">balance</span>
+<span class="font-semibold">Δ 0.0 rad/s (Level)</span>
+</div>
+</div>
+</div>
+<!-- Sensor 4: Proximity (ON) -->
+<div class="bg-surface-deck rounded-lg p-space-sm flex flex-col gap-space-xs shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-container text-base">spatial_audio</span>
+<div>
+<span class="font-label-code-md text-label-code-md text-text-bright font-semibold">Proximity</span>
+<span class="font-body-sm text-body-sm text-text-dim block">Hand hover or cheek closeness</span>
+</div>
+</div>
+<input checked="" class="w-4 h-4 accent-primary-container rounded cursor-pointer" type="checkbox"/>
+</div>
+<div class="flex items-center justify-between bg-oled-pure px-space-sm py-1.5 rounded text-label-code-sm font-label-code-sm">
+<div class="flex items-center gap-1 text-text-dim">
+<span>INTERVAL:</span>
+<span class="text-text-bright bg-surface-container-low px-1.5 py-0.5 rounded">500 ms</span>
+</div>
+<div class="flex items-center gap-1 text-status-online">
+<span class="material-symbols-outlined text-[12px]">front_hand</span>
+<span class="font-semibold">Clear (&gt;10cm)</span>
+</div>
+</div>
+</div>
+<!-- Sensor 5: Light Lux (OFF) -->
+<div class="bg-surface-deck rounded-lg p-space-sm flex flex-col gap-space-xs opacity-70 hover:opacity-100 transition-opacity">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-text-dim text-base">wb_sunny</span>
+<div>
+<span class="font-label-code-md text-label-code-md text-text-bright font-semibold">Ambient Light Lux</span>
+<span class="font-body-sm text-body-sm text-text-dim block">Room brightness or sleeping pocket</span>
+</div>
+</div>
+<input class="w-4 h-4 accent-primary-container rounded cursor-pointer" type="checkbox"/>
+</div>
+<div class="flex items-center justify-between bg-oled-pure px-space-sm py-1.5 rounded text-label-code-sm font-label-code-sm">
+<div class="flex items-center gap-1 text-text-dim">
+<span>INTERVAL:</span>
+<span class="text-text-dim bg-surface-container-low px-1.5 py-0.5 rounded">2,000 ms</span>
+</div>
+<span class="text-text-dim">Standby (320 lx cached)</span>
+</div>
+</div>
+<!-- Sensor 6: Barometer (OFF) -->
+<div class="bg-surface-deck rounded-lg p-space-sm flex flex-col gap-space-xs opacity-70 hover:opacity-100 transition-opacity">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-text-dim text-base">air</span>
+<div>
+<span class="font-label-code-md text-label-code-md text-text-bright font-semibold">Barometer Pressure</span>
+<span class="font-body-sm text-body-sm text-text-dim block">Altitude &amp; weather variation</span>
+</div>
+</div>
+<input class="w-4 h-4 accent-primary-container rounded cursor-pointer" type="checkbox"/>
+</div>
+<div class="flex items-center justify-between bg-oled-pure px-space-sm py-1.5 rounded text-label-code-sm font-label-code-sm">
+<div class="flex items-center gap-1 text-text-dim">
+<span>INTERVAL:</span>
+<span class="text-text-dim bg-surface-container-low px-1.5 py-0.5 rounded">2,000 ms</span>
+</div>
+<span class="text-text-dim">Standby (1013.2 hPa)</span>
+</div>
+</div>
+<!-- Sensor 7: Ambient Temperature (OFF) -->
+<div class="bg-surface-deck rounded-lg p-space-sm flex flex-col gap-space-xs opacity-70 hover:opacity-100 transition-opacity">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-text-dim text-base">device_thermostat</span>
+<div>
+<span class="font-label-code-md text-label-code-md text-text-bright font-semibold">Ambient Temperature</span>
+<span class="font-body-sm text-body-sm text-text-dim block">Chassis thermal equilibrium</span>
+</div>
+</div>
+<input class="w-4 h-4 accent-primary-container rounded cursor-pointer" type="checkbox"/>
+</div>
+<div class="flex items-center justify-between bg-oled-pure px-space-sm py-1.5 rounded text-label-code-sm font-label-code-sm">
+<div class="flex items-center gap-1 text-text-dim">
+<span>INTERVAL:</span>
+<span class="text-text-dim bg-surface-container-low px-1.5 py-0.5 rounded">5,000 ms</span>
+</div>
+<span class="text-text-dim">Standby (21.5°C)</span>
+</div>
+</div>
+</div>
+</section>
+<!-- NAMESPACE SYNC REGISTRY BADGES -->
+<section class="flex flex-col gap-space-xs pt-space-sm">
+<span class="font-label-code-sm text-label-code-sm text-text-dim uppercase tracking-wider">HARDWARE MEMORY BUS // NAMESPACES</span>
+<div class="grid grid-cols-3 gap-space-xs">
+<div class="bg-oled-pure rounded p-space-xs flex flex-col">
+<span class="font-label-code-sm text-label-code-sm text-primary-container truncate font-semibold">smolcase_llm</span>
+<span class="font-label-code-sm text-label-code-sm text-text-dim">SYNC: REVISION_3</span>
+</div>
+<div class="bg-oled-pure rounded p-space-xs flex flex-col">
+<span class="font-label-code-sm text-label-code-sm text-neon-coral truncate font-semibold">smolcase_dials</span>
+<span class="font-label-code-sm text-label-code-sm text-text-dim">PERSISTED LOCAL</span>
+</div>
+<div class="bg-oled-pure rounded p-space-xs flex flex-col">
+<span class="font-label-code-sm text-label-code-sm text-status-online truncate font-semibold">smolcase_sensors</span>
+<span class="font-label-code-sm text-label-code-sm text-text-dim">I2C AUTOSAVE</span>
+</div>
+</div>
+</section>
+</div>
+<script>
+  // Micro-interactions and interactive widgets
+  const faceToggleBtn = document.getElementById('face-toggle-btn');
+  const rightEye = document.getElementById('right-eye');
+  let isBlushing = false;
+
+  if (faceToggleBtn && rightEye) {
+    faceToggleBtn.addEventListener('click', () => {
+      isBlushing = !isBlushing;
+      const dots = rightEye.querySelectorAll('.eye-dot');
+      if (isBlushing) {
+        dots.forEach(d => {
+          d.classList.remove('bg-primary-container');
+          d.classList.add('bg-neon-coral');
+          d.style.boxShadow = '0 0 8px rgba(244, 63, 94, 0.9)';
+        });
+        faceToggleBtn.innerHTML = '<span class="material-symbols-outlined text-[13px]">mode_comment</span> RESTORE NORMAL';
+      } else {
+        dots.forEach(d => {
+          d.classList.remove('bg-neon-coral');
+          d.classList.add('bg-primary-container');
+          d.style.boxShadow = '0 0 8px rgba(0, 240, 255, 0.8)';
+        });
+        faceToggleBtn.innerHTML = '<span class="material-symbols-outlined text-[13px]">favorite</span> TOGGLE BLUSH';
+      }
+    });
+  }
+
+  // API Key Visibility Mask Toggle
+  const toggleKeyBtn = document.getElementById('toggle-key-visibility');
+  const apiKeyInput = document.getElementById('api-key-input');
+  const eyeIcon = document.getElementById('eye-icon');
+
+  if (toggleKeyBtn && apiKeyInput && eyeIcon) {
+    toggleKeyBtn.addEventListener('click', () => {
+      if (apiKeyInput.type === 'password') {
+        apiKeyInput.type = 'text';
+        eyeIcon.textContent = 'visibility';
+      } else {
+        apiKeyInput.type = 'password';
+        eyeIcon.textContent = 'visibility_off';
+      }
+    });
+  }
+
+  // Slider Telemetry Readout Bindings
+  const tokensSlider = document.getElementById('tokens-slider');
+  const tokensVal = document.getElementById('tokens-val');
+  if (tokensSlider && tokensVal) {
+    tokensSlider.addEventListener('input', (e) => tokensVal.textContent = e.target.value);
+  }
+
+  const tempSlider = document.getElementById('temp-slider');
+  const tempVal = document.getElementById('temp-val');
+  if (tempSlider && tempVal) {
+    tempSlider.addEventListener('input', (e) => tempVal.textContent = parseFloat(e.target.value).toFixed(2));
+  }
+
+  const humorSlider = document.getElementById('humor-slider');
+  const humorVal = document.getElementById('humor-val');
+  if (humorSlider && humorVal) {
+    humorSlider.addEventListener('input', (e) => humorVal.textContent = `${e.target.value}%`);
+  }
+
+  const honestySlider = document.getElementById('honesty-slider');
+  const honestyVal = document.getElementById('honesty-val');
+  if (honestySlider && honestyVal) {
+    honestySlider.addEventListener('input', (e) => honestyVal.textContent = `${e.target.value}%`);
+  }
+
+  // Cloud TTS switch collapsible toggle
+  const cloudTtsSwitch = document.getElementById('cloud-tts-switch');
+  const cloudTtsOptions = document.getElementById('cloud-tts-options');
+  if (cloudTtsSwitch && cloudTtsOptions) {
+    cloudTtsSwitch.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        cloudTtsOptions.classList.remove('opacity-50', 'pointer-events-none');
+        cloudTtsOptions.classList.add('opacity-100');
+      } else {
+        cloudTtsOptions.classList.add('opacity-50', 'pointer-events-none');
+        cloudTtsOptions.classList.remove('opacity-100');
+      }
+    });
+  }
+
+  // Voice Preview Simulation Waveform
+  const playBtn = document.getElementById('play-tts-btn');
+  const playIcon = document.getElementById('play-icon');
+  const waveformContainer = document.getElementById('waveform-container');
+  let isPlaying = false;
+  let waveInterval;
+
+  if (playBtn && playIcon && waveformContainer) {
+    playBtn.addEventListener('click', () => {
+      isPlaying = !isPlaying;
+      if (isPlaying) {
+        playIcon.textContent = 'pause';
+        waveInterval = setInterval(() => {
+          const bars = waveformContainer.children;
+          for (let bar of bars) {
+            const randomH = Math.floor(Math.random() * 18) + 4;
+            bar.style.height = `${randomH}px`;
+          }
+        }, 120);
+        setTimeout(() => {
+          if (isPlaying) {
+            isPlaying = false;
+            playIcon.textContent = 'play_arrow';
+            clearInterval(waveInterval);
+            const bars = waveformContainer.children;
+            bars[0].style.height = '8px';
+            bars[1].style.height = '16px';
+            bars[2].style.height = '20px';
+            bars[3].style.height = '12px';
+            bars[4].style.height = '6px';
+          }
+        }, 2200);
+      } else {
+        playIcon.textContent = 'play_arrow';
+        clearInterval(waveInterval);
+      }
+    });
+  }
+</script></main><aside class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-oled-pure/95 backdrop-blur-xl shadow-[0_-8px_24px_rgba(5,7,11,0.9)]"><div class="h-16 px-space-base flex items-center justify-between gap-space-md"><button class="h-11 px-space-base flex items-center justify-center gap-space-xs rounded-lg bg-surface-deck text-text-dim hover:text-neon-coral transition-colors flex-1"><span class="material-symbols-outlined text-lg">restart_alt</span><span class="font-label-code-md text-label-code-md tracking-wider uppercase">DISCARD</span></button><button class="h-11 px-space-base flex items-center justify-center gap-space-xs rounded-lg bg-primary-container text-on-primary font-semibold shadow-[0_0_12px_rgba(0,240,255,0.45)] hover:shadow-[0_0_18px_rgba(0,240,255,0.7)] transition-all flex-[1.4]"><span class="material-symbols-outlined text-lg">save</span><span class="font-label-code-md text-label-code-md tracking-wider uppercase text-on-primary">FLASH EEPROM</span></button></div></aside></body></html>
