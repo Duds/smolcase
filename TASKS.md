@@ -26,15 +26,15 @@
 
 ## 🔥 Now
 
-> Hardware work is on hold (per request). See 🟡 On Hold section.
-> Recommended: run the SMOLCASE face sphere architecture spike, then implement reset-to-scratch factory reset.
+> Face spikes retired 2026-09-10: source model shipped natively in `FaceGpuRenderer` (two-pass GPU parity).
+> Recommended: implement reset-to-scratch factory reset (spec + plan ready).
 
 | ID | Task | Risk | Status |
 |----|------|------|--------|
-| 20260910-001 | [[docs/07-plans/2026-09-10-gpu-face-parity|Native two-pass GPU face parity]] | Medium | Active, approved [[docs/06-specs/2026-09-10-gpu-face-parity-design|design and BDD criteria]] |
-| 20260909-001 | [[_tasks/20260909-001-smolcase-face-spike|SMOLCASE face sphere architecture spike]] | 🟡 Medium | 🔵 Active, viewport split out |
-| 20260909-002 | [[_tasks/20260909-002-dot-matrix-viewport|SMOLCASE dot matrix viewport spike]] | 🟡 Medium | 🔵 Active |
-| 20260909-003 | [[_tasks/20260909-003-face-expressions|SMOLCASE face expressions spike]] | 🟡 Medium | 🔵 16 presets tested, awaiting visual selection |
+| 20260910-001 | [[docs/07-plans/2026-09-10-gpu-face-parity|Native two-pass GPU face parity]] | Medium | ✅ Implemented — [[docs/06-specs/2026-09-10-gpu-face-parity-design|design]] locked in, `face/FaceGpuRenderer.kt` |
+| 20260909-001 | [[_tasks/20260909-001-smolcase-face-spike|SMOLCASE face sphere architecture spike]] | 🟡 Medium | 🗄 Retired 2026-09-10 — outputs shipped natively |
+| 20260909-002 | [[_tasks/20260909-002-dot-matrix-viewport|SMOLCASE dot matrix viewport spike]] | 🟡 Medium | 🗄 Retired 2026-09-10 — dot pass ships in GPU renderer |
+| 20260909-003 | [[_tasks/20260909-003-face-expressions|SMOLCASE face expressions spike]] | 🟡 Medium | 🗄 Retired 2026-09-10 — 16 presets validated, shipped |
 | 20260910-002 | [[_tasks/20260910-002-multi-session-routing|Multi-session routing: voice, vision, conversation, tooling]] | 🟡 Medium | Open — design spike first |
 
 ---
@@ -154,3 +154,4 @@
 - 2026-09-09: Reviewed the face spike, raised 12 blockers, and split the dot-matrix viewport into its own spike (20260909-002) implemented as an offscreen render plus per-dot luminance quantisation.
 - 2026-09-09: Extracted the dot-matrix pass to `spikes/shared/dot-matrix-shader.js`, and opened the face expressions spike (20260909-003) to test which moods survive 38 x 68 quantisation.
 - 2026-09-10: Opened task 20260910-002, multi-session routing across voice, vision, conversation, and tooling.
+- 2026-09-10: Implemented native two-pass GPU face parity (FaceGpuRenderer, FaceFrame, FaceParameters, ExpressionFaceModel), retired all three face spikes, and locked the build in with commits. Unit tests 57/57 passing.

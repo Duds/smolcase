@@ -28,9 +28,7 @@ Ship a desk-ready SMOLCASE robot that walks, talks, and responds autonomously â€
 
 - [[docs/07-plans/2026-09-10-gpu-face-parity|20260910-001: GPU face parity]], replace the inaccurate Canvas port with the spike's two GPU passes. [[docs/06-specs/2026-09-10-gpu-face-parity-design|Approved design]].
 
-- [20260909-001: SMOLCASE face sphere architecture spike](_tasks/20260909-001-smolcase-face-spike.md) (wayfinder:spike, HTML + Three.js, sphere model only after split)
-- [20260909-002: SMOLCASE dot matrix viewport spike](_tasks/20260909-002-dot-matrix-viewport.md) (wayfinder:spike, offscreen render plus per-dot luminance quantisation)
-- [[_tasks/20260909-003-face-expressions|20260909-003: SMOLCASE face expressions spike]] (wayfinder:spike, 16 eye-only presets and tilt; raw/dot tests pass, human legibility review pending)
+- [20260909-001: SMOLCASE face sphere architecture spike](_tasks/20260909-001-smolcase-face-spike.md) (wayfinder:spike, RETIRED 2026-09-10: source model shipped natively in FaceGpuRenderer)
 - [20260830-001 through 006: Conversation bug fixes](_tasks/20260830-001-directives-repetition.md) (wayfinder:task â€” replaces 20260829-002)
 - [20260829-003: Decide serial-bus servo model for ~300g robot](_tasks/20260829-003-servo-selection.md) (wayfinder:research)
 - [20260829-004: Design SC-CASE chassis and leg geometry in CAD](_tasks/20260829-004-sc-case-cad-design.md) (wayfinder:prototype)
@@ -54,9 +52,7 @@ Ship a desk-ready SMOLCASE robot that walks, talks, and responds autonomously â€
 
 ## Not yet specified
 
-- *Face source-model architecture*: validate the sphere-plus-eyes model independently of the display layer. See [[spikes/20260909-smolcase-face/README|SMOLCASE face sphere spike]].
-- *Dot-matrix viewport translation*: the display layer must quantise per dot, not mask a uniform blur. See [[spikes/20260909-dot-matrix-viewport/README|SMOLCASE dot matrix viewport spike]].
-- *Expression legibility*: which moods survive 38 x 68 quantisation, and at what eye size. See [[spikes/20260909-face-expressions/README|SMOLCASE face expressions spike]].
+- ~~Face source-model architecture~~: RESOLVED. Native two-pass GPU renderer ships the validated source + dot shaders in `android/.../face/`.
 - *Thermal dissipation characterisation*: Pixel 8 running continuous LLM inference inside closed 3D-printed `SC-CASE` â€” may need vent channels or passive heatsink.
 - *Sim-to-real transfer validation*: How closely does the MuJoCo model match the physical prototype? May need tuning iterations after first build.
 - *Gait transition smoothness*: Can CPG + TFLite blend between walk forward/backward/turn without jitter or stutter? Depends on behaviour arbiter design.
