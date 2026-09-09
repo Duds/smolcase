@@ -26,6 +26,8 @@ Ship a desk-ready SMOLCASE robot that walks, talks, and responds autonomously â€
 
 ## Frontier
 
+- [[docs/07-plans/2026-09-10-gpu-face-parity|20260910-001: GPU face parity]], replace the inaccurate Canvas port with the spike's two GPU passes. [[docs/06-specs/2026-09-10-gpu-face-parity-design|Approved design]].
+
 - [20260909-001: SMOLCASE face sphere architecture spike](_tasks/20260909-001-smolcase-face-spike.md) (wayfinder:spike, HTML + Three.js, sphere model only after split)
 - [20260909-002: SMOLCASE dot matrix viewport spike](_tasks/20260909-002-dot-matrix-viewport.md) (wayfinder:spike, offscreen render plus per-dot luminance quantisation)
 - [[_tasks/20260909-003-face-expressions|20260909-003: SMOLCASE face expressions spike]] (wayfinder:spike, 16 eye-only presets and tilt; raw/dot tests pass, human legibility review pending)

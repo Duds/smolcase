@@ -66,6 +66,11 @@ class MainActivity : ComponentActivity() {
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        if (android.os.Build.VERSION.SDK_INT >= 28) {
+            window.attributes = window.attributes.apply {
+                layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            }
+        }
 
         eyesView = TarsFaceView(this)
         brain = CreatureBrain(this, eyesView)
@@ -152,6 +157,16 @@ class MainActivity : ComponentActivity() {
         // Voice uses internal volume management (no stream-level muting).
         // Post-TTS echo prevention handled by VoiceEars.cooldown.
         voice = CreatureVoice(this, dials, eyesView, onTtsDone = { ears?.cooldown() })
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::eyesView.isInitialized) eyesView.resumeRendering()
+    }
+
+    override fun onPause() {
+        if (::eyesView.isInitialized) eyesView.pauseRendering()
+        super.onPause()
     }
 
     override fun onDestroy() {

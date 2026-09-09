@@ -1,5 +1,27 @@
 # Pixel 8 Android App
 
+## Build and sideload
+
+Use the wrapper for every phone deployment. It assigns the next build number,
+embeds it as the Android `versionCode`, installs the APK, records the number in
+`android/build-number`, and launches the app:
+
+```bash
+DEVICE="192.168.0.236:43007" scripts/build-and-sideload.sh
+```
+
+Override `DEVICE`, `ADB`, `GRADLE`, `JAVA_HOME`, or `ANDROID_HOME` as needed.
+The existing conversation test runner uses the same wrapper:
+
+```bash
+DEVICE="192.168.0.236:43007" scripts/test_conversation.sh
+```
+
+The build number is also included in conversation logs as `build_code` and the
+APK version name is `0.9-gpu-face.<build-number>`. Do not sideload debug APKs
+with a raw `gradle assembleDebug` command when the deployment needs a new
+stamp.
+
 ## SMOLCASE Companion — Stage 3.5: LLM thinking layer (built 2026-08-16)
 
 The creature can now *think*. Unknown speech falls through to a configurable

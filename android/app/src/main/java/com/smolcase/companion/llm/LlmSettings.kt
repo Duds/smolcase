@@ -1,6 +1,7 @@
 package com.smolcase.companion.llm
 
 import android.content.Context
+import com.smolcase.companion.BuildConfig
 
 /**
  * LLM configuration. Stored in SharedPreferences, edited in SettingsActivity.
@@ -13,7 +14,7 @@ import android.content.Context
  *
  * Backward-compatibility: old persisted KIMI backend is automatically
  * migrated to AGENT, and old kimi_* preference keys are migrated to
- * agent_* keys on first read.
+ * agent_* keys on first read. Gemma remains selectable for local inference.
  */
 class LlmSettings(context: Context) {
 
@@ -28,12 +29,6 @@ class LlmSettings(context: Context) {
         get() {
             val raw = prefs.getString(KEY_BACKEND, Backend.AGENT.name)!!
             if (raw == "KIMI") {
-                prefs.edit().putString(KEY_BACKEND, Backend.AGENT.name).apply()
-                return Backend.AGENT
-            }
-            // If the user was on GEMMA, migrate them to AGENT — the on-device
-            // Gemma 4 E2B engine is unstable on Tensor G3 (native crashes).
-            if (raw == "GEMMA") {
                 prefs.edit().putString(KEY_BACKEND, Backend.AGENT.name).apply()
                 return Backend.AGENT
             }
@@ -69,9 +64,9 @@ class LlmSettings(context: Context) {
      * Migrates from old kimi_api_key on first read.
      */
     var agentApiKey: String
-        get() = prefs.getString(KEY_AGENT_API_KEY, null)
-            ?: prefs.getString(KEY_KIMI_API_KEY, "")!!
-            .also { prefs.edit().putString(KEY_AGENT_API_KEY, it).apply() }
+        get() = prefs.getString(KEY_AGENT_API_KEY, null)?.takeIf { it.isNotBlank() }
+            ?: prefs.getString(KEY_KIMI_API_KEY, BuildConfig.OPENROUTER_API_KEY)!!
+                .also { prefs.edit().putString(KEY_AGENT_API_KEY, it).apply() }
         set(v) = prefs.edit().putString(KEY_AGENT_API_KEY, v.trim()).apply()
 
     /**
@@ -113,7 +108,8 @@ class LlmSettings(context: Context) {
         set(v) = prefs.edit().putString(KEY_TTS_BASE_URL, v.trim().trimEnd('/')).apply()
 
     var cloudTtsApiKey: String
-        get() = prefs.getString(KEY_TTS_API_KEY, "")!!
+        get() = prefs.getString(KEY_TTS_API_KEY, null)?.takeIf { it.isNotBlank() }
+            ?: BuildConfig.OPENROUTER_API_KEY.also { prefs.edit().putString(KEY_TTS_API_KEY, it).apply() }
         set(v) = prefs.edit().putString(KEY_TTS_API_KEY, v.trim()).apply()
 
     var cloudTtsVoiceId: String
@@ -145,7 +141,8 @@ class LlmSettings(context: Context) {
         set(v) = prefs.edit().putString(KEY_VISION_BASE_URL, v.trim().trimEnd('/')).apply()
 
     var cloudVisionApiKey: String
-        get() = prefs.getString(KEY_VISION_API_KEY, "")!!
+        get() = prefs.getString(KEY_VISION_API_KEY, null)?.takeIf { it.isNotBlank() }
+            ?: BuildConfig.OPENROUTER_API_KEY.also { prefs.edit().putString(KEY_VISION_API_KEY, it).apply() }
         set(v) = prefs.edit().putString(KEY_VISION_API_KEY, v.trim()).apply()
 
     var cloudVisionModel: String
@@ -166,7 +163,8 @@ class LlmSettings(context: Context) {
         set(v) = prefs.edit().putString(KEY_REPLY_BASE_URL, v.trim().trimEnd('/')).apply()
 
     var cloudReplyGenApiKey: String
-        get() = prefs.getString(KEY_REPLY_API_KEY, "")!!
+        get() = prefs.getString(KEY_REPLY_API_KEY, null)?.takeIf { it.isNotBlank() }
+            ?: BuildConfig.OPENROUTER_API_KEY.also { prefs.edit().putString(KEY_REPLY_API_KEY, it).apply() }
         set(v) = prefs.edit().putString(KEY_REPLY_API_KEY, v.trim()).apply()
 
     var cloudReplyGenModel: String
@@ -222,7 +220,7 @@ class LlmSettings(context: Context) {
 
     companion object {
         const val DEFAULT_BASE_URL = "https://openrouter.ai/api/v1"
-        const val DEFAULT_MODEL = "mistralai/mixtral-8x22b-instruct"
+        const val DEFAULT_MODEL = "google/gemini-2.5-flash"
         const val DEFAULT_TEMPERATURE = 80   // displayed as 0.80
         const val DEFAULT_MAX_TOKENS = 200
         const val DEFAULT_PROVIDER_LABEL = "OpenRouter"
@@ -235,10 +233,10 @@ class LlmSettings(context: Context) {
         const val DEFAULT_TTS_PROVIDER = "ElevenLabs"
 
         const val DEFAULT_VISION_BASE_URL = "https://openrouter.ai/api/v1"
-        const val DEFAULT_VISION_MODEL = "gpt-4o"
+        const val DEFAULT_VISION_MODEL = "google/gemini-2.5-flash"
 
         const val DEFAULT_REPLY_BASE_URL = "https://openrouter.ai/api/v1"
-        const val DEFAULT_REPLY_MODEL = "mistralai/mixtral-8x22b-instruct"
+        const val DEFAULT_REPLY_MODEL = "google/gemini-2.5-flash"
 
         private const val KEY_BACKEND = "backend"
 

@@ -33,7 +33,7 @@ class CreatureSettings(context: Context) {
      */
     fun saveAll(
         backend: LlmSettings.Backend,
-        agentBaseUrl: String, agentApiKey: String, agentModel: String,
+        agentProviderLabel: String, agentBaseUrl: String, agentApiKey: String, agentModel: String,
         agentMaxTokens: Int, agentTemperature: Int,
         humor: Int, honesty: Int,
         ttsEnabled: Boolean, ttsProvider: String, ttsBaseUrl: String, ttsApiKey: String,
@@ -44,7 +44,7 @@ class CreatureSettings(context: Context) {
         // LlmSettings — atomic commit
         llm.commit(
             backend = backend,
-            providerLabel = cloudTtsProviderLabel,
+            providerLabel = agentProviderLabel,
             agentBaseUrl = agentBaseUrl, agentApiKey = agentApiKey, agentModel = agentModel,
             agentMaxTokens = agentMaxTokens, agentTemperature = agentTemperature,
             ttsEnabled = ttsEnabled, ttsProvider = ttsProvider, ttsBaseUrl = ttsBaseUrl, ttsApiKey = ttsApiKey,

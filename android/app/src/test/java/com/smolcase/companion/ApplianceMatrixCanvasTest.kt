@@ -1,8 +1,10 @@
 package com.smolcase.companion
 
 import com.smolcase.companion.matrix.ApplianceMatrixCanvas
-import com.smolcase.companion.matrix.CozmoEyeParams
 import com.smolcase.companion.matrix.CozmoEyeRasterizer
+import com.smolcase.companion.matrix.ExpressionEyeParams
+import com.smolcase.companion.matrix.ExpressionFaceModel
+import com.smolcase.companion.matrix.ExpressionPresets
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -38,41 +40,49 @@ class ApplianceMatrixCanvasTest {
     }
 
     @Test
-    fun `cozmo eye SDF strictly enforces centerline boundary`() {
-        val eye = CozmoEyeParams(
-            centerX = 0.5f,
-            centerY = 0.35f,
-            width = 0.3f,
-            height = 0.2f,
-            maxBoundaryY = 0.50f
+    fun `rasterizer maps face model onto canvas with coordinate flip`() {
+        val canvas = ApplianceMatrixCanvas(cols = 38, rows = 68)
+        val rasterizer = CozmoEyeRasterizer(canvas)
+
+        val params = ExpressionEyeParams()
+        rasterizer.rasterizeFace(params)
+
+        // Left eye centre in model coords (y bottom-to-top) maps to a canvas dot.
+        val eyeX = params.centerX * rasterizer.aspect - params.gap / 2f
+        val eyeCol = (eyeX / rasterizer.aspect * canvas.cols).toInt()
+        val eyeRow = ((1f - params.centerY) * canvas.rows).toInt()
+        assertTrue(
+            "Eye centre dot should be lit (got ${canvas.getDot(eyeCol, eyeRow)})",
+            canvas.getDot(eyeCol, eyeRow) > 0.5f
         )
 
-        // Point well inside the upper eye region
-        val insideDist = eye.signedDistance(0.5f, 0.35f)
-        assertTrue("Center of eye must be negative signed distance", insideDist < 0f)
-
-        // Point below the 0.50 centerline
-        val outsideDist = eye.signedDistance(0.5f, 0.55f)
-        assertTrue("Point below centerline must be outside (> 0)", outsideDist > 0f)
+        // Model y=0 is canvas bottom row; eyes sit in the model upper half.
+        val bottomRow = canvas.rows - 1
+        assertEquals(
+            "Bottom rows must stay unlit for the baseline face",
+            0f, canvas.getDot(eyeCol, bottomRow), 0.001f
+        )
     }
 
     @Test
-    fun `rasterizer fills upper matrix dots and respects bounds`() {
-        val canvas = ApplianceMatrixCanvas(cols = 30, rows = 50)
+    fun `heart channel stays separate from the canvas buffer`() {
+        val canvas = ApplianceMatrixCanvas(cols = 38, rows = 68)
         val rasterizer = CozmoEyeRasterizer(canvas)
 
-        val leftEye = CozmoEyeParams(centerX = 0.3f, centerY = 0.25f, width = 0.2f, height = 0.15f)
-        val rightEye = CozmoEyeParams(centerX = 0.7f, centerY = 0.25f, width = 0.2f, height = 0.15f)
+        val heart = ExpressionFaceModel.resolve(
+            ExpressionEyeParams(), ExpressionPresets.HEART, 1f, 0f, 0f
+        )
+        rasterizer.rasterizeFace(heart)
 
-        rasterizer.rasterizeEyes(leftEye, rightEye, glowIntensity = 0.1f)
-
-        // Dot near left eye center should be lit
-        val eyeCol = (0.3f * canvas.cols).toInt()
-        val eyeRow = (0.25f * canvas.rows).toInt()
-        assertTrue("Eye center dot should be brightly lit", canvas.getDot(eyeCol, eyeRow) > 0.8f)
-
-        // Dot far into the bottom half (row = 40 of 50, ny = 0.8) should be 0
-        val bottomRow = (0.8f * canvas.rows).toInt()
-        assertEquals("Bottom half dot should be completely unlit", 0f, canvas.getDot(eyeCol, bottomRow), 0.001f)
+        var heartLit = 0
+        var bufferLit = 0
+        for (i in heartBufferIndices(rasterizer)) {
+            if (rasterizer.heartBuffer[i] > 0.5f) heartLit++
+            if (canvas.buffer[i] > 0.5f) bufferLit++
+        }
+        assertTrue("Heart preset should light the heart channel", heartLit > 20)
+        assertEquals("Heart preset must not light the normal buffer", 0, bufferLit)
     }
+
+    private fun heartBufferIndices(r: CozmoEyeRasterizer): IntRange = r.heartBuffer.indices
 }

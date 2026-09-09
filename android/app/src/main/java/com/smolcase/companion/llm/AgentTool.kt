@@ -211,7 +211,7 @@ object AgentTool {
 
     private fun defineMoodSet() = tool(
         name = "set_mood",
-        description = "Change SMOLCASE's facial expression to a specific mood for a moment. Options: NEUTRAL, SKEPTICAL, HAPPY, CURIOUS, DROWSY, SLEEPING, ALERT, THINKING, HEART. Duration defaults to 4 seconds if not specified.",
+        description = "Change SMOLCASE's facial expression to a specific mood for a moment. Options: NEUTRAL, HAPPY, EMBARRASSED, LAUGHING, HEART, ANGRY, SHOCKED, SMUG, SAD, EXHAUSTED, SKEPTICAL, CURIOUS, DROWSY, SLEEPING, ALERT, THINKING. Duration defaults to 4 seconds if not specified.",
         params = obj(
             str("mood", "The target mood/expression name."),
             int("duration_ms", "How long to hold the expression in milliseconds (optional).")

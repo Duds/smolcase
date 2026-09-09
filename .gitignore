@@ -45,3 +45,6 @@ models/*.xnnpack_cache
 
 # Scratchpad (personal working notes)
 .workspace-scratchpad.md
+
+# Local Android build secrets
+android/local.properties

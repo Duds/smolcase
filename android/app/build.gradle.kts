@@ -1,22 +1,68 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
+}
+
+val generatedFaceAssets = layout.buildDirectory.dir("generated/faceAssets")
+val defaultBuildNumber = rootProject.file("build-number").readText().trim()
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.isFile) file.inputStream().use(::load)
+}
+val openRouterApiKey = localProperties.getProperty("OPENROUTER_API_KEY", "")
+    .replace("\\", "\\\\")
+    .replace("\"", "\\\"")
+val buildNumber = providers.gradleProperty("buildNumber")
+    .orElse(defaultBuildNumber)
+    .map { it.toIntOrNull() ?: error("buildNumber must be an integer") }
+    .get()
+require(buildNumber > 0) { "buildNumber must be greater than zero" }
+val generateFaceShaders by tasks.registering {
+    val spike = rootProject.file("../spikes/20260909-face-expressions/index.html")
+    val viewport = rootProject.file("../spikes/shared/dot-matrix-shader.js")
+    inputs.files(spike, viewport)
+    outputs.dir(generatedFaceAssets)
+    doLast {
+        fun fragment(text: String, marker: String): String {
+            check(text.contains(marker)) { "Spike shader marker changed: $marker" }
+            val glsl = text.substringAfter(marker).substringBefore('`')
+            check(glsl.contains("void main()")) { "Missing spike fragment shader" }
+            return "#version 300 es\n" + glsl.trimIndent()
+                .replace("varying vec2 vUv;", "in vec2 vUv;\nout vec4 fragColor;")
+                .replace("gl_FragColor", "fragColor")
+                .replace("texture2D(", "texture(") + "\n"
+        }
+        val directory = generatedFaceAssets.get().dir("face").asFile
+        directory.mkdirs()
+        directory.resolve("source.frag").writeText(fragment(spike.readText(), "fragmentShader: `"))
+        directory.resolve("dots.frag").writeText(fragment(viewport.readText(), "const FRAGMENT_SHADER = `"))
+    }
 }
 
 android {
+    sourceSets.getByName("main").assets.srcDir(generatedFaceAssets)
     namespace = "com.smolcase.companion"
     compileSdk = 34
 
     buildFeatures {
         buildConfig = true
+        compose = true
     }
 
     defaultConfig {
         applicationId = "com.smolcase.companion"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "0.6-tars"
+        // The sideload script supplies the monotonically increasing build number.
+        versionCode = buildNumber
+        versionName = "0.9-gpu-face.$buildNumber"
+
+        // The key is loaded only from ignored android/local.properties. It is
+        // still present in the APK, so rotate it if the APK is distributed.
+        buildConfigField("String", "OPENROUTER_API_KEY", "\"$openRouterApiKey\"")
     }
 
     compileOptions {
@@ -28,9 +74,16 @@ android {
     }
 }
 
+tasks.named("preBuild") { dependsOn(generateFaceShaders) }
+
 dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.activity:activity-ktx:1.9.3")
+    implementation(platform("androidx.compose:compose-bom:2024.12.01"))
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.activity:activity-compose:1.9.3")
 
     // CameraX — analysis only, no preview (the screen is the face)
     implementation("androidx.camera:camera-core:1.3.4")

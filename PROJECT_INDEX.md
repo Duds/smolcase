@@ -8,6 +8,11 @@
 
 ---
 
+## GPU face parity
+
+- [[docs/06-specs/2026-09-10-gpu-face-parity-design|Approved GPU face parity design]]
+- [[docs/07-plans/2026-09-10-gpu-face-parity|Active implementation and verification plan]]
+
 ## 🧭 Active Wayfinding & Frontiers
 
 > **Current Destination**: Ship a desk-ready SMOLCASE robot that walks, talks, and responds autonomously.

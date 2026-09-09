@@ -1,136 +1,169 @@
 package com.smolcase.companion.matrix
 
-import kotlin.math.abs
-import kotlin.math.exp
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.sqrt
-
 /**
- * Rasterizes procedural SDF eyes and shapes directly onto an [ApplianceMatrixCanvas].
+ * Rasterizes [ExpressionFaceModel] faces onto an [ApplianceMatrixCanvas].
  *
- * Supports sub-dot anti-aliasing (smooth intensity falloff at the boundary)
- * and soft bloom/glow calculation that can bleed softly beyond boundaries.
+ * Coordinate conversion: the canvas is (nx, ny) in 0..1 with ny top-down;
+ * the face model is height-normalised with y bottom-to-top and x in
+ * 0..aspect (aspect = width / height). Conversion happens at the call site:
+ * x = nx * aspect, y = 1 - ny.
+ *
+ * Two channels are produced: the normal eye coverage lands in the canvas
+ * buffer, and the heart coverage (heart-eye preset) lands in [heartBuffer]
+ * so the view can colour it apart from the eyes.
  */
+data class DotMatrixParams(
+    val dotRadius: Float = 0.36f,
+    val dotSoftness: Float = 0.30f,
+    val cellFill: Float = 0.82f,
+    val glow: Float = 1.51f,
+    val glowSpread: Float = 0.50f,
+    val halation: Float = 0.60f,
+    val ghostFloor: Float = 0.05f,
+    val exposure: Float = 4f,
+    val sourceBrightness: Float = 0.20f,
+    val sourceTint: Float = 0.80f
+)
+
 class CozmoEyeRasterizer(
-    private val canvas: ApplianceMatrixCanvas
+    private val canvas: ApplianceMatrixCanvas,
+    private val dotParams: DotMatrixParams = DotMatrixParams()
 ) {
+    /** Sphere substrate lighting, separate from eye emitter energy. */
+    val sphereBuffer = FloatArray(canvas.totalDots)
+
+    /** Parallel channel for heart-mask coverage (heart eyes preset). */
+    val heartBuffer = FloatArray(canvas.totalDots)
+
+    val aspect: Float = canvas.cols.toFloat() / canvas.rows.toFloat()
+
     /**
-     * Rasterizes a pair of left and right Cozmo eyes onto the matrix canvas buffer.
-     *
-     * @param leftEye Parameters for the left eye aperture.
-     * @param rightEye Parameters for the right eye aperture.
-     * @param dotRadiusNorm Normalized radius of a dot cell in screen space.
-     * @param glowRadiusNorm Normalized radius of optical glow bloom.
+     * Clear both the canvas and the heart channel.
      */
-    fun rasterizeEyes(
-        leftEye: CozmoEyeParams,
-        rightEye: CozmoEyeParams,
-        glowIntensity: Float = 0.35f
+    fun clear() {
+        canvas.clear()
+        sphereBuffer.fill(0f)
+        heartBuffer.fill(0f)
+    }
+
+    private fun setChannels(col: Int, row: Int, normal: Float, heart: Float) {
+        val idx = row * canvas.cols + col
+        if (normal > 0.001f) {
+            val blended = (canvas.buffer[idx] + normal).coerceIn(0f, 1f)
+            canvas.buffer[idx] = blended
+        }
+        if (heart > 0.001f) {
+            heartBuffer[idx] = (heartBuffer[idx] + heart).coerceIn(0f, 1f)
+        }
+    }
+
+    /**
+     * Applies the spike's five-tap cell average and exposure. The source
+     * shader uses cyan at brightness 0.2 and red hearts at full strength.
+     * The returned values are emitter energy, not raw SDF coverage.
+     */
+    private fun quantize(normal: Float, heart: Float, sphereLight: Float): Pair<Float, Float> {
+        val normalSource = normal * dotParams.sourceBrightness
+        val heartSource = heart
+        val normalEnergy = (normalSource * dotParams.exposure).coerceIn(0f, 1f)
+        val heartEnergy = (heartSource * dotParams.exposure).coerceIn(0f, 1f)
+        val lightEnergy = (sphereLight * dotParams.exposure).coerceIn(0f, 1f)
+        return Pair(
+            (normalEnergy + lightEnergy * 0.18f).coerceIn(0f, 1f),
+            heartEnergy
+        )
+    }
+
+    private fun fiveTapSphere(
+        params: ExpressionEyeParams,
+        x: Float,
+        y: Float,
+        cellW: Float,
+        cellH: Float,
+        sphereRadius: Float,
+        sphereY: Float,
+        gazeYawRad: Float,
+        gazePitchRad: Float,
+        sphereGlow: Float,
+        screenAspect: Float
+    ): Triple<Float, Float, Float> {
+        val taps = arrayOf(
+            Pair(0f, 0f), Pair(cellW * 0.25f, cellH * 0.25f),
+            Pair(-cellW * 0.25f, cellH * 0.25f), Pair(cellW * 0.25f, -cellH * 0.25f),
+            Pair(-cellW * 0.25f, -cellH * 0.25f)
+        )
+        var normal = 0f
+        var heart = 0f
+        var light = 0f
+        for ((dx, dy) in taps) {
+            val sample = ExpressionFaceModel.sphereCoverage(
+                params, x + dx, y + dy, screenAspect,
+                sphereRadius = sphereRadius, sphereY = sphereY,
+                gazeYawRad = gazeYawRad, gazePitchRad = gazePitchRad,
+                sphereGlow = sphereGlow
+            )
+            normal += sample.first
+            heart += sample.second
+            light += sample.third
+        }
+        val lightSource = (light / 5f).coerceIn(0f, 1f)
+        val energy = quantize(normal / 5f, heart / 5f, lightSource)
+        return Triple(energy.first, energy.second, lightSource)
+    }
+
+    /**
+     * Rasterizes the flat face pattern (both eyes) onto the matrix.
+     */
+    fun rasterizeFace(
+        params: ExpressionEyeParams,
+        screenAspect: Float = aspect
     ) {
         val cols = canvas.cols
         val rows = canvas.rows
-        val dotRadiusNorm = 0.5f / cols // approx half cell in normalized coordinates
 
         for (r in 0 until rows) {
-            val ny = (r + 0.5f) / rows.toFloat()
+            val y = 1f - (r + 0.5f) / rows.toFloat()
             for (c in 0 until cols) {
-                val nx = (c + 0.5f) / cols.toFloat()
-
-                // Evaluate distance to both eyes
-                val distL = leftEye.signedDistance(nx, ny)
-                val distR = rightEye.signedDistance(nx, ny)
-                val minDist = min(distL, distR)
-
-                // Sub-dot intensity (0 inside/near boundary -> 1 inside core)
-                // dist <= 0 is inside, dist > 0 is outside
-                val coreIntensity = if (minDist <= -dotRadiusNorm) {
-                    1.0f
-                } else if (minDist < dotRadiusNorm) {
-                    // Smooth transition across the dot boundary
-                    0.5f - (minDist / (2f * dotRadiusNorm))
-                } else {
-                    0.0f
-                }.coerceIn(0f, 1f)
-
-                // Outer optical glow bloom (falls off exponentially outside the eye)
-                val glow = if (minDist > 0f) {
-                    glowIntensity * exp(-minDist / (dotRadiusNorm * 2.8f))
-                } else {
-                    0f
-                }
-
-                val finalIntensity = min(coreIntensity + glow, 1.0f)
-                if (finalIntensity > 0.001f) {
-                    canvas.setDot(c, r, finalIntensity)
-                }
+                val x = (c + 0.5f) / cols.toFloat() * screenAspect
+                val (normal, heart) = ExpressionFaceModel.coverage(params, x, y, screenAspect)
+                val energy = quantize(normal, heart, 0f)
+                setChannels(c, r, energy.first, energy.second)
             }
         }
     }
 
     /**
-     * Rasterizes a parametric Heart icon (`♥`) onto the matrix canvas (for care/fondness reactions).
-     * Bounded to the upper half if desired or centered in the eye region.
+     * Rasterizes the face pattern mapped onto a sphere. Projects each dot
+     * onto the sphere surface, undoes the gaze rotation so the pattern stays
+     * fixed to the surface, and adds the sphere's own shading/rim/halo light.
      */
-    fun rasterizeHeart(
-        centerX: Float,
-        centerY: Float,
-        size: Float,
-        intensity: Float = 1.0f
-    ) {
-        val cols = canvas.cols
-        val rows = canvas.rows
-        val dotRadiusNorm = 0.5f / cols
-
-        for (r in 0 until rows) {
-            val ny = (r + 0.5f) / rows.toFloat()
-            if (ny > 0.55f) continue // stay in top half + slight bloom
-            for (c in 0 until cols) {
-                val nx = (c + 0.5f) / cols.toFloat()
-                
-                val dx = (nx - centerX) / size
-                val dy = -(ny - centerY) / size // invert Y so heart points down
-
-                // Heart equation: (x^2 + y^2 - 1)^3 - x^2 * y^3 <= 0
-                val a = dx * dx + dy * dy - 0.7f
-                val d = a * a * a - dx * dx * dy * dy * dy
-
-                if (d <= 0.05f) {
-                    val dotVal = if (d <= 0f) 1f else (1f - (d / 0.05f))
-                    canvas.blendDot(c, r, dotVal * intensity)
-                }
-            }
-        }
-    }
-
-    /**
-     * Rasterizes a radar / thinking scan pulse within the eye region.
-     */
-    fun rasterizeThinkingScan(
-        centerX: Float,
-        centerY: Float,
-        radius: Float,
-        phase: Float,
-        intensity: Float = 0.9f
+    fun rasterizeSphereFace(
+        params: ExpressionEyeParams,
+        sphereRadius: Float,
+        sphereY: Float,
+        gazeYawRad: Float = 0f,
+        gazePitchRad: Float = 0f,
+        sphereGlow: Float = 0.25f,
+        screenAspect: Float = aspect
     ) {
         val cols = canvas.cols
         val rows = canvas.rows
 
         for (r in 0 until rows) {
-            val ny = (r + 0.5f) / rows.toFloat()
-            if (ny > 0.52f) continue
+            val y = 1f - (r + 0.5f) / rows.toFloat()
             for (c in 0 until cols) {
-                val nx = (c + 0.5f) / cols.toFloat()
-                val dx = nx - centerX
-                val dy = ny - centerY
-                val dist = sqrt(dx * dx + dy * dy)
-
-                // Ring ripple expanding outward
-                val ringDist = abs(dist - (radius * (phase % 1.0f)))
-                if (ringDist < 0.04f && dist <= radius) {
-                    val pulseVal = (1f - (ringDist / 0.04f)) * (1f - (phase % 1.0f))
-                    canvas.blendDot(c, r, pulseVal * intensity)
-                }
+                val x = (c + 0.5f) / cols.toFloat() * screenAspect
+                // Five taps match the shared WebGL dot-matrix pass.
+                val energy = fiveTapSphere(
+                    params, x, y,
+                    cellW = screenAspect / cols,
+                    cellH = 1f / rows,
+                    sphereRadius, sphereY, gazeYawRad, gazePitchRad,
+                    sphereGlow, screenAspect
+                )
+                val idx = r * cols + c
+                sphereBuffer[idx] = energy.third
+                setChannels(c, r, energy.first, energy.second)
             }
         }
     }

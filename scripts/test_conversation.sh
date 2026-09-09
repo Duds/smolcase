@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # scripts/test_conversation.sh
 #
-# Build APK, install on device, launch SMOLCASE, and tail conversation log.
+# Build, stamp, sideload, launch SMOLCASE, and tail the conversation log.
 # When you're done testing, Ctrl+C to stop.
 
 set -euo pipefail
@@ -9,24 +9,10 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$SCRIPT_DIR/.."
 ADB="${ADB:-$HOME/android-sdk/platform-tools/adb}"
-GRADLE="${GRADLE:-$HOME/toolchains/gradle-8.7/bin/gradle}"
 DEVICE="${DEVICE:-192.168.0.236:43007}"
-JAVA_HOME="${JAVA_HOME:-$HOME/toolchains/jdk-17/Contents/Home}"
-ANDROID_HOME="${ANDROID_HOME:-$HOME/android-sdk}"
 
-echo "=== Building APK ==="
-export JAVA_HOME ANDROID_HOME
-cd "$PROJECT_DIR/android"
-$GRADLE assembleDebug --console=plain
-
-echo ""
-echo "=== Installing on device ($DEVICE) ==="
-$ADB -s "$DEVICE" shell am force-stop com.smolcase.companion 2>/dev/null || true
-$ADB -s "$DEVICE" install -r app/build/outputs/apk/debug/app-debug.apk
-
-echo ""
-echo "=== Starting app ==="
-$ADB -s "$DEVICE" shell monkey -p com.smolcase.companion -c android.intent.category.LAUNCHER 1 1>/dev/null
+export ADB DEVICE
+"$SCRIPT_DIR/build-and-sideload.sh"
 sleep 2
 
 echo ""

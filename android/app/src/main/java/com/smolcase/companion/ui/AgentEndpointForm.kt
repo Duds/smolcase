@@ -119,6 +119,7 @@ class AgentEndpointForm(
     }
 
     /** Current form values for atomic save. */
+    val currentProviderLabel: String get() = providerLabelField.text.toString()
     val currentBaseUrl: String get() = baseUrlField.text.toString()
     val currentApiKey: String get() = apiKeyField.text.toString()
     val currentModel: String get() = modelField.text.toString()

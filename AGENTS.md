@@ -155,7 +155,7 @@ export ANDROID_HOME=~/android-sdk
 # Run only debug unit tests
 ~/toolchains/gradle-8.7/bin/gradle :app:testDebugUnitTest --console=plain
 
-# Assemble Debug APK
+# Assemble Debug APK without deploying. This preserves the current build number.
 ~/toolchains/gradle-8.7/bin/gradle assembleDebug --console=plain
 ```
 
@@ -164,11 +164,10 @@ export ANDROID_HOME=~/android-sdk
 # Identify device port if using wireless ADB
 $ADB mdns services
 
-# Stop running app, install APK, and launch MainActivity
+# Build, increment the build number, install, and launch MainActivity.
+# The wrapper records the stamp only after installation succeeds.
 DEVICE="192.168.0.236:34927"  # Update with current device IP/port or serial
-$ADB -s $DEVICE shell am force-stop com.smolcase.companion
-$ADB -s $DEVICE install -r app/build/outputs/apk/debug/app-debug.apk
-$ADB -s $DEVICE shell monkey -p com.smolcase.companion -c android.intent.category.LAUNCHER 1
+scripts/build-and-sideload.sh
 ```
 
 #### Sideloading Gemma 4 E2B Model
