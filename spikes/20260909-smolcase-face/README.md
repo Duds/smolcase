@@ -25,12 +25,11 @@ The eventual dot-matrix display is a viewport translation layer. It is deliberat
 - A seam where a future dot-matrix viewport can consume the rendered face.
 - A runnable local HTML prototype.
 - A portrait screen wrapper using Pixel 10a-style 1080 x 2424 logical screen dimensions.
-- A full-screen CSS backdrop-blur layer filling the phone viewport as a display experiment.
-- A black 38 x 68 CSS dot-matrix substrate in front of the blur, with circular apertures punched through as the display viewport.
 
 ### Out of scope
 
-- Dot-matrix rendering, LED quantisation, aperture masks, or viewport sampling.
+- Dot-matrix rendering, LED quantisation, aperture masks, or viewport sampling. Moved to [[spikes/20260909-dot-matrix-viewport/README|the dot matrix viewport spike]] after review.
+- CSS blur layers and CSS mask layers. Removed from this spike so it answers one question only.
 - Complex moods and expressions beyond the awake baseline.
 - Android implementation.
 - Persistence, production abstractions, or performance optimisation.
@@ -62,11 +61,11 @@ The current wrapper uses a 1080 x 2424 portrait aspect ratio. It is a CSS viewpo
 
 ## Live parameters
 
-The prototype exposes live controls for blur strength, blur mode (CSS layer or Three.js 3D fog), fog density, aperture size, dot-grid columns and rows, face height (default 2.8), gaze rotation range, eye size, and the key light's X, Y, Z position and intensity. Layer toggles control the source sphere faces, sphere edges, blur layer, and dot-matrix layer. These controls are exploratory only and are not persisted.
+The prototype exposes live controls for face height (default 2.8), yaw range, pitch range, eye size, and the key light's X, Y, Z position and intensity. Layer toggles control the source sphere faces and sphere edges. These controls are exploratory only and are not persisted.
 
 ## Snapshot
 
-A pre-review snapshot is preserved in `snapshots/20260909-pre-review/`. Restore it with:
+A pre-review snapshot, taken while the spike still carried the CSS mask and blur layers, is preserved in `snapshots/20260909-pre-review/`. Restore it with:
 
 ```bash
 cp spikes/20260909-smolcase-face/snapshots/20260909-pre-review/index.html \
@@ -86,10 +85,10 @@ cp spikes/20260909-smolcase-face/snapshots/20260909-pre-review/index.html \
 Open `index.html` directly in a browser, or serve the folder:
 
 ```bash
-python3 -m http.server 8000 --directory spikes/20260909-smolcase-face
+python3 -m http.server 8000 --directory .
 ```
 
-Then open `http://localhost:8000`.
+Then open `http://localhost:8000/spikes/20260909-smolcase-face/`.
 
 ## Files
 

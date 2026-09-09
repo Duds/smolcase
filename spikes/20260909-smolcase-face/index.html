@@ -20,35 +20,16 @@
     }
     #app { position: absolute; inset: 0; }
     canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
-    #blur-layer {
-      position: absolute;
-      z-index: 1;
-      inset: 0;
-      pointer-events: none;
-      backdrop-filter: blur(var(--blur-size, 10px));
-      -webkit-backdrop-filter: blur(var(--blur-size, 10px));
-      background: transparent;
-    }
-    #dot-matrix-layer {
-      position: absolute;
-      z-index: 2;
-      inset: 0;
-      pointer-events: none;
-      background: #000;
-      /* Black substrate with transparent circular apertures punched through it. */
-      -webkit-mask-image: radial-gradient(circle at center, transparent 0 var(--aperture, 31%), #000 var(--aperture, 31%));
-      -webkit-mask-size: calc(100% / var(--dot-cols, 38)) calc(100% / var(--dot-rows, 68));
-      -webkit-mask-repeat: repeat;
-      mask-image: radial-gradient(circle at center, transparent 0 var(--aperture, 31%), #000 var(--aperture, 31%));
-      mask-size: calc(100% / var(--dot-cols, 38)) calc(100% / var(--dot-rows, 68));
-      mask-repeat: repeat;
-    }
     #hud { position: fixed; top: 16px; left: 16px; z-index: 3; max-width: 320px; padding: 12px 14px; border: 1px solid #28323c; background: #0d131aee; }
-    #controls { position: fixed; top: 16px; right: 16px; z-index: 3; width: 220px; padding: 12px 14px; border: 1px solid #28323c; background: #0d131aee; }
+    #controls { position: fixed; top: 16px; right: 16px; z-index: 3; width: 220px; max-height: calc(100vh - 32px); overflow-y: auto; padding: 12px 14px; border: 1px solid #28323c; background: #0d131aee; }
     #controls strong { display: block; margin-bottom: 8px; color: #f0f5f8; }
     .control { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; margin: 8px 0; }
     .control input { grid-column: 1 / -1; width: 100%; accent-color: #8de8ff; }
     .control output { color: #8de8ff; }
+    #capture, #capture-params, #apply-params { width: 100%; margin-top: 6px; padding: 8px 10px; border: 1px solid #46525e; border-radius: 4px; background: #16222c; color: #c7d2dc; font: inherit; cursor: pointer; }
+    #capture:hover, #capture-params:hover, #apply-params:hover { border-color: #8de8ff; color: #8de8ff; }
+    #param-dump { width: 100%; box-sizing: border-box; margin-top: 6px; padding: 6px; border: 1px solid #46525e; border-radius: 4px; background: #0a1016; color: #8de8ff; font: 11px ui-monospace, monospace; resize: vertical; }
+    #capture-status { display: block; margin-top: 6px; min-height: 14px; font-size: 11px; color: #8de8ff; }
     #hud strong { display: block; margin-bottom: 6px; color: #f0f5f8; }
     #hud p { margin: 4px 0; line-height: 1.4; }
     kbd { padding: 1px 5px; border: 1px solid #46525e; border-radius: 3px; color: #f0f5f8; }
@@ -57,17 +38,15 @@
 <body>
   <div id="phone-screen" data-screen-resolution="1080x2424">
     <div id="app"></div>
-    <div id="blur-layer" aria-hidden="true"></div>
-    <div id="dot-matrix-layer" aria-hidden="true"></div>
   </div>
   <div id="controls">
+    <strong>Capture</strong>
+    <button id="capture" type="button">Save PNG</button>
+    <button id="capture-params" type="button">Copy parameters</button>
+    <textarea id="param-dump" rows="6" spellcheck="false" placeholder="Captured parameters appear here"></textarea>
+    <button id="apply-params" type="button">Apply parameters</button>
+    <span id="capture-status"></span>
     <strong>Face parameters</strong>
-    <label class="control">Blur <output id="blur-value">10px</output><input id="blur" type="range" min="0" max="24" step="1" value="10"></label>
-    <label class="control">Blur mode <output id="blur-mode-value">CSS</output><select id="blur-mode"><option value="css" selected>CSS layer</option><option value="fog">3D fog</option></select></label>
-    <label class="control">Fog density <output id="fog-density-value">0.23</output><input id="fog-density" type="range" min="0" max="0.8" step="0.01" value="0.23"></label>
-    <label class="control">Aperture <output id="aperture-value">31%</output><input id="aperture" type="range" min="10" max="48" step="1" value="31"></label>
-    <label class="control">Dot columns <output id="cols-value">38</output><input id="cols" type="range" min="20" max="64" step="1" value="38"></label>
-    <label class="control">Dot rows <output id="rows-value">68</output><input id="rows" type="range" min="40" max="100" step="1" value="68"></label>
     <label class="control">Face height <output id="anchor-value">2.80</output><input id="anchor" type="range" min="0" max="4" step="0.05" value="2.8"></label>
     <label class="control">Yaw range <output id="yaw-value">50°</output><input id="yaw" type="range" min="0" max="90" step="1" value="50"></label>
     <label class="control">Pitch range <output id="pitch-value">50°</output><input id="pitch" type="range" min="0" max="90" step="1" value="50"></label>
@@ -76,16 +55,18 @@
     <label class="control">Light X <output id="light-x-value">-4.0</output><input id="light-x" type="range" min="-8" max="8" step="0.1" value="-4"></label>
     <label class="control">Light Y <output id="light-y-value">-3.0</output><input id="light-y" type="range" min="-8" max="8" step="0.1" value="-3"></label>
     <label class="control">Light Z <output id="light-z-value">6.0</output><input id="light-z" type="range" min="1" max="12" step="0.1" value="6"></label>
-    <label class="control">Intensity <output id="light-intensity-value">40.0</output><input id="light-intensity" type="range" min="0" max="40" step="1" value="40"></label>
+    <label class="control">Key <output id="light-intensity-value">2.20</output><input id="light-intensity" type="range" min="0" max="6" step="0.05" value="2.2"></label>
+    <label class="control">Falloff <output id="falloff-value">0.0</output><input id="falloff" type="range" min="0" max="2" step="0.1" value="0"></label>
+    <label class="control">Fill <output id="fill-intensity-value">0</output><input id="fill-intensity" type="range" min="0" max="3" step="0.05" value="0"></label>
+    <label class="control">Ambient <output id="ambient-intensity-value">0</output><input id="ambient-intensity" type="range" min="0" max="1" step="0.01" value="0"></label>
+    <label class="control">Sphere lift <output id="sphere-lift-value">1</output><input id="sphere-lift" type="range" min="0.5" max="2" step="0.05" value="1"></label>
     <strong>Layer visibility</strong>
     <label><input id="show-sphere" type="checkbox" checked> Show source sphere</label>
     <label><input id="show-edges" type="checkbox" checked> Show sphere edges</label>
-    <label><input id="show-blur" type="checkbox" checked> Show blur layer</label>
-    <label><input id="show-matrix" type="checkbox" checked> Show dot matrix</label>
   </div>
   <div id="hud">
     <strong>SMOLCASE face sphere spike</strong>
-    <p>Awake baseline. The sphere is visible because this spike tests the underlying model, not the dot-matrix viewport.</p>
+    <p>Sphere model only. The dot-matrix viewport has moved to a separate spike.</p>
     <p>Move the sphere with the mouse. Use <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> for keyboard control.</p>
     <p id="state">gaze: 0.00, 0.00 | eyes: awake</p>
   </div>
@@ -93,15 +74,26 @@
   <script type="module">
     import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 
+    const SPHERE_RADIUS = 2.4;
+    const BASE_EYE_RADIUS = 0.52;
+    // Eye centres sit just outside the sphere surface so they are depth-correct
+    // rather than being forced in front of an opaque surface.
+    const EYE_ORBIT_RADIUS = SPHERE_RADIUS + 0.02;
+
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
-    const sceneFog = new THREE.FogExp2(0x000000, 0.23);
 
-    // Key light: in front of the face, below and to the left, aimed back at
-    // the sphere to test whether directional shading survives the viewport.
-    const keyLight = new THREE.PointLight(0xb8e7ff, 18, 20);
-    keyLight.position.set(-4, -3, 6);
-    scene.add(keyLight);
+    // Key light: in front of the face, below and to the left. Decay defaults
+    // to 0, removing the inverse-square falloff that was wasting most of the
+    // output across 9.25 units. The falloff slider restores it for A/B.
+    const keyLight = new THREE.PointLight(0xb8e7ff, 2.2, 0);
+    // Fill light, right and above the key, restores shape on the shadow side.
+    const fillLight = new THREE.PointLight(0xb8e7ff, 0, 0);
+    fillLight.decay = 0;
+    fillLight.position.set(3, 5, 6);
+    // Ambient floor keeps unlit areas off pure black. It carries no shape.
+    const ambientLight = new THREE.AmbientLight(0xb8e7ff, 0);
+    scene.add(keyLight, fillLight, ambientLight);
 
     const camera = new THREE.OrthographicCamera(-3.2, 3.2, 3.2, -3.2, 0.1, 100);
     camera.position.set(0, 0, 10);
@@ -109,54 +101,52 @@
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     const screen = document.querySelector('#phone-screen');
-    const app = document.querySelector('#app');
-    app.append(renderer.domElement);
+    document.querySelector('#app').append(renderer.domElement);
 
     const face = new THREE.Group();
     scene.add(face);
 
-    const sphereGeometry = new THREE.SphereGeometry(2.4, 48, 32);
-    const sphere = new THREE.Mesh(
-      sphereGeometry,
-      new THREE.MeshStandardMaterial({ color: 0x263a48, roughness: 0.78, metalness: 0.05, transparent: false, opacity: 1 })
-    );
+    const sphereGeometry = new THREE.SphereGeometry(SPHERE_RADIUS, 48, 32);
+    const BASE_ALBEDO = new THREE.Color(0x263a48);
+    const sphereMaterial = new THREE.MeshStandardMaterial({
+      color: BASE_ALBEDO.clone(),
+      roughness: 0.78,
+      metalness: 0.05
+    });
+    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
     const sphereEdges = new THREE.LineSegments(
       new THREE.WireframeGeometry(sphereGeometry),
-      new THREE.LineBasicMaterial({ color: 0x5b7688, opaque: true, transparent: false, opacity: 1 })
+      new THREE.LineBasicMaterial({ color: 0x5b7688 })
     );
     // Nudge the wireframe outward so the lines sit above the sphere surface
     // instead of z-fighting with it.
-    sphereEdges.scale.setScalar(1.002);
+    const EDGE_OFFSET = 1.002;
     face.add(sphere, sphereEdges);
 
     const parameters = {
-      blur: 10,
-      aperture: 31,
-      cols: 38,
-      rows: 68,
       anchor: 2.8,
       yaw: 50,
       pitch: 50,
-      eye: 0.52,
-      showSphere: true,
-      showEdges: true,
-      showBlur: true,
-      showMatrix: true,
+      eye: BASE_EYE_RADIUS,
       lightX: -4,
       lightY: -3,
       lightZ: 6,
-      lightIntensity: 40,
-      blurMode: 'css',
-      fogDensity: 0.23
+      lightIntensity: 2.2,
+      falloff: 0,
+      fillIntensity: 0,
+      ambientIntensity: 0,
+      sphereLift: 1,
+      showSphere: true,
+      showEdges: true
     };
-    const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0x8de8ff, depthTest: false });
-    const eyeGeometry = new THREE.SphereGeometry(parameters.eye, 24, 16);
+
+    const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0x8de8ff });
+    const eyeGeometry = new THREE.SphereGeometry(BASE_EYE_RADIUS, 24, 16);
+    const eyeDirection = new THREE.Vector3(-0.82, 0.55, 2.15).normalize().multiplyScalar(EYE_ORBIT_RADIUS);
     const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
     const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-    leftEye.position.set(-0.82, 0.55, 2.15);
-    rightEye.position.set(0.82, 0.55, 2.15);
-    leftEye.renderOrder = 2;
-    rightEye.renderOrder = 2;
+    leftEye.position.copy(eyeDirection);
+    rightEye.position.set(-eyeDirection.x, eyeDirection.y, eyeDirection.z);
     face.add(leftEye, rightEye);
 
     const gaze = { x: 0, y: 0, targetX: 0, targetY: 0 };
@@ -164,62 +154,114 @@
     let blink = 0;
     let nextBlink = 2.8;
 
-    const root = document.documentElement;
-    const blurLayer = document.querySelector('#blur-layer');
-    const matrixLayer = document.querySelector('#dot-matrix-layer');
-    const controlNames = ['blur', 'aperture', 'cols', 'rows', 'anchor', 'yaw', 'pitch', 'eye', 'light-x', 'light-y', 'light-z', 'light-intensity', 'fog-density'];
+    const CONTROLS = [
+      { id: 'anchor', param: 'anchor' },
+      { id: 'yaw', param: 'yaw' },
+      { id: 'pitch', param: 'pitch' },
+      { id: 'eye', param: 'eye' },
+      { id: 'light-x', param: 'lightX' },
+      { id: 'light-y', param: 'lightY' },
+      { id: 'light-z', param: 'lightZ' },
+      { id: 'light-intensity', param: 'lightIntensity' },
+      { id: 'falloff', param: 'falloff' },
+      { id: 'fill-intensity', param: 'fillIntensity' },
+      { id: 'ambient-intensity', param: 'ambientIntensity' },
+      { id: 'sphere-lift', param: 'sphereLift' }
+    ];
+    const FORMATTERS = {
+      anchor: (value) => Number(value).toFixed(2),
+      yaw: (value) => `${value}°`,
+      pitch: (value) => `${value}°`,
+      eye: (value) => Number(value).toFixed(2),
+      lightX: (value) => Number(value).toFixed(1),
+      lightY: (value) => Number(value).toFixed(1),
+      lightZ: (value) => Number(value).toFixed(1),
+      lightIntensity: (value) => Number(value).toFixed(1)
+    };
+    const DEFAULT_FORMAT = (value) => (Number.isInteger(value) ? `${value}` : Number(value).toFixed(2));
+    const TOGGLES = [
+      { id: 'show-sphere', param: 'showSphere' },
+      { id: 'show-edges', param: 'showEdges' }
+    ];
 
     function applyParameters() {
-      root.style.setProperty('--blur-size', `${parameters.blur}px`);
-      root.style.setProperty('--aperture', `${parameters.aperture}%`);
-      root.style.setProperty('--dot-cols', parameters.cols);
-      root.style.setProperty('--dot-rows', parameters.rows);
       keyLight.position.set(parameters.lightX, parameters.lightY, parameters.lightZ);
       keyLight.intensity = parameters.lightIntensity;
-      sceneFog.density = parameters.fogDensity;
-      scene.fog = parameters.showBlur && parameters.blurMode === 'fog' ? sceneFog : null;
+      keyLight.decay = parameters.falloff;
+      fillLight.intensity = parameters.fillIntensity;
+      ambientLight.intensity = parameters.ambientIntensity;
+      sphereMaterial.color.copy(BASE_ALBEDO).multiplyScalar(parameters.sphereLift);
       face.position.y = parameters.anchor;
       face.rotation.y = gaze.x * THREE.MathUtils.degToRad(parameters.yaw);
       face.rotation.x = -gaze.y * THREE.MathUtils.degToRad(parameters.pitch);
-      const eyeScale = parameters.eye / 0.52;
-      leftEye.scale.setScalar(eyeScale);
-      rightEye.scale.setScalar(eyeScale);
       sphere.visible = parameters.showSphere;
       sphereEdges.visible = parameters.showSphere && parameters.showEdges;
-      blurLayer.hidden = !parameters.showBlur || parameters.blurMode !== 'css';
-      matrixLayer.hidden = !parameters.showMatrix;
 
-      for (const name of controlNames) {
-        const output = document.querySelector(`#${name}-value`);
-        const parameterName = name.includes('-') ? name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()) : name;
-        const value = parameters[parameterName];
-        output.textContent = name === 'blur' ? `${value}px` : name === 'aperture' ? `${value}%` : name === 'yaw' || name === 'pitch' ? `${value}°` : name.startsWith('light-') ? Number(value).toFixed(1) : name === 'fog-density' ? Number(value).toFixed(2) : Number(value).toFixed(name === 'anchor' || name === 'eye' ? 2 : 0);
+      for (const control of CONTROLS) {
+        const value = parameters[control.param];
+        const formatter = FORMATTERS[control.param] || DEFAULT_FORMAT;
+        document.querySelector(`#${control.id}-value`).textContent = formatter(value);
       }
-      document.querySelector('#blur-mode-value').textContent = parameters.blurMode === 'css' ? 'CSS' : '3D fog';
     }
 
-    for (const name of controlNames) {
-      const control = document.querySelector(`#${name}`);
-      control.addEventListener('input', (event) => {
-        const parameterName = name.includes('-') ? name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()) : name;
-        parameters[parameterName] = Number(event.target.value);
+    for (const control of CONTROLS) {
+      document.querySelector(`#${control.id}`).addEventListener('input', (event) => {
+        parameters[control.param] = Number(event.target.value);
         applyParameters();
       });
     }
-
-    document.querySelector('#blur-mode').addEventListener('change', (event) => {
-      parameters.blurMode = event.target.value;
-      applyParameters();
-    });
-
-    for (const name of ['showSphere', 'showEdges', 'showBlur', 'showMatrix']) {
-      const control = document.querySelector(`#${name.replace('show', 'show-').toLowerCase()}`);
-      control.addEventListener('change', (event) => {
-        parameters[name] = event.target.checked;
+    for (const toggle of TOGGLES) {
+      document.querySelector(`#${toggle.id}`).addEventListener('change', (event) => {
+        parameters[toggle.param] = event.target.checked;
         applyParameters();
       });
     }
     applyParameters();
+
+    document.querySelector('#capture').addEventListener('click', () => {
+      // The drawing buffer is not preserved between frames, so render
+      // synchronously and read the canvas in the same task.
+      renderer.render(scene, camera);
+      const link = document.createElement('a');
+      link.download = `smolcase-face-${Date.now()}.png`;
+      link.href = renderer.domElement.toDataURL('image/png');
+      link.click();
+    });
+
+    const paramDump = document.querySelector('#param-dump');
+    const captureStatus = document.querySelector('#capture-status');
+
+    function syncControls() {
+      for (const control of CONTROLS) {
+        document.querySelector(`#${control.id}`).value = parameters[control.param];
+      }
+      for (const toggle of TOGGLES) {
+        document.querySelector(`#${toggle.id}`).checked = parameters[toggle.param];
+      }
+    }
+
+    document.querySelector('#capture-params').addEventListener('click', async () => {
+      const json = JSON.stringify(parameters, null, 2);
+      paramDump.value = json;
+      try {
+        await navigator.clipboard.writeText(json);
+        captureStatus.textContent = 'Copied to clipboard';
+      } catch (error) {
+        paramDump.select();
+        captureStatus.textContent = 'Clipboard blocked, text selected';
+      }
+    });
+
+    document.querySelector('#apply-params').addEventListener('click', () => {
+      try {
+        Object.assign(parameters, JSON.parse(paramDump.value));
+        syncControls();
+        applyParameters();
+        captureStatus.textContent = 'Parameters applied';
+      } catch (error) {
+        captureStatus.textContent = `Could not apply: ${error.message}`;
+      }
+    });
 
     function setGaze(x, y) {
       gaze.targetX = THREE.MathUtils.clamp(x, -1, 1);
@@ -227,7 +269,6 @@
     }
 
     function pointerGaze(event) {
-      // The sphere follows the pointer position within the phone screen.
       const bounds = screen.getBoundingClientRect();
       setGaze(
         ((event.clientX - bounds.left) / bounds.width) * 2 - 1,
@@ -257,9 +298,8 @@
 
     function resizeScreen() {
       const bounds = screen.getBoundingClientRect();
-      const aspect = bounds.width / bounds.height;
       const halfWidth = 3.2;
-      const halfHeight = halfWidth / aspect;
+      const halfHeight = halfWidth / (bounds.width / bounds.height);
       camera.left = -halfWidth;
       camera.right = halfWidth;
       camera.top = halfHeight;
@@ -268,23 +308,19 @@
       renderer.setSize(bounds.width, bounds.height, false);
     }
 
-    window.addEventListener('resize', resizeScreen);
+    new ResizeObserver(resizeScreen).observe(screen);
     resizeScreen();
 
     function animate() {
       requestAnimationFrame(animate);
-      // Advance the clock once per frame. Calling getElapsedTime() and then
-      // getDelta() consumed the frame twice, leaving delta effectively zero.
       const delta = Math.min(clock.getDelta(), 0.05);
       const elapsed = clock.elapsedTime;
 
       gaze.x = THREE.MathUtils.damp(gaze.x, gaze.targetX, 4, delta);
       gaze.y = THREE.MathUtils.damp(gaze.y, gaze.targetY, 4, delta);
 
-      // Core architectural test: the face is pinned at its centre. Gaze is
+      // Core architectural test: the face is pinned at its centre and gaze is
       // expressed as rotation around that pin, never as translation.
-      // The centre pin sits in the upper third of the screen. The sphere
-      // still rotates around its own centre, rather than translating during gaze.
       face.position.set(0, parameters.anchor, 0);
       face.rotation.y = gaze.x * THREE.MathUtils.degToRad(parameters.yaw);
       face.rotation.x = -gaze.y * THREE.MathUtils.degToRad(parameters.pitch);
@@ -297,13 +333,14 @@
       }
       blink = Math.max(0, blink - delta * 5);
       const blinkScale = 1 - Math.sin(blink * Math.PI) * 0.92;
-      leftEye.scale.y = blinkScale;
-      rightEye.scale.y = blinkScale;
+      const eyeScale = parameters.eye / BASE_EYE_RADIUS;
+      leftEye.scale.set(eyeScale, eyeScale * blinkScale, eyeScale);
+      rightEye.scale.set(eyeScale, eyeScale * blinkScale, eyeScale);
 
       // Awake has a small breathing motion, without introducing a new mood state.
       const awakeBreath = 1 + Math.sin(elapsed * 1.8) * 0.018;
       sphere.scale.setScalar(awakeBreath);
-      sphereEdges.scale.setScalar(awakeBreath * 1.002);
+      sphereEdges.scale.setScalar(awakeBreath * EDGE_OFFSET);
 
       document.querySelector('#state').textContent =
         `gaze: ${gaze.x.toFixed(2)}, ${gaze.y.toFixed(2)} | eyes: awake`;
@@ -312,6 +349,5 @@
 
     animate();
   </script>
-  </div>
 </body>
 </html>

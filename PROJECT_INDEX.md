@@ -49,6 +49,9 @@
 | Work on CAD | `mech/` — [face appliance dot matrix SVG](mech/face-appliance-dots.svg) |
 | Run face architecture spike | `spikes/20260909-smolcase-face/` |
 | Read face spike review | `spikes/20260909-smolcase-face/review.md` |
+| Run dot matrix viewport spike | `spikes/20260909-dot-matrix-viewport/` |
+| Run face expressions spike | `spikes/20260909-face-expressions/` |
+| Shared dot-matrix pass | `spikes/shared/dot-matrix-shader.js` |
 | Restore pre-review spike snapshot | `spikes/20260909-smolcase-face/snapshots/20260909-pre-review/` |
 | View training logs | `logs/` |
 
@@ -100,7 +103,9 @@
 | Cross-document wiki-links | 🟢 Complete | 100+ `[[wiki-links]]` across 33 files; conventions in AGENTS.md §10 |
 | Reset-to-scratch spec | 🟡 Drafted | [[docs/06-specs/2026-08-30-reset-to-scratch-design\|Spec]] + [[docs/07-plans/2026-08-30-reset-to-scratch\|plan]] |
 | Wakeup/onboarding spec | 🟡 Drafted | [[docs/06-specs/2026-08-30-wakeup-onboarding-design\|Spec]] + [[docs/07-plans/2026-08-30-wakeup-onboarding\|plan]] |
-| Face sphere architecture spike | 🔵 Active | [[spikes/20260909-smolcase-face/README\|Spike folder]]: HTML + Three.js, awake baseline; [[spikes/20260909-smolcase-face/review\|review]]: 12 blockers; snapshot in `snapshots/20260909-pre-review/` |
+| Face sphere architecture spike | 🔵 Active | [[spikes/20260909-smolcase-face/README\|Spike folder]]: sphere model only after split; [[spikes/20260909-smolcase-face/review\|review]]: 12 blockers; snapshot in `snapshots/20260909-pre-review/` |
+| Dot matrix viewport spike | 🔵 Active | [[spikes/20260909-dot-matrix-viewport/README\|Spike folder]]: offscreen render plus per-dot luminance quantisation |
+| Face expressions spike | 🔵 Active | [[spikes/20260909-face-expressions/README\|Spike folder]]: 16 eye-only presets, tilt, raw/dot comparison; [[spikes/20260909-face-expressions/findings\|test evidence and limits]] |
 
 ---
 

@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SMOLCASE Face Expressions Spike</title>
+  <style>
+    :root { color-scheme: dark; }
+    html, body { margin: 0; min-height: 100%; background: #000; color: #c7d2dc; font: 14px system-ui, sans-serif; }
+    body { overflow: hidden; display: grid; place-items: center; }
+    #phone-screen {
+      position: relative;
+      width: min(100vw - 32px, calc((100vh - 32px) * 1080 / 2424));
+      aspect-ratio: 1080 / 2424;
+      overflow: hidden;
+      border: 1px solid #34424d;
+      border-radius: 28px;
+      background: #000;
+      box-shadow: 0 0 0 8px #111820, 0 18px 60px #000a;
+    }
+    #app { position: absolute; inset: 0; }
+    canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+    #hud { position: fixed; top: 16px; left: 16px; z-index: 3; max-width: 320px; padding: 12px 14px; border: 1px solid #28323c; background: #0d131aee; }
+    #controls { position: fixed; top: 16px; right: 16px; z-index: 3; width: 260px; box-sizing: border-box; max-height: calc(100vh - 32px); overflow-y: auto; padding: 12px 14px; border: 1px solid #28323c; background: #0d131aee; }
+    #controls strong { display: block; margin: 12px 0 8px; color: #f0f5f8; }
+    #controls strong:first-child { margin-top: 0; }
+    .control { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; margin: 8px 0; }
+    .control input { grid-column: 1 / -1; width: 100%; accent-color: #8de8ff; }
+    .control output { color: #8de8ff; }
+    button { width: 100%; margin-top: 6px; padding: 8px 10px; border: 1px solid #46525e; border-radius: 4px; background: #16222c; color: #c7d2dc; font: inherit; cursor: pointer; }
+    button:hover { border-color: #8de8ff; color: #8de8ff; }
+    button.active { border-color: #8de8ff; color: #8de8ff; background: #1d3340; }
+    #moods { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    #moods button { margin-top: 0; }
+    #param-dump { width: 100%; box-sizing: border-box; margin-top: 6px; padding: 6px; border: 1px solid #46525e; border-radius: 4px; background: #0a1016; color: #8de8ff; font: 11px ui-monospace, monospace; resize: vertical; }
+    #capture-status { display: block; margin-top: 6px; min-height: 14px; font-size: 11px; color: #8de8ff; }
+    label.toggle { display: block; margin: 6px 0; }
+    #hud strong { display: block; margin-bottom: 6px; color: #f0f5f8; }
+    #hud p { margin: 4px 0; line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <div id="phone-screen" data-screen-resolution="1080x2424">
+    <div id="app"></div>
+  </div>
+  <div id="controls">
+    <strong>Capture</strong>
+    <button id="capture" type="button">Save PNG</button>
+    <button id="capture-params" type="button">Copy parameters</button>
+    <textarea id="param-dump" rows="6" spellcheck="false" placeholder="Captured parameters appear here"></textarea>
+    <button id="apply-params" type="button">Apply parameters</button>
+    <span id="capture-status"></span>
+
+    <strong>Mood</strong>
+    <div id="moods"></div>
+    <p id="mood-cue" aria-live="polite"></p>
+    <label class="control">Face tilt (degrees) <output id="roll-value">0</output><input id="roll" type="range" min="-25" max="25" step="1" value="0"></label>
+    <label class="control">Intensity <output id="intensity-value">0.6</output><input id="intensity" type="range" min="0" max="1" step="0.05" value="0.6"></label>
+    <label class="control">Blend speed <output id="blend-speed-value">2.5</output><input id="blend-speed" type="range" min="0.5" max="12" step="0.5" value="2.5"></label>
+    <label class="control">Humor dial <output id="humor-value">75</output><input id="humor" type="range" min="0" max="100" step="1" value="75"></label>
+    <label class="control">Honesty dial <output id="honesty-value">90</output><input id="honesty" type="range" min="0" max="100" step="1" value="90"></label>
+
+    <strong>Eye shape</strong>
+    <label class="control">Half width <output id="eye-w-value">0.065</output><input id="eye-w" type="range" min="0.02" max="0.12" step="0.001" value="0.065"></label>
+    <label class="control">Half height <output id="eye-h-value">0.046</output><input id="eye-h" type="range" min="0.01" max="0.09" step="0.001" value="0.046"></label>
+    <label class="control">Gap <output id="gap-value">0.146</output><input id="gap" type="range" min="0.04" max="0.25" step="0.002" value="0.146"></label>
+    <label class="control">Centre X <output id="center-x-value">0.5</output><input id="center-x" type="range" min="0.3" max="0.7" step="0.01" value="0.5"></label>
+    <label class="control">Centre Y <output id="center-y-value">0.68</output><input id="center-y" type="range" min="0.4" max="0.9" step="0.01" value="0.68"></label>
+    <label class="control">Scale L <output id="scale-l-value">1</output><input id="scale-l" type="range" min="0.4" max="1.6" step="0.01" value="1"></label>
+    <label class="control">Scale R <output id="scale-r-value">1.02</output><input id="scale-r" type="range" min="0.4" max="1.6" step="0.01" value="1.02"></label>
+    <label class="control">Offset Y L <output id="offset-yl-value">0</output><input id="offset-yl" type="range" min="-0.05" max="0.05" step="0.001" value="0"></label>
+    <label class="control">Offset Y R <output id="offset-yr-value">-0.006</output><input id="offset-yr" type="range" min="-0.05" max="0.05" step="0.001" value="-0.006"></label>
+    <label class="control">Top lid <output id="top-lid-value">0.03</output><input id="top-lid" type="range" min="0" max="0.6" step="0.01" value="0.03"></label>
+    <label class="control">Bottom lid <output id="bot-lid-value">0.02</output><input id="bot-lid" type="range" min="0" max="0.6" step="0.01" value="0.02"></label>
+    <label class="control">Lid curve <output id="lid-curve-value">0.12</output><input id="lid-curve" type="range" min="0" max="0.5" step="0.01" value="0.12"></label>
+    <label class="control">Lid slant <output id="lid-slant-value">0.35</output><input id="lid-slant" type="range" min="-1" max="1" step="0.01" value="0.35"></label>
+    <label class="control">Top lid slope <output id="top-slope-value">0</output><input id="top-slope" type="range" min="-1" max="1" step="0.01" value="0"></label>
+    <label class="control">Curve stroke <output id="stroke-value">0.24</output><input id="stroke" type="range" min="0.1" max="0.5" step="0.01" value="0.24"></label>
+    <label class="control">Shear <output id="slant-value">0.06</output><input id="slant" type="range" min="-0.4" max="0.4" step="0.01" value="0.06"></label>
+    <label class="control">Softness <output id="softness-value">0.001</output><input id="softness" type="range" min="0.001" max="0.02" step="0.001" value="0.001"></label>
+    <label class="control">Brightness <output id="brightness-value">0.2</output><input id="brightness" type="range" min="0.2" max="1.5" step="0.05" value="0.2"></label>
+
+    <strong>Colour</strong>
+    <label class="control">Source tint <output id="source-tint-value">0.8</output><input id="source-tint" type="range" min="0" max="1" step="0.05" value="0.8"></label>
+    <strong>Sphere</strong>
+    <label class="toggle"><input id="sphere-mode" type="checkbox" checked> Map eyes onto the sphere</label>
+    <label class="control">Sphere glow <output id="sphere-glow-value">0.05</output><input id="sphere-glow" type="range" min="0" max="1" step="0.01" value="0.05"></label>
+    <label class="control">Sphere radius <output id="sphere-radius-value">0.234</output><input id="sphere-radius" type="range" min="0.08" max="0.3" step="0.001" value="0.234"></label>
+    <label class="control">Sphere centre Y <output id="sphere-y-value">0.695</output><input id="sphere-y" type="range" min="0.55" max="0.85" step="0.001" value="0.695"></label>
+    <label class="control">Gaze yaw <output id="gaze-yaw-value">50</output><input id="gaze-yaw" type="range" min="0" max="60" step="1" value="50"></label>
+    <label class="control">Gaze pitch <output id="gaze-pitch-value">50</output><input id="gaze-pitch" type="range" min="0" max="60" step="1" value="50"></label>
+    <strong>Viewport</strong>
+    <label class="control">Columns <output id="cols-value">38</output><input id="cols" type="range" min="10" max="64" step="1" value="38"></label>
+    <label class="control">Rows <output id="rows-value">68</output><input id="rows" type="range" min="10" max="100" step="1" value="68"></label>
+    <label class="control">Dot radius <output id="dot-radius-value">0.36</output><input id="dot-radius" type="range" min="0.05" max="0.5" step="0.01" value="0.36"></label>
+    <label class="control">Edge softness <output id="dot-softness-value">0.3</output><input id="dot-softness" type="range" min="0.01" max="1" step="0.01" value="0.3"></label>
+    <label class="control">Cell fill <output id="cell-fill-value">0.82</output><input id="cell-fill" type="range" min="0.2" max="1" step="0.01" value="0.82"></label>
+    <label class="control">Glow <output id="glow-value">1.51</output><input id="glow" type="range" min="0" max="2" step="0.01" value="1.51"></label>
+    <label class="control">Glow spread <output id="glow-spread-value">0.5</output><input id="glow-spread" type="range" min="0.05" max="1.2" step="0.01" value="0.5"></label>
+    <label class="control">Halation <output id="halation-value">0.6</output><input id="halation" type="range" min="0" max="1" step="0.01" value="0.6"></label>
+    <label class="control">Ghost floor <output id="ghost-floor-value">0.05</output><input id="ghost-floor" type="range" min="0" max="0.2" step="0.005" value="0.05"></label>
+    <label class="control">Exposure <output id="exposure-value">4</output><input id="exposure" type="range" min="0.2" max="6" step="0.05" value="4"></label>
+
+    <strong>Debug</strong>
+    <label class="toggle"><input id="show-source" type="checkbox"> Bypass viewport (raw eyes)</label>
+    <label class="toggle"><input id="blinking" type="checkbox" checked> Blinking</label>
+    <label class="toggle"><input id="saccade" type="checkbox" checked> Micro saccade</label>
+  </div>
+  <div id="hud">
+    <strong>SMOLCASE face expressions spike</strong>
+    <p>Eye shapes are drawn as signed distance fields, then quantised through the shared dot-matrix pass.</p>
+    <p>Pick an eye-only interpretation, then toggle the viewport bypass to compare it with the grid. Names are intended readings, not validated emotions.</p>
+    <p><a href="evidence/contact-raw.png" style="color:#8de8ff">Raw comparison</a> · <a href="evidence/contact-dots.png" style="color:#8de8ff">Dot comparison</a></p>
+    <p id="state">mood: neutral | intensity 1.00</p>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
+    import { createDotMatrixPass, DOT_COLOR } from '../shared/dot-matrix-shader.js';
+
+    const screen = document.querySelector('#phone-screen');
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+    } catch (error) {
+      document.querySelector('#hud').insertAdjacentHTML('beforeend',
+        `<p style="color:#ff9b9b">WebGL unavailable: ${error.message}</p>`);
+      throw error;
+    }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    document.querySelector('#app').append(renderer.domElement);
+
+    // ---- Source: two SDF eyes ----------------------------------------------
+    const sourceScene = new THREE.Scene();
+    sourceScene.background = new THREE.Color(0x000000);
+    const camera = new THREE.Camera();
+
+    const eyeUniforms = {
+      uResolution: { value: new THREE.Vector2(1, 1) },
+      uEyeA: { value: new THREE.Vector4(0, 0, 0.045, 0.032) },
+      uEyeB: { value: new THREE.Vector4(0, 0, 0.045, 0.032) },
+      uLidA: { value: new THREE.Vector4(0, 0, 0, -1) },
+      uLidB: { value: new THREE.Vector4(0, 0, 0, 1) },
+      uSlant: { value: 0.06 },
+      uLidSlant: { value: 0.35 },
+      uSoft: { value: 0.005 },
+      uShape: { value: new THREE.Vector3() }, // arch, chevron, heart weights
+      uArc: { value: new THREE.Vector2(-0.4, 0.24) }, // curvature, stroke
+      uTopSlope: { value: 0 },
+      uPivot: { value: new THREE.Vector2() },
+      uRoll: { value: 0 },
+      uBlink: { value: 0 },
+      uSphereMode: { value: 0 },
+      uSphereCenter: { value: new THREE.Vector2(0.2228, 0.695) },
+      uSphereRadius: { value: 0.167 },
+      uGaze: { value: new THREE.Vector2() },
+      uSphereColor: { value: new THREE.Color(0x2b4354) },
+      uHeartColor: { value: new THREE.Color(0xff3355) },
+      uLightTint: { value: new THREE.Color(DOT_COLOR) },
+      uSphereGlow: { value: 0.35 },
+      uColor: { value: new THREE.Color(DOT_COLOR) }
+    };
+
+    const eyeMaterial = new THREE.ShaderMaterial({
+      uniforms: eyeUniforms,
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = vec4(position.xy * 2.0, 0.0, 1.0);
+        }
+      `,
+      fragmentShader: `
+        precision highp float;
+        varying vec2 vUv;
+        uniform vec2 uResolution;
+        uniform vec4 uEyeA;   // centre x, centre y, half width, half height
+        uniform vec4 uEyeB;
+        uniform vec4 uLidA;   // top lid, bottom lid, curve, outer direction
+        uniform vec4 uLidB;
+        uniform float uSlant;
+        uniform float uLidSlant;
+        uniform float uSoft;
+        uniform vec3 uColor;
+        uniform vec3 uShape;
+        uniform vec2 uArc;
+        uniform float uTopSlope;
+        uniform vec2 uPivot;
+        uniform float uRoll;
+        uniform float uBlink;
+        uniform float uSphereMode;
+        uniform vec2 uSphereCenter;
+        uniform float uSphereRadius;
+        uniform vec2 uGaze;
+        uniform vec3 uSphereColor;
+        uniform vec3 uHeartColor;
+        uniform vec3 uLightTint;
+        uniform float uSphereGlow;
+
+        float segmentDistance(vec2 p, vec2 a, vec2 b) {
+          vec2 ab = b - a;
+          return length(p - a - ab * clamp(dot(p - a, ab) / dot(ab, ab), 0.0, 1.0));
+        }
+
+        vec3 rotateVector(vec3 v, vec2 gaze) {
+          float cy = cos(gaze.x), sy = sin(gaze.x);
+          vec3 yawed = vec3(cy * v.x + sy * v.z, v.y, -sy * v.x + cy * v.z);
+          float cx = cos(gaze.y), sx = sin(gaze.y);
+          return vec3(yawed.x, cx * yawed.y - sx * yawed.z, sx * yawed.y + cx * yawed.z);
+        }
+
+        float heartDistance(vec2 p) {
+          p.x = abs(p.x);
+          if (p.x + p.y > 1.0) return length(p - vec2(0.25, 0.75)) - 0.35355339;
+          vec2 tip = p - vec2(0.0, 1.0);
+          vec2 side = p - vec2(0.5 * max(p.x + p.y, 0.0));
+          return sqrt(min(dot(tip, tip), dot(side, side))) * sign(p.x - p.y);
+        }
+
+        // Returns x: normal shapes, y: hearts, so hearts can be coloured apart.
+        vec2 eyeMask(vec2 uv, vec4 eye, vec4 lid) {
+          vec2 p = uv - eye.xy;
+          // Squash every shape, including hearts and arcs, during a blink.
+          p.y /= max(1.0 - uBlink, 0.03);
+          p.x -= p.y * uSlant;
+          vec2 q = p / max(eye.zw, vec2(1e-4));
+          float distanceScreen = (length(q) - 1.0) * min(eye.z, eye.w);
+          float xr = q.x;
+          float topLimit = eye.w * (1.0 - lid.x) - lid.z * eye.w * xr * xr
+                         + uTopSlope * eye.w * lid.w * xr;
+          float botLimit = -eye.w * (1.0 - lid.y)
+                         + lid.z * eye.w * xr * xr
+                         + uLidSlant * eye.w * lid.w * xr;
+          float solid = (1.0 - smoothstep(-uSoft, uSoft, distanceScreen))
+                      * (1.0 - smoothstep(topLimit - uSoft, topLimit + uSoft, p.y))
+                      * smoothstep(botLimit - uSoft, botLimit + uSoft, p.y);
+
+          // Closed eyes: a bounded curved stroke, not a small open oval.
+          float arcX = clamp(p.x, -eye.z * 0.78, eye.z * 0.78);
+          float arcRatio = arcX / eye.z;
+          float arcY = uArc.x * eye.w * (1.0 - arcRatio * arcRatio);
+          float slope = -2.0 * uArc.x * eye.w * arcRatio / eye.z;
+          float arcDistance = length(vec2(p.x - arcX,
+            (p.y - arcY) / sqrt(1.0 + slope * slope))) - eye.w * uArc.y;
+          float arch = 1.0 - smoothstep(-uSoft, uSoft, arcDistance);
+
+          // Mirrored > < strokes, using a true segment distance in screen units.
+          vec2 squeezed = vec2(p.x * -lid.w, p.y);
+          vec2 tip = vec2(eye.z * 0.55, 0.0);
+          float chevronDistance = min(
+            segmentDistance(squeezed, vec2(-eye.z * 0.7, eye.w * 0.7), tip),
+            segmentDistance(squeezed, vec2(-eye.z * 0.7, -eye.w * 0.7), tip));
+          float chevron = 1.0 - smoothstep(eye.w * uArc.y - uSoft,
+            eye.w * uArc.y + uSoft, chevronDistance);
+
+          // Filled heart silhouette. No pupil or specular highlight.
+          float heartField = heartDistance(q * 0.55 + vec2(0.0, 0.55));
+          // Fixed epsilon instead of fwidth(), so the shader does not depend
+          // on the derivatives extension.
+          float heartEdge = max(uSoft * 0.55 / min(eye.z, eye.w), 1e-4);
+          float heart = 1.0 - smoothstep(-heartEdge, heartEdge, heartField);
+          float solidWeight = max(0.0, 1.0 - uShape.x - uShape.y - uShape.z);
+          return vec2(solid * solidWeight + arch * uShape.x + chevron * uShape.y,
+            heart * uShape.z);
+        }
+
+        void main() {
+          float aspect = uResolution.x / max(uResolution.y, 1.0);
+          vec2 uv = vec2(vUv.x * aspect, vUv.y);
+          // Transform the pair around its centre, not the screen origin.
+          vec2 p = uv - uPivot;
+          float c = cos(uRoll), s = sin(uRoll);
+          vec2 localUv = vec2(c * p.x + s * p.y, -s * p.x + c * p.y) + uPivot;
+          vec2 mask = max(eyeMask(localUv, uEyeA, uLidA), eyeMask(localUv, uEyeB, uLidB));
+          mask *= step(0.5, vUv.y); // Source eyes stay in the upper screen half.
+          if (uSphereMode > 0.5) {
+            // Project the screen point onto the sphere, then undo the gaze
+            // rotation so the eye pattern stays fixed to the sphere surface.
+            vec2 offset = (uv - uSphereCenter) / max(uSphereRadius, 1e-4);
+            float radiusSquared = dot(offset, offset);
+            if (radiusSquared > 1.0) {
+              // Halo bleeding past the silhouette, so the sphere reads as lit.
+              float halo = exp(-(sqrt(radiusSquared) - 1.0) * 5.0) * uSphereGlow;
+              gl_FragColor = vec4(uLightTint * halo, 1.0);
+              return;
+            }
+            vec3 surface = vec3(offset, sqrt(max(1.0 - radiusSquared, 0.0)));
+            vec3 pattern = rotateVector(surface, -uGaze);
+            vec2 sphereMask = vec2(0.0);
+            if (pattern.z > 0.0) {
+              vec2 patternUv = uSphereCenter + pattern.xy * uSphereRadius;
+              vec2 q = patternUv - uPivot;
+              vec2 rolled = vec2(c * q.x + s * q.y, -s * q.x + c * q.y) + uPivot;
+              sphereMask = max(eyeMask(rolled, uEyeA, uLidA), eyeMask(rolled, uEyeB, uLidB));
+              sphereMask *= step(0.5, patternUv.y);
+            }
+            vec3 lightDirection = normalize(vec3(-0.45, -0.65, 0.61));
+            float shading = 0.35 + 0.65 * max(dot(surface, lightDirection), 0.0);
+            // Rim brightening towards the silhouette, the lit edge of the sphere.
+            float rim = pow(1.0 - surface.z, 3.0) * uSphereGlow;
+            gl_FragColor = vec4(uSphereColor * shading * uLightTint + uLightTint * rim
+              + uColor * sphereMask.x + uHeartColor * sphereMask.y, 1.0);
+            return;
+          }
+          gl_FragColor = vec4(uColor * mask.x + uHeartColor * mask.y, 1.0);
+        }
+      `
+    });
+    sourceScene.add(new THREE.Mesh(new THREE.PlaneGeometry(1, 1), eyeMaterial));
+
+    const dotMatrix = createDotMatrixPass(renderer, sourceScene, camera);
+    // Let the source hue reach the emitters, so hearts read red on the grid.
+    dotMatrix.uniforms.uSourceTint.value = 1;
+
+    // ---- Parameters ---------------------------------------------------------
+    const SHAPE_KEYS = [
+      'eyeW', 'eyeH', 'gap', 'centerX', 'centerY', 'scaleL', 'scaleR',
+      'offsetYL', 'offsetYR', 'topLid', 'botLid', 'lidCurve', 'lidSlant',
+      'slant', 'softness', 'brightness', 'topSlope', 'stroke',
+      'archWeight', 'chevronWeight', 'heartWeight', 'arcCurve', 'roll'
+    ];
+
+    const parameters = {
+      eyeW: 0.065,
+      eyeH: 0.046,
+      gap: 0.146,
+      centerX: 0.5,
+      centerY: 0.68,
+      scaleL: 1,
+      scaleR: 1.02,
+      offsetYL: 0,
+      offsetYR: -0.006,
+      topLid: 0.03,
+      botLid: 0.02,
+      lidCurve: 0.12,
+      lidSlant: 0.35,
+      slant: 0.06,
+      softness: 0.001,
+      brightness: 0.2,
+      topSlope: 0,
+      stroke: 0.24,
+      archWeight: 0,
+      chevronWeight: 0,
+      heartWeight: 0,
+      arcCurve: -0.4,
+      roll: 0,
+      sourceTint: 0.8,
+      sphereGlow: 0.05,
+      sphereMode: true,
+      sphereRadius: 0.234,
+      sphereY: 0.695,
+      gazeYaw: 50,
+      gazePitch: 50,
+      mood: 'NEUTRAL',
+      intensity: 0.6,
+      blendSpeed: 2.5,
+      humor: 75,
+      honesty: 90,
+      cols: 38,
+      rows: 68,
+      dotRadius: 0.36,
+      dotSoftness: 0.3,
+      cellFill: 0.82,
+      glow: 1.51,
+      glowSpread: 0.5,
+      halation: 0.6,
+      ghostFloor: 0.05,
+      exposure: 4,
+      showSource: false,
+      blinking: true,
+      saccade: true
+    };
+
+    // Eye-only interpretations of the reference table, not emotion recognition.
+    const MOODS = {
+      NEUTRAL: { cue: 'Original asymmetric, filled-eye baseline.' },
+      HAPPY: { archWeight: 1, arcCurve: 0.65, scaleR: 1, slant: 0,
+        cue: 'Raised closed-eye arches, without the mouth or cheek marks.' },
+      EMBARRASSED: { archWeight: 1, arcCurve: 0.35, scaleR: 0.85, wScale: 0.85,
+        cue: 'Smaller, gentler happy arches. Eye-only shyness is ambiguous.' },
+      LAUGHING: { chevronWeight: 1, scaleR: 1, slant: 0, stroke: 0.28,
+        cue: 'Squeezed > < eyes from the excited examples.' },
+      HEART: { heartWeight: 1, scaleR: 1, slant: 0, wScale: 0.85, hScale: 1.25,
+        cue: 'Filled heart eyes, not hearts drawn beside the face.' },
+      ANGRY: { topLid: 0.6, topSlope: 0.75, botLid: 0, lidCurve: 0,
+        lidSlant: 0, scaleR: 1, slant: 0,
+        cue: 'Opposing top lids slope down towards the nose.' },
+      SHOCKED: { wScale: 0.78, hScale: 1.45, topLid: 0, botLid: 0,
+        lidCurve: 0, lidSlant: 0, scaleR: 1, slant: 0,
+        cue: 'Tall, wide-open solid eyes. No black pupils.' },
+      SMUG: { topLid: 0.85, topSlope: 0.12, lidCurve: 0, lidSlant: 0,
+        scaleR: 0.9, slant: 0,
+        cue: 'Low, nearly horizontal lids over rounded lower eyes.' },
+      SAD: { topLid: 0.55, topSlope: -0.55, botLid: 0.1, lidCurve: 0,
+        lidSlant: 0, scaleR: 1, slant: 0,
+        cue: 'Inner ends lift, reversing the angry lid slope. No tear marks.' },
+      EXHAUSTED: { archWeight: 1, arcCurve: -0.15, hScale: 0.7, scaleR: 0.8,
+        cue: 'Almost-flat, drooping strokes, without sweat or a mouth.' },
+      SKEPTICAL: { scaleR: 0.62, offsetYR: -0.012, botLid: 0.3, lidSlant: 0.55, slant: 0.14,
+        cue: 'Unequal openings and a lifted lower lid.' },
+      CURIOUS: { hScale: 1.18, scaleR: 0.92, topLid: 0,
+        cue: 'Open and asymmetric, less startled than shocked.' },
+      DROWSY: { topLid: 0.7, botLid: 0.1, hScale: 0.9,
+        cue: 'Heavy upper lids, still partly open.' },
+      SLEEPING: { archWeight: 1, arcCurve: -0.45, scaleR: 1, slant: 0,
+        cue: 'Closed resting curves, not two smaller open eyes.' },
+      ALERT: { wScale: 1.08, hScale: 1.15, topLid: 0, botLid: 0,
+        cue: 'Wide open, with the baseline asymmetry preserved.' },
+      THINKING: { scaleR: 0.7, offsetYR: -0.016, topLid: 0.22, slant: -0.12,
+        cue: 'Unequal eyes with a slight lean. Intent is for human review.' }
+    };
+
+    const current = {};
+    for (const key of SHAPE_KEYS) current[key] = parameters[key];
+
+    function resolveTarget() {
+      const mood = MOODS[parameters.mood] || MOODS.NEUTRAL;
+      const intensity = parameters.intensity;
+      const target = {};
+      for (const key of SHAPE_KEYS) target[key] = parameters[key];
+
+      target.eyeW = parameters.eyeW * THREE.MathUtils.lerp(1, mood.wScale ?? 1, intensity);
+      target.eyeH = parameters.eyeH * THREE.MathUtils.lerp(1, mood.hScale ?? 1, intensity);
+      for (const key of SHAPE_KEYS) {
+        if (key === 'eyeW' || key === 'eyeH' || !(key in mood)) continue;
+        target[key] = THREE.MathUtils.lerp(parameters[key], mood[key], intensity);
+      }
+
+      // Experimental visual dial mapping, not an Android-compatible formula.
+      const humor = parameters.humor / 100;
+      const honesty = parameters.honesty / 100;
+      target.scaleR -= humor * 0.12;
+      target.slant += humor * 0.06;
+      target.lidSlant += humor * 0.15;
+      target.topLid += honesty * 0.12;
+      return target;
+    }
+
+    const CONTROLS = [
+      { id: 'roll', param: 'roll' },
+      { id: 'source-tint', param: 'sourceTint' },
+      { id: 'sphere-glow', param: 'sphereGlow' },
+      { id: 'sphere-radius', param: 'sphereRadius' },
+      { id: 'sphere-y', param: 'sphereY' },
+      { id: 'gaze-yaw', param: 'gazeYaw' },
+      { id: 'gaze-pitch', param: 'gazePitch' },
+      { id: 'top-slope', param: 'topSlope' },
+      { id: 'stroke', param: 'stroke' },
+      { id: 'intensity', param: 'intensity' },
+      { id: 'blend-speed', param: 'blendSpeed' },
+      { id: 'humor', param: 'humor' },
+      { id: 'honesty', param: 'honesty' },
+      { id: 'eye-w', param: 'eyeW' },
+      { id: 'eye-h', param: 'eyeH' },
+      { id: 'gap', param: 'gap' },
+      { id: 'center-x', param: 'centerX' },
+      { id: 'center-y', param: 'centerY' },
+      { id: 'scale-l', param: 'scaleL' },
+      { id: 'scale-r', param: 'scaleR' },
+      { id: 'offset-yl', param: 'offsetYL' },
+      { id: 'offset-yr', param: 'offsetYR' },
+      { id: 'top-lid', param: 'topLid' },
+      { id: 'bot-lid', param: 'botLid' },
+      { id: 'lid-curve', param: 'lidCurve' },
+      { id: 'lid-slant', param: 'lidSlant' },
+      { id: 'slant', param: 'slant' },
+      { id: 'softness', param: 'softness' },
+      { id: 'brightness', param: 'brightness' },
+      { id: 'cols', param: 'cols' },
+      { id: 'rows', param: 'rows' },
+      { id: 'dot-radius', param: 'dotRadius' },
+      { id: 'dot-softness', param: 'dotSoftness' },
+      { id: 'cell-fill', param: 'cellFill' },
+      { id: 'glow', param: 'glow' },
+      { id: 'glow-spread', param: 'glowSpread' },
+      { id: 'halation', param: 'halation' },
+      { id: 'ghost-floor', param: 'ghostFloor' },
+      { id: 'exposure', param: 'exposure' }
+    ];
+    const TOGGLES = [
+      { id: 'show-source', param: 'showSource' },
+      { id: 'sphere-mode', param: 'sphereMode' },
+      { id: 'blinking', param: 'blinking' },
+      { id: 'saccade', param: 'saccade' }
+    ];
+    const format = (value) => (Number.isInteger(value) ? `${value}` : Number(value).toFixed(3));
+
+    function applyParameters() {
+      dotMatrix.uniforms.uGrid.value.set(parameters.cols, parameters.rows);
+      dotMatrix.uniforms.uDotRadius.value = parameters.dotRadius;
+      dotMatrix.uniforms.uDotSoftness.value = parameters.dotSoftness;
+      dotMatrix.uniforms.uCellFill.value = parameters.cellFill;
+      dotMatrix.uniforms.uGlow.value = parameters.glow;
+      dotMatrix.uniforms.uGlowSpread.value = parameters.glowSpread;
+      dotMatrix.uniforms.uHalation.value = parameters.halation;
+      dotMatrix.uniforms.uGhostFloor.value = parameters.ghostFloor;
+      dotMatrix.uniforms.uExposure.value = parameters.exposure;
+      for (const control of CONTROLS) {
+        document.querySelector(`#${control.id}-value`).textContent = format(parameters[control.param]);
+      }
+      for (const button of document.querySelectorAll('#moods button')) {
+        const selected = button.dataset.mood === parameters.mood;
+        button.classList.toggle('active', selected);
+        button.setAttribute('aria-pressed', String(selected));
+      }
+      document.querySelector('#mood-cue').textContent = MOODS[parameters.mood].cue;
+    }
+
+    for (const control of CONTROLS) {
+      document.querySelector(`#${control.id}`).addEventListener('input', (event) => {
+        parameters[control.param] = Number(event.target.value);
+        applyParameters();
+      });
+    }
+    for (const toggle of TOGGLES) {
+      document.querySelector(`#${toggle.id}`).addEventListener('change', (event) => {
+        parameters[toggle.param] = event.target.checked;
+        applyParameters();
+      });
+    }
+
+    const moodsHost = document.querySelector('#moods');
+    for (const name of Object.keys(MOODS)) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.dataset.mood = name;
+      button.textContent = name.toLowerCase();
+      button.addEventListener('click', () => {
+        parameters.mood = name;
+        applyParameters();
+      });
+      moodsHost.append(button);
+    }
+
+    function syncControls() {
+      for (const control of CONTROLS) {
+        document.querySelector(`#${control.id}`).value = parameters[control.param];
+      }
+      for (const toggle of TOGGLES) {
+        document.querySelector(`#${toggle.id}`).checked = parameters[toggle.param];
+      }
+    }
+
+    const paramDump = document.querySelector('#param-dump');
+    const captureStatus = document.querySelector('#capture-status');
+
+    document.querySelector('#capture-params').addEventListener('click', async () => {
+      const json = JSON.stringify(parameters, null, 2);
+      paramDump.value = json;
+      try {
+        await navigator.clipboard.writeText(json);
+        captureStatus.textContent = 'Copied to clipboard';
+      } catch (error) {
+        paramDump.select();
+        captureStatus.textContent = 'Clipboard blocked, text selected';
+      }
+    });
+
+    document.querySelector('#apply-params').addEventListener('click', () => {
+      try {
+        Object.assign(parameters, JSON.parse(paramDump.value));
+        syncControls();
+        applyParameters();
+        captureStatus.textContent = 'Parameters applied';
+      } catch (error) {
+        captureStatus.textContent = `Could not apply: ${error.message}`;
+      }
+    });
+
+    document.querySelector('#capture').addEventListener('click', () => {
+      dotMatrix.render(parameters.showSource);
+      const link = document.createElement('a');
+      link.download = `smolcase-expression-${parameters.mood.toLowerCase()}-${Date.now()}.png`;
+      link.href = renderer.domElement.toDataURL('image/png');
+      link.click();
+    });
+
+    // Shareable links: ?sphere=1 enables the mapping, ?mood=HEART selects a preset.
+    const query = new URLSearchParams(location.search);
+    if (query.get('sphere') === '1') parameters.sphereMode = true;
+    const moodQuery = (query.get('mood') || '').toUpperCase();
+    if (MOODS[moodQuery]) parameters.mood = moodQuery;
+    syncControls();
+    applyParameters();
+
+    function resizeScreen() {
+      const bounds = screen.getBoundingClientRect();
+      renderer.setSize(bounds.width, bounds.height, false);
+      const size = renderer.getDrawingBufferSize(new THREE.Vector2());
+      dotMatrix.resize(size.x, size.y);
+      eyeUniforms.uResolution.value.set(size.x, size.y);
+    }
+    new ResizeObserver(resizeScreen).observe(screen);
+    resizeScreen();
+
+    const gaze = { x: 0, y: 0, targetX: 0, targetY: 0 };
+
+    function setGaze(x, y) {
+      gaze.targetX = THREE.MathUtils.clamp(x, -1, 1);
+      gaze.targetY = THREE.MathUtils.clamp(y, -1, 1);
+    }
+
+    renderer.domElement.addEventListener('pointermove', (event) => {
+      const bounds = screen.getBoundingClientRect();
+      setGaze(((event.clientX - bounds.left) / bounds.width) * 2 - 1,
+        1 - ((event.clientY - bounds.top) / bounds.height) * 2);
+    });
+
+    document.addEventListener('keydown', (event) => {
+      const key = event.key.toLowerCase();
+      if (!['a', 'd', 'w', 's'].includes(key)) return;
+      event.preventDefault();
+      const step = 0.25;
+      if (key === 'a') setGaze(gaze.targetX - step, gaze.targetY);
+      if (key === 'd') setGaze(gaze.targetX + step, gaze.targetY);
+      if (key === 'w') setGaze(gaze.targetX, gaze.targetY + step);
+      if (key === 's') setGaze(gaze.targetX, gaze.targetY - step);
+    });
+
+    const clock = new THREE.Clock();
+    let blink = 0;
+    let nextBlink = 2.5;
+    let saccadeX = 0;
+    let saccadeY = 0;
+    let nextSaccade = 1.5;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const delta = Math.min(clock.getDelta(), 0.05);
+      const target = resolveTarget();
+      for (const key of SHAPE_KEYS) {
+        current[key] = THREE.MathUtils.damp(current[key], target[key], parameters.blendSpeed, delta);
+      }
+
+      if (parameters.blinking) {
+        nextBlink -= delta;
+        if (nextBlink <= 0) {
+          blink = 1;
+          nextBlink = 2.5 + Math.random() * 3;
+        }
+      }
+      blink = Math.max(0, blink - delta * 5);
+
+      if (parameters.saccade) {
+        nextSaccade -= delta;
+        if (nextSaccade <= 0) {
+          saccadeX = (Math.random() - 0.5) * 0.012;
+          saccadeY = (Math.random() - 0.5) * 0.008;
+          nextSaccade = 1 + Math.random() * 2;
+        }
+      } else {
+        saccadeX = 0;
+        saccadeY = 0;
+      }
+
+      const aspect = eyeUniforms.uResolution.value.x / Math.max(eyeUniforms.uResolution.value.y, 1);
+      const centreX = current.centerX * aspect + saccadeX;
+      const centreY = current.centerY + saccadeY;
+
+      const halfWidthL = Math.max(current.eyeW * current.scaleL, 0.001);
+      const halfHeightL = Math.max(current.eyeH * current.scaleL, 0.001);
+      const halfWidthR = Math.max(current.eyeW * current.scaleR, 0.001);
+      const halfHeightR = Math.max(current.eyeH * current.scaleR, 0.001);
+
+      eyeUniforms.uEyeA.value.set(centreX - current.gap / 2, centreY + current.offsetYL, halfWidthL, halfHeightL);
+      eyeUniforms.uEyeB.value.set(centreX + current.gap / 2, centreY + current.offsetYR, halfWidthR, halfHeightR);
+
+      // Blink squashes all mask families, including curves and hearts.
+      eyeUniforms.uBlink.value = parameters.blinking ? blink : 0;
+      eyeUniforms.uLidA.value.set(current.topLid, current.botLid, current.lidCurve, -1);
+      eyeUniforms.uLidB.value.set(current.topLid, current.botLid, current.lidCurve, 1);
+      eyeUniforms.uTopSlope.value = current.topSlope;
+      eyeUniforms.uShape.value.set(current.archWeight, current.chevronWeight, current.heartWeight);
+      eyeUniforms.uArc.value.set(current.arcCurve, current.stroke);
+      eyeUniforms.uPivot.value.set(centreX, centreY);
+      eyeUniforms.uRoll.value = THREE.MathUtils.degToRad(current.roll);
+      gaze.x = THREE.MathUtils.damp(gaze.x, gaze.targetX, 4, delta);
+      gaze.y = THREE.MathUtils.damp(gaze.y, gaze.targetY, 4, delta);
+      dotMatrix.uniforms.uSourceTint.value = parameters.sourceTint;
+      eyeUniforms.uSphereMode.value = parameters.sphereMode ? 1 : 0;
+      eyeUniforms.uSphereGlow.value = parameters.sphereGlow;
+      eyeUniforms.uSphereRadius.value = parameters.sphereRadius;
+      eyeUniforms.uSphereCenter.value.set(aspect / 2, parameters.sphereY);
+      eyeUniforms.uGaze.value.set(
+        gaze.x * THREE.MathUtils.degToRad(parameters.gazeYaw),
+        -gaze.y * THREE.MathUtils.degToRad(parameters.gazePitch));
+      eyeUniforms.uSlant.value = current.slant;
+      eyeUniforms.uLidSlant.value = current.lidSlant;
+      eyeUniforms.uSoft.value = current.softness;
+      // Eyes keep the emitter hue at any brightness. A scalar would make them grey.
+      eyeUniforms.uColor.value.setHex(DOT_COLOR).multiplyScalar(current.brightness);
+
+      dotMatrix.render(parameters.showSource);
+
+      document.querySelector('#state').textContent =
+        `mood: ${parameters.mood.toLowerCase()} | intensity ${parameters.intensity.toFixed(2)}`;
+    }
+
+    animate();
+  </script>
+</body>
+</html>

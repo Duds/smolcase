@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SMOLCASE Dot Matrix Viewport Spike</title>
+  <style>
+    :root { color-scheme: dark; }
+    html, body { margin: 0; min-height: 100%; background: #000; color: #c7d2dc; font: 14px system-ui, sans-serif; }
+    body { overflow: hidden; display: grid; place-items: center; }
+    #phone-screen {
+      position: relative;
+      width: min(100vw - 32px, calc((100vh - 32px) * 1080 / 2424));
+      aspect-ratio: 1080 / 2424;
+      overflow: hidden;
+      border: 1px solid #34424d;
+      border-radius: 28px;
+      background: #000;
+      box-shadow: 0 0 0 8px #111820, 0 18px 60px #000a;
+    }
+    #app { position: absolute; inset: 0; }
+    canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+    #hud { position: fixed; top: 16px; left: 16px; z-index: 3; max-width: 320px; padding: 12px 14px; border: 1px solid #28323c; background: #0d131aee; }
+    #controls { position: fixed; top: 16px; right: 16px; z-index: 3; width: 230px; max-height: calc(100vh - 32px); overflow-y: auto; padding: 12px 14px; border: 1px solid #28323c; background: #0d131aee; }
+    #controls strong { display: block; margin: 12px 0 8px; color: #f0f5f8; }
+    #controls strong:first-child { margin-top: 0; }
+    .control { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; margin: 8px 0; }
+    .control input { grid-column: 1 / -1; width: 100%; accent-color: #8de8ff; }
+    .control output { color: #8de8ff; }
+    label.toggle { display: block; margin: 6px 0; }
+    #capture, #capture-params, #apply-params, .recipe { width: 100%; margin-top: 6px; padding: 8px 10px; border: 1px solid #46525e; border-radius: 4px; background: #16222c; color: #c7d2dc; font: inherit; cursor: pointer; }
+    #capture:hover, #capture-params:hover, #apply-params:hover, .recipe:hover { border-color: #8de8ff; color: #8de8ff; }
+    #param-dump { width: 100%; box-sizing: border-box; margin-top: 6px; padding: 6px; border: 1px solid #46525e; border-radius: 4px; background: #0a1016; color: #8de8ff; font: 11px ui-monospace, monospace; resize: vertical; }
+    #capture-status { display: block; margin-top: 6px; min-height: 14px; font-size: 11px; color: #8de8ff; }
+    #hud strong { display: block; margin-bottom: 6px; color: #f0f5f8; }
+    #hud p { margin: 4px 0; line-height: 1.4; }
+    kbd { padding: 1px 5px; border: 1px solid #46525e; border-radius: 3px; color: #f0f5f8; }
+  </style>
+</head>
+<body>
+  <div id="phone-screen" data-screen-resolution="1080x2424">
+    <div id="app"></div>
+  </div>
+  <div id="controls">
+    <strong>Capture</strong>
+    <button id="capture" type="button">Save PNG</button>
+    <button id="capture-params" type="button">Copy parameters</button>
+    <textarea id="param-dump" rows="6" spellcheck="false" placeholder="Captured parameters appear here"></textarea>
+    <button id="apply-params" type="button">Apply parameters</button>
+    <span id="capture-status"></span>
+    <strong>Recipes</strong>
+    <button id="recipe-crisp" class="recipe" type="button">Crisp appliance</button>
+    <button id="recipe-dreamy" class="recipe" type="button">Soft dreamy</button>
+    <button id="recipe-neon" class="recipe" type="button">Blown neon</button>
+    <strong>Grid</strong>
+    <label class="control">Columns <output id="cols-value">38</output><input id="cols" type="range" min="10" max="64" step="1" value="38"></label>
+    <label class="control">Rows <output id="rows-value">68</output><input id="rows" type="range" min="10" max="100" step="1" value="68"></label>
+    <label class="control">Dot radius <output id="dot-radius-value">0.36</output><input id="dot-radius" type="range" min="0.05" max="0.5" step="0.01" value="0.36"></label>
+    <label class="control">Edge softness <output id="dot-softness-value">0.30</output><input id="dot-softness" type="range" min="0.01" max="1" step="0.01" value="0.3"></label>
+    <label class="control">Cell fill <output id="cell-fill-value">0.82</output><input id="cell-fill" type="range" min="0.2" max="1" step="0.01" value="0.82"></label>
+    <strong>Emitter optics</strong>
+    <label class="control">Glow <output id="glow-value">1.8</output><input id="glow" type="range" min="0" max="2" step="0.01" value="1.8"></label>
+    <label class="control">Glow spread <output id="glow-spread-value">0.5</output><input id="glow-spread" type="range" min="0.05" max="1.2" step="0.01" value="0.5"></label>
+    <label class="control">Halation <output id="halation-value">0.6</output><input id="halation" type="range" min="0" max="1" step="0.01" value="0.6"></label>
+    <label class="control">Ghost floor <output id="ghost-floor-value">0.03</output><input id="ghost-floor" type="range" min="0" max="0.2" step="0.005" value="0.03"></label>
+    <label class="control">Exposure <output id="exposure-value">4</output><input id="exposure" type="range" min="0.2" max="6" step="0.05" value="4"></label>
+    <strong>Source model</strong>
+    <label class="control">Face height <output id="anchor-value">2.80</output><input id="anchor" type="range" min="0" max="4" step="0.05" value="2.8"></label>
+    <label class="control">Yaw range <output id="yaw-value">50°</output><input id="yaw" type="range" min="0" max="90" step="1" value="50"></label>
+    <label class="control">Pitch range <output id="pitch-value">50°</output><input id="pitch" type="range" min="0" max="90" step="1" value="50"></label>
+    <label class="control">Eye size <output id="eye-value">0.52</output><input id="eye" type="range" min="0.25" max="0.8" step="0.01" value="0.52"></label>
+    <strong>Lighting</strong>
+    <label class="control">Key <output id="light-intensity-value">1</output><input id="light-intensity" type="range" min="0" max="6" step="0.05" value="1"></label>
+    <label class="control">Falloff <output id="falloff-value">0.1</output><input id="falloff" type="range" min="0" max="2" step="0.1" value="0.1"></label>
+    <label class="control">Fill <output id="fill-intensity-value">0.3</output><input id="fill-intensity" type="range" min="0" max="3" step="0.05" value="0.3"></label>
+    <label class="control">Ambient <output id="ambient-intensity-value">0</output><input id="ambient-intensity" type="range" min="0" max="1" step="0.01" value="0"></label>
+    <label class="control">Sphere lift <output id="sphere-lift-value">1.3</output><input id="sphere-lift" type="range" min="0.5" max="2" step="0.05" value="1.3"></label>
+    <strong>Debug</strong>
+    <label class="toggle"><input id="show-source" type="checkbox"> Bypass viewport (raw source)</label>
+    <label class="toggle"><input id="show-sphere" type="checkbox" checked> Show source sphere</label>
+  </div>
+  <div id="hud">
+    <strong>SMOLCASE dot matrix viewport spike</strong>
+    <p>Source renders offscreen, then a shader quantises it to per-dot luminance and renders each dot as an emitter.</p>
+    <p>Move the face with the mouse. Use <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> for keyboard control.</p>
+    <p id="state">gaze: 0.00, 0.00 | eyes: awake</p>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
+    import { createDotMatrixPass } from '../shared/dot-matrix-shader.js';
+
+    const SPHERE_RADIUS = 2.4;
+    const BASE_EYE_RADIUS = 0.52;
+    const EYE_ORBIT_RADIUS = SPHERE_RADIUS + 0.02;
+
+    const screen = document.querySelector('#phone-screen');
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    document.querySelector('#app').append(renderer.domElement);
+
+    // ---- Source model -------------------------------------------------------
+    const sourceScene = new THREE.Scene();
+    sourceScene.background = new THREE.Color(0x000000);
+    // Key light. Decay defaults to 0, removing the inverse-square falloff
+    // that was wasting most of the output across 9.25 units. The falloff
+    // slider restores it for A/B against the old look.
+    const keyLight = new THREE.PointLight(0xb8e7ff, 2.2, 0);
+    // Fill light, opposite the key, restores shape on the shadow side.
+    const fillLight = new THREE.PointLight(0xb8e7ff, 0, 0);
+    fillLight.decay = 0;
+    // Right and above the key, which sits left and below.
+    fillLight.position.set(3, 5, 6);
+    // Ambient floor keeps unlit dots off pure black. It carries no shape.
+    const ambientLight = new THREE.AmbientLight(0xb8e7ff, 0);
+    sourceScene.add(keyLight, fillLight, ambientLight);
+
+    const camera = new THREE.OrthographicCamera(-3.2, 3.2, 3.2, -3.2, 0.1, 100);
+    camera.position.set(0, 0, 10);
+
+    const face = new THREE.Group();
+    sourceScene.add(face);
+
+    const BASE_ALBEDO = new THREE.Color(0x2f4a5c);
+    const sphereGeometry = new THREE.SphereGeometry(SPHERE_RADIUS, 48, 32);
+    const sphereMaterial = new THREE.MeshStandardMaterial({
+      color: BASE_ALBEDO.clone(),
+      roughness: 0.78,
+      metalness: 0.05
+    });
+    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0x8de8ff });
+    const eyeGeometry = new THREE.SphereGeometry(BASE_EYE_RADIUS, 24, 16);
+    const eyeDirection = new THREE.Vector3(-0.82, 0.55, 2.15).normalize().multiplyScalar(EYE_ORBIT_RADIUS);
+    const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    leftEye.position.copy(eyeDirection);
+    rightEye.position.set(-eyeDirection.x, eyeDirection.y, eyeDirection.z);
+    face.add(sphere, leftEye, rightEye);
+
+    // ---- Viewport translation ----------------------------------------------
+    // The source never reaches the screen. It renders into an offscreen target,
+    // then a fullscreen pass quantises it into discrete emitters.
+    const dotMatrix = createDotMatrixPass(renderer, sourceScene, camera);
+    const viewportUniforms = dotMatrix.uniforms;
+
+    // ---- Parameters ---------------------------------------------------------
+    const parameters = {
+      cols: 38,
+      rows: 68,
+      dotRadius: 0.36,
+      dotSoftness: 0.3,
+      cellFill: 0.82,
+      glow: 1.8,
+      glowSpread: 0.5,
+      halation: 0.6,
+      ghostFloor: 0.03,
+      exposure: 4,
+      anchor: 2.8,
+      yaw: 50,
+      pitch: 50,
+      eye: BASE_EYE_RADIUS,
+      lightIntensity: 1,
+      falloff: 0.1,
+      fillIntensity: 0.3,
+      ambientIntensity: 0,
+      sphereLift: 1.3,
+      showSource: false,
+      showSphere: true
+    };
+
+    const CONTROLS = [
+      { id: 'cols', param: 'cols' },
+      { id: 'rows', param: 'rows' },
+      { id: 'dot-radius', param: 'dotRadius' },
+      { id: 'dot-softness', param: 'dotSoftness' },
+      { id: 'cell-fill', param: 'cellFill' },
+      { id: 'glow', param: 'glow' },
+      { id: 'glow-spread', param: 'glowSpread' },
+      { id: 'halation', param: 'halation' },
+      { id: 'ghost-floor', param: 'ghostFloor' },
+      { id: 'exposure', param: 'exposure' },
+      { id: 'anchor', param: 'anchor' },
+      { id: 'yaw', param: 'yaw' },
+      { id: 'pitch', param: 'pitch' },
+      { id: 'eye', param: 'eye' },
+      { id: 'light-intensity', param: 'lightIntensity' },
+      { id: 'falloff', param: 'falloff' },
+      { id: 'fill-intensity', param: 'fillIntensity' },
+      { id: 'ambient-intensity', param: 'ambientIntensity' },
+      { id: 'sphere-lift', param: 'sphereLift' }
+    ];
+    const FORMATTERS = {
+      yaw: (value) => `${value}°`,
+      pitch: (value) => `${value}°`
+    };
+    const DEFAULT_FORMAT = (value) => (Number.isInteger(value) ? `${value}` : Number(value).toFixed(2));
+    const TOGGLES = [
+      { id: 'show-source', param: 'showSource' },
+      { id: 'show-sphere', param: 'showSphere' }
+    ];
+
+    function applyParameters() {
+      viewportUniforms.uGrid.value.set(parameters.cols, parameters.rows);
+      viewportUniforms.uDotRadius.value = parameters.dotRadius;
+      viewportUniforms.uDotSoftness.value = parameters.dotSoftness;
+      viewportUniforms.uCellFill.value = parameters.cellFill;
+      viewportUniforms.uGlow.value = parameters.glow;
+      viewportUniforms.uGlowSpread.value = parameters.glowSpread;
+      viewportUniforms.uHalation.value = parameters.halation;
+      viewportUniforms.uGhostFloor.value = parameters.ghostFloor;
+      viewportUniforms.uExposure.value = parameters.exposure;
+      keyLight.position.set(-4, -3, 6);
+      keyLight.intensity = parameters.lightIntensity;
+      keyLight.decay = parameters.falloff;
+      fillLight.intensity = parameters.fillIntensity;
+      ambientLight.intensity = parameters.ambientIntensity;
+      sphereMaterial.color.copy(BASE_ALBEDO).multiplyScalar(parameters.sphereLift);
+      face.position.y = parameters.anchor;
+      face.rotation.y = gaze.x * THREE.MathUtils.degToRad(parameters.yaw);
+      face.rotation.x = -gaze.y * THREE.MathUtils.degToRad(parameters.pitch);
+      sphere.visible = parameters.showSphere;
+
+      for (const control of CONTROLS) {
+        const value = parameters[control.param];
+        const formatter = FORMATTERS[control.param] || DEFAULT_FORMAT;
+        document.querySelector(`#${control.id}-value`).textContent = formatter(value);
+      }
+    }
+
+    for (const control of CONTROLS) {
+      document.querySelector(`#${control.id}`).addEventListener('input', (event) => {
+        parameters[control.param] = Number(event.target.value);
+        applyParameters();
+      });
+    }
+    for (const toggle of TOGGLES) {
+      document.querySelector(`#${toggle.id}`).addEventListener('change', (event) => {
+        parameters[toggle.param] = event.target.checked;
+        applyParameters();
+      });
+    }
+
+    const gaze = { x: 0, y: 0, targetX: 0, targetY: 0 };
+    applyParameters();
+
+    function setGaze(x, y) {
+      gaze.targetX = THREE.MathUtils.clamp(x, -1, 1);
+      gaze.targetY = THREE.MathUtils.clamp(y, -1, 1);
+    }
+
+    function pointerGaze(event) {
+      const bounds = screen.getBoundingClientRect();
+      setGaze(
+        ((event.clientX - bounds.left) / bounds.width) * 2 - 1,
+        1 - ((event.clientY - bounds.top) / bounds.height) * 2
+      );
+    }
+
+    renderer.domElement.addEventListener('pointermove', pointerGaze);
+    renderer.domElement.addEventListener('pointerdown', (event) => {
+      renderer.domElement.setPointerCapture(event.pointerId);
+      pointerGaze(event);
+    });
+    renderer.domElement.addEventListener('pointerup', (event) => {
+      renderer.domElement.releasePointerCapture(event.pointerId);
+    });
+
+    document.addEventListener('keydown', (event) => {
+      const key = event.key.toLowerCase();
+      const step = 0.25;
+      if (!['a', 'd', 'w', 's'].includes(key)) return;
+      event.preventDefault();
+      if (key === 'a') setGaze(gaze.targetX - step, gaze.targetY);
+      if (key === 'd') setGaze(gaze.targetX + step, gaze.targetY);
+      if (key === 'w') setGaze(gaze.targetX, gaze.targetY + step);
+      if (key === 's') setGaze(gaze.targetX, gaze.targetY - step);
+    });
+
+    function resizeScreen() {
+      const bounds = screen.getBoundingClientRect();
+      const halfWidth = 3.2;
+      const halfHeight = halfWidth / (bounds.width / bounds.height);
+      camera.left = -halfWidth;
+      camera.right = halfWidth;
+      camera.top = halfHeight;
+      camera.bottom = -halfHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(bounds.width, bounds.height, false);
+      const target = renderer.getDrawingBufferSize(new THREE.Vector2());
+      dotMatrix.resize(target.x, target.y);
+    }
+
+    new ResizeObserver(resizeScreen).observe(screen);
+    resizeScreen();
+
+    const clock = new THREE.Clock();
+    let blink = 0;
+    let nextBlink = 2.8;
+
+    function renderFrame() {
+      dotMatrix.render(parameters.showSource);
+    }
+
+    document.querySelector('#capture').addEventListener('click', () => {
+      // The drawing buffer is not preserved between frames, so render
+      // synchronously and read the canvas in the same task.
+      renderFrame();
+      const link = document.createElement('a');
+      link.download = `smolcase-viewport-${Date.now()}.png`;
+      link.href = renderer.domElement.toDataURL('image/png');
+      link.click();
+    });
+
+    const paramDump = document.querySelector('#param-dump');
+    const captureStatus = document.querySelector('#capture-status');
+
+    function syncControls() {
+      for (const control of CONTROLS) {
+        document.querySelector(`#${control.id}`).value = parameters[control.param];
+      }
+      for (const toggle of TOGGLES) {
+        document.querySelector(`#${toggle.id}`).checked = parameters[toggle.param];
+      }
+    }
+
+    document.querySelector('#capture-params').addEventListener('click', async () => {
+      const json = JSON.stringify(parameters, null, 2);
+      paramDump.value = json;
+      try {
+        await navigator.clipboard.writeText(json);
+        captureStatus.textContent = 'Copied to clipboard';
+      } catch (error) {
+        paramDump.select();
+        captureStatus.textContent = 'Clipboard blocked, text selected';
+      }
+    });
+
+    document.querySelector('#apply-params').addEventListener('click', () => {
+      try {
+        Object.assign(parameters, JSON.parse(paramDump.value));
+        syncControls();
+        applyParameters();
+        captureStatus.textContent = 'Parameters applied';
+      } catch (error) {
+        captureStatus.textContent = `Could not apply: ${error.message}`;
+      }
+    });
+
+    const RECIPES = {
+      'recipe-crisp': { glow: 0.2, glowSpread: 0.3, halation: 0.1, dotSoftness: 0.15, ghostFloor: 0.03, exposure: 2.5 },
+      'recipe-dreamy': { glow: 1.2, glowSpread: 0.7, halation: 0.4, dotSoftness: 0.6, exposure: 2.5 },
+      'recipe-neon': { exposure: 4, glow: 1.8, glowSpread: 0.5, halation: 0.6 }
+    };
+    for (const [id, preset] of Object.entries(RECIPES)) {
+      document.querySelector(`#${id}`).addEventListener('click', () => {
+        Object.assign(parameters, preset);
+        syncControls();
+        applyParameters();
+        captureStatus.textContent = 'Recipe applied';
+      });
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const delta = Math.min(clock.getDelta(), 0.05);
+      const elapsed = clock.elapsedTime;
+
+      gaze.x = THREE.MathUtils.damp(gaze.x, gaze.targetX, 4, delta);
+      gaze.y = THREE.MathUtils.damp(gaze.y, gaze.targetY, 4, delta);
+
+      face.position.set(0, parameters.anchor, 0);
+      face.rotation.y = gaze.x * THREE.MathUtils.degToRad(parameters.yaw);
+      face.rotation.x = -gaze.y * THREE.MathUtils.degToRad(parameters.pitch);
+
+      nextBlink -= delta;
+      if (nextBlink <= 0) {
+        blink = 1;
+        nextBlink = 2.8 + Math.random() * 2.5;
+      }
+      blink = Math.max(0, blink - delta * 5);
+      const blinkScale = 1 - Math.sin(blink * Math.PI) * 0.92;
+      const eyeScale = parameters.eye / BASE_EYE_RADIUS;
+      leftEye.scale.set(eyeScale, eyeScale * blinkScale, eyeScale);
+      rightEye.scale.set(eyeScale, eyeScale * blinkScale, eyeScale);
+
+      const awakeBreath = 1 + Math.sin(elapsed * 1.8) * 0.018;
+      sphere.scale.setScalar(awakeBreath);
+
+      renderFrame();
+
+      document.querySelector('#state').textContent =
+        `gaze: ${gaze.x.toFixed(2)}, ${gaze.y.toFixed(2)} | eyes: awake`;
+    }
+
+    animate();
+  </script>
+</body>
+</html>

@@ -31,7 +31,9 @@
 
 | ID | Task | Risk | Status |
 |----|------|------|--------|
-| 20260909-001 | [[_tasks/20260909-001-smolcase-face-spike|SMOLCASE face sphere architecture spike]] | 🟡 Medium | 🔵 Active |
+| 20260909-001 | [[_tasks/20260909-001-smolcase-face-spike|SMOLCASE face sphere architecture spike]] | 🟡 Medium | 🔵 Active, viewport split out |
+| 20260909-002 | [[_tasks/20260909-002-dot-matrix-viewport|SMOLCASE dot matrix viewport spike]] | 🟡 Medium | 🔵 Active |
+| 20260909-003 | [[_tasks/20260909-003-face-expressions|SMOLCASE face expressions spike]] | 🟡 Medium | 🔵 16 presets tested, awaiting visual selection |
 
 ---
 
@@ -147,3 +149,5 @@
 
 - 2026-09-03: Migrated from ~/20-INDIE to ~/00-PERSONAL/projects/ (indie domain dissolved, task 20260829-025)
 - 2026-09-09: Started the SMOLCASE face sphere architecture spike, testing the source face model before dot-matrix viewport translation.
+- 2026-09-09: Reviewed the face spike, raised 12 blockers, and split the dot-matrix viewport into its own spike (20260909-002) implemented as an offscreen render plus per-dot luminance quantisation.
+- 2026-09-09: Extracted the dot-matrix pass to `spikes/shared/dot-matrix-shader.js`, and opened the face expressions spike (20260909-003) to test which moods survive 38 x 68 quantisation.
