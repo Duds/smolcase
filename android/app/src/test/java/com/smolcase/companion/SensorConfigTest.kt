@@ -60,6 +60,11 @@ class CreatureSensesTest {
             SensorReading(0f, 9.8f, 0f)    // tilted
         )
         assertEquals(3, readings.size)
-        readings.forEach { assertEquals(3, it.javaClass.declaredFields.size) }
+        readings.forEach { r ->
+            val (x, y, z) = r  // destructuring requires exactly 3 components
+            assertEquals(r.x, x, 0f)
+            assertEquals(r.y, y, 0f)
+            assertEquals(r.z, z, 0f)
+        }
     }
 }
