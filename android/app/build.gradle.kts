@@ -6,7 +6,6 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
-val generatedFaceAssets = layout.buildDirectory.dir("generated/faceAssets")
 val defaultBuildNumber = rootProject.file("build-number").readText().trim()
 val localProperties = Properties().apply {
     val file = rootProject.file("local.properties")
@@ -20,30 +19,8 @@ val buildNumber = providers.gradleProperty("buildNumber")
     .map { it.toIntOrNull() ?: error("buildNumber must be an integer") }
     .get()
 require(buildNumber > 0) { "buildNumber must be greater than zero" }
-val generateFaceShaders by tasks.registering {
-    val spike = rootProject.file("../spikes/20260909-face-expressions/index.html")
-    val viewport = rootProject.file("../spikes/shared/dot-matrix-shader.js")
-    inputs.files(spike, viewport)
-    outputs.dir(generatedFaceAssets)
-    doLast {
-        fun fragment(text: String, marker: String): String {
-            check(text.contains(marker)) { "Spike shader marker changed: $marker" }
-            val glsl = text.substringAfter(marker).substringBefore('`')
-            check(glsl.contains("void main()")) { "Missing spike fragment shader" }
-            return "#version 300 es\n" + glsl.trimIndent()
-                .replace("varying vec2 vUv;", "in vec2 vUv;\nout vec4 fragColor;")
-                .replace("gl_FragColor", "fragColor")
-                .replace("texture2D(", "texture(") + "\n"
-        }
-        val directory = generatedFaceAssets.get().dir("face").asFile
-        directory.mkdirs()
-        directory.resolve("source.frag").writeText(fragment(spike.readText(), "fragmentShader: `"))
-        directory.resolve("dots.frag").writeText(fragment(viewport.readText(), "const FRAGMENT_SHADER = `"))
-    }
-}
 
 android {
-    sourceSets.getByName("main").assets.srcDir(generatedFaceAssets)
     namespace = "com.smolcase.companion"
     compileSdk = 34
 
@@ -73,8 +50,6 @@ android {
         jvmTarget = "17"
     }
 }
-
-tasks.named("preBuild") { dependsOn(generateFaceShaders) }
 
 dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
