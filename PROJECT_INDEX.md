@@ -47,6 +47,9 @@
 | Work on ESP32 code | `firmware/` |
 | Work on Android app | `android/` |
 | Work on CAD | `mech/` — [face appliance dot matrix SVG](mech/face-appliance-dots.svg) |
+| Run face architecture spike | `spikes/20260909-smolcase-face/` |
+| Read face spike review | `spikes/20260909-smolcase-face/review.md` |
+| Restore pre-review spike snapshot | `spikes/20260909-smolcase-face/snapshots/20260909-pre-review/` |
 | View training logs | `logs/` |
 
 ---
@@ -97,6 +100,7 @@
 | Cross-document wiki-links | 🟢 Complete | 100+ `[[wiki-links]]` across 33 files; conventions in AGENTS.md §10 |
 | Reset-to-scratch spec | 🟡 Drafted | [[docs/06-specs/2026-08-30-reset-to-scratch-design\|Spec]] + [[docs/07-plans/2026-08-30-reset-to-scratch\|plan]] |
 | Wakeup/onboarding spec | 🟡 Drafted | [[docs/06-specs/2026-08-30-wakeup-onboarding-design\|Spec]] + [[docs/07-plans/2026-08-30-wakeup-onboarding\|plan]] |
+| Face sphere architecture spike | 🔵 Active | [[spikes/20260909-smolcase-face/README\|Spike folder]]: HTML + Three.js, awake baseline; [[spikes/20260909-smolcase-face/review\|review]]: 12 blockers; snapshot in `snapshots/20260909-pre-review/` |
 
 ---
 
@@ -169,7 +173,8 @@ Each behaviour includes: reward function, observation space, hyperparameters, tr
 ## 🔬 Research Questions (Open)
 
 | Question | Priority | Notes |
-|----------|----------|-------|
+|---------|----------|-------|
+| Can the sphere-plus-eyes model act as the source representation for the future dot-matrix viewport? | High | Active spike: [[spikes/20260909-smolcase-face/README\|SMOLCASE face sphere architecture]] |
 | Can TFLite run quantized policies fast enough on Pixel 8? | High | Need to benchmark inference latency |
 | What's the sim-to-real gap for our body? | High | Depends on accurate mass/inertia in MJCF |
 | Did GrowBot have public collaborators with training data? | Low | Searched — no evidence found |

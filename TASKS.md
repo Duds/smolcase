@@ -27,7 +27,11 @@
 ## 🔥 Now
 
 > Hardware work is on hold (per request). See 🟡 On Hold section.
-> Recommended: implement reset-to-scratch factory reset (spec+plan ready).
+> Recommended: run the SMOLCASE face sphere architecture spike, then implement reset-to-scratch factory reset.
+
+| ID | Task | Risk | Status |
+|----|------|------|--------|
+| 20260909-001 | [[_tasks/20260909-001-smolcase-face-spike|SMOLCASE face sphere architecture spike]] | 🟡 Medium | 🔵 Active |
 
 ---
 
@@ -142,3 +146,4 @@
 ## Events
 
 - 2026-09-03: Migrated from ~/20-INDIE to ~/00-PERSONAL/projects/ (indie domain dissolved, task 20260829-025)
+- 2026-09-09: Started the SMOLCASE face sphere architecture spike, testing the source face model before dot-matrix viewport translation.

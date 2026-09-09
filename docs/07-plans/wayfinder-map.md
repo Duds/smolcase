@@ -26,6 +26,7 @@ Ship a desk-ready SMOLCASE robot that walks, talks, and responds autonomously â€
 
 ## Frontier
 
+- [20260909-001: SMOLCASE face sphere architecture spike](_tasks/20260909-001-smolcase-face-spike.md) (wayfinder:spike, HTML + Three.js, awake baseline)
 - [20260830-001 through 006: Conversation bug fixes](_tasks/20260830-001-directives-repetition.md) (wayfinder:task â€” replaces 20260829-002)
 - [20260829-003: Decide serial-bus servo model for ~300g robot](_tasks/20260829-003-servo-selection.md) (wayfinder:research)
 - [20260829-004: Design SC-CASE chassis and leg geometry in CAD](_tasks/20260829-004-sc-case-cad-design.md) (wayfinder:prototype)
@@ -49,6 +50,7 @@ Ship a desk-ready SMOLCASE robot that walks, talks, and responds autonomously â€
 
 ## Not yet specified
 
+- *Face source-model architecture*: validate the sphere-plus-eyes model before implementing the dot-matrix viewport translation layer. See [[spikes/20260909-smolcase-face/README|SMOLCASE face sphere spike]].
 - *Thermal dissipation characterisation*: Pixel 8 running continuous LLM inference inside closed 3D-printed `SC-CASE` â€” may need vent channels or passive heatsink.
 - *Sim-to-real transfer validation*: How closely does the MuJoCo model match the physical prototype? May need tuning iterations after first build.
 - *Gait transition smoothness*: Can CPG + TFLite blend between walk forward/backward/turn without jitter or stutter? Depends on behaviour arbiter design.
